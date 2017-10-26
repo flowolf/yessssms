@@ -3,9 +3,9 @@ from setuptools import setup, find_packages
 VERSION = "0.1.0"
 
 setup(
-    name='yessssms',
+    name='YesssSMS',
     version=VERSION,
-    description="yessssms let's you send SMS via yesss.at's website",
+    description="YesssSMS let's you send SMS via yesss.at's website",
     #long_description="""yessssms let's you send SMS via yesss.at's website""",
     url='https://github.com/flowolf/yessssms',
     author='Florian Klien',
@@ -13,55 +13,29 @@ setup(
     license='MIT',
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 3 - Alpha',
+        #'Development Status :: 4 - Beta',
         'Environment :: Console',
         'Intended Audience :: Developers',
         'Intended Audience :: System Administrators',
         'Topic :: Communications :: Telephony',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
     ],
-    keywords='SMS Yesss messaging',
+    platforms='any',
+    keywords=['SMS', 'Yesss', 'messaging'],
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
-    # Alternatively, if you want to distribute just a my_module.py, uncomment
-    # this:
-    #   py_modules=["my_module"],
 
-    python_requires='>=3',
     # List run-time dependencies here.  These will be installed by pip
-    install_requires=['requests','BeautifulSoup4'],
+    install_requires=['requests'],
 
-    # List additional groups of dependencies here (e.g. development
-    # dependencies). You can install these using the following syntax,
-    # for example:
-    # $ pip install -e .[dev,test]
-    # extras_require={
-    #     'dev': ['check-manifest'],
-    #     'test': ['coverage'],
-    # },
-
-    # If there are data files included in your packages that need to be
-    # installed, specify them here.  If using Python 2.6 or less, then these
-    # have to be included in MANIFEST.in as well.
-    # package_data={
-    #     'sample': ['package_data.dat'],
-    # },
-
-    # Although 'package_data' is the preferred approach, in some case you may
-    # need to place data files outside of your packages. See:
-    # http://docs.python.org/3.4/distutils/setupscript.html#installing-additional-files # noqa
-    # In this case, 'data_file' will be installed into '<sys.prefix>/my_data'
-    # data_files=[('my_data', ['data/data_file'])],
-
+    # TODO
     # To provide executable scripts, use entry points in preference to the
     # "scripts" keyword. Entry points provide cross-platform support and allow
     # pip to create the appropriate form of executable for the target platform.
-    entry_points={
-        'console_scripts': [
-            'yessssms=yessssms:main',
-        ],
-    },
+    # entry_points={
+    #     'console_scripts': [
+    #         'yessssms=yessssms:main',
+    #     ],
+    # },
 )

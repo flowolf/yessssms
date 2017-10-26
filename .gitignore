@@ -1,1 +1,4 @@
 secrets.py
+dist/
+YesssSMS.egg-info/
+YesssSMS/__pycache__/
