@@ -1,6 +1,17 @@
-yessssms
-========
+# YesssSMS
 
-A little Python module to send SMS via Yesss's Web Interface from the command line.
+YesssSMS let's you send SMS via yesss.at's website. Regular rates apply and a
+contract or prepaid plan is needed.
 
-You need an account at [yesss.at](https://yesss.at), regular SMS rates apply.
+Use your website login and password.
+
+This module is not suitable for batch SMS sending.
+Each send() call logs in and out of yesss.at's website.
+
+### Usage
+```python
+>>> from YesssSMS import YesssSMS
+>>> sms = YesssSMS(YOUR_LOGIN, YOUR_PASSWORD)
+>>> TO_NUMBER = "066412345678"
+>>> sms.send(TO_NUMBER, "Message")
+```

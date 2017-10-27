@@ -1,9 +1,10 @@
 from setuptools import setup, find_packages
 
-VERSION = "0.1.1"
+VERSION = "0.1.1b"
 
-LONG_DESC = """YesssSMS
-===============================================================================
+LONG_DESC = """\
+YesssSMS
+========
 YesssSMS let's you send SMS via yesss.at's website. Regular rates apply and a
 contract or prepaid plan is needed.
 
@@ -13,9 +14,12 @@ This module is not suitable for batch SMS sending.
 Each send() call logs in and out of yesss.at's website.
 
 usage:
+::
+
 >>> from YesssSMS import YesssSMS
 >>> sms = YesssSMS(YOUR_LOGIN, YOUR_PASSWORD)
 >>> sms.send(TO_NUMBER, "Message")
+
 """
 
 setup(
@@ -29,8 +33,7 @@ setup(
     license='MIT',
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
-        'Development Status :: 3 - Alpha',
-        #'Development Status :: 4 - Beta',
+        'Development Status :: 4 - Beta',
         'Environment :: Console',
         'Intended Audience :: Developers',
         'Intended Audience :: System Administrators',
