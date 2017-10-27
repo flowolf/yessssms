@@ -46,7 +46,7 @@ class YesssSMS():
         self._logindata={ 'login_rufnummer': yesss_login,
                           'login_passwort': yesss_pw}
 
-    def send_sms(self, to, message):
+    def send(self, to, message):
         if to == None or to == "":
             raise NoRecipientError("recipient number missing")
         if type(to) != str:
