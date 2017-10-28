@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = "0.1.1b2"
+VERSION = "0.1.1b3"
 
 LONG_DESC = """\
 YesssSMS
