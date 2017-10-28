@@ -22,6 +22,9 @@ _LOGOUT_URL="https://www.yesss.at/kontomanager.at/index.php?dologout=2"
 _KONTOMANAGER_URL="https://www.yesss.at/kontomanager.at/kundendaten.php"
 _WEBSMS_URL = "https://www.yesss.at/kontomanager.at/websms_send.php"
 
+# yesss.at responds with HTTP 200 on non successful login
+_LOGIN_ERROR_STRING = "<strong>Login nicht erfolgreich!</strong>"
+
 YESSS_LOGIN = None # normally your phone number
 YESSS_PASSWD = None # your password
 
@@ -35,6 +38,9 @@ class NoRecipientError(ValueError):
     pass
 
 class EmptyMessageError(ValueError):
+    pass
+
+class LoginError(ValueError):
     pass
 
 class YesssSMS():
@@ -56,9 +62,11 @@ class YesssSMS():
 
         with requests.Session() as s:
             req = s.post(self._login_url, data=self._logindata)
-            # TODO check for successful login
+            if _LOGIN_ERROR_STRING in req.text:
+                raise LoginError("login failed, username or password wrong")
             sms_data = {'to_nummer': to, 'nachricht': message}
             req = s.post(self._websms_url, data=sms_data)
+            return req
             s.get(self._logout_url)
 
 # if __name__ == "__main__":
