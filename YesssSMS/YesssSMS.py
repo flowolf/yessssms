@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """ Send SMS via yesss.at web interface with your yesss login and password """
 
-
 #
 # @author: Florian Klien <flowolf@klienux.org>
 #
@@ -17,9 +16,9 @@ import requests
 # except ImportError:
 #     from bs4 import BeautifulSoup as bs
 
-_LOGIN_URL="https://www.yesss.at/kontomanager.at/index.php"
-_LOGOUT_URL="https://www.yesss.at/kontomanager.at/index.php?dologout=2"
-_KONTOMANAGER_URL="https://www.yesss.at/kontomanager.at/kundendaten.php"
+_LOGIN_URL = "https://www.yesss.at/kontomanager.at/index.php"
+_LOGOUT_URL = "https://www.yesss.at/kontomanager.at/index.php?dologout=2"
+_KONTOMANAGER_URL = "https://www.yesss.at/kontomanager.at/kundendaten.php"
 _WEBSMS_URL = "https://www.yesss.at/kontomanager.at/websms_send.php"
 
 # yesss.at responds with HTTP 200 on non successful login
@@ -52,9 +51,9 @@ class UnsupportedCharsError(ValueError):
 
 class YesssSMS():
     def __init__( self, yesss_login=YESSS_LOGIN, yesss_pw=YESSS_PASSWD ):
-        self._login_url=_LOGIN_URL
-        self._logout_url=_LOGOUT_URL
-        self._kontomanager=_KONTOMANAGER_URL
+        self._login_url = _LOGIN_URL
+        self._logout_url = _LOGOUT_URL
+        self._kontomanager = _KONTOMANAGER_URL
         self._websms_url = _WEBSMS_URL
         self._logindata={ 'login_rufnummer': yesss_login,
                           'login_passwort': yesss_pw}
