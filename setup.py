@@ -26,6 +26,7 @@ setup(
 
     # List run-time dependencies here.  These will be installed by pip
     install_requires=['requests'],
+    python_requires='>=3.3',
 
     # TODO
     # To provide executable scripts, use entry points in preference to the
