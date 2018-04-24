@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """ Send SMS via yesss.at web interface with your yesss login and password """
-from __future__ import print_function
-VERSION = "0.1.1"
+#from __future__ import print_function
+VERSION = "0.1.2"
 
 #
 # @author: Florian Klien <flowolf@klienux.org>
@@ -29,9 +29,9 @@ usage:
 """
 
 import requests
-import sys
-from builtins import input
-import argparse
+# import sys
+# from builtins import input
+# import argparse
 # try:
 #     from BeautifulSoup import BeautifulSoup as bs
 # except ImportError:
