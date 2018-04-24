@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """ Send SMS via yesss.at web interface with your yesss login and password """
-VERSION = "0.1.1b3"
+from __future__ import print_function
+VERSION = "0.1.1"
 
 #
 # @author: Florian Klien <flowolf@klienux.org>
@@ -28,10 +29,9 @@ usage:
 """
 
 import requests
-#import sys
-#from __future__ import print_function
-#from builtins import input
-#import argparse
+import sys
+from builtins import input
+import argparse
 # try:
 #     from BeautifulSoup import BeautifulSoup as bs
 # except ImportError:
@@ -80,6 +80,10 @@ class YesssSMS():
                             'login_passwort': yesss_pw}
 
     def send(self, to, message):
+        if self._logindata['login_rufnummer'] == None or \
+            self._logindata['login_passwort'] == None:
+            err_mess = "YesssSMS: Login data required"
+            raise LoginError(err_mess)
         if to == None or to == "":
             raise NoRecipientError("YesssSMS: recipient number missing")
         if type(to) != str:
@@ -88,19 +92,19 @@ class YesssSMS():
             raise EmptyMessageError("YesssSMS: message is empty")
 
         with requests.Session() as s:
-            req = s.post(self._login_url, data=self._logindata)
-            if _LOGIN_ERROR_STRING in req.text or req.status_code == 403:
+            r = s.post(self._login_url, data=self._logindata)
+            if _LOGIN_ERROR_STRING in r.text or r.status_code == 403:
                 err_mess = "YesssSMS: login failed, username or password wrong"
-                if _LOGIN_LOCKED_MESS in req.text:
+                if _LOGIN_LOCKED_MESS in r.text:
                     err_mess += ", page says: " + _LOGIN_LOCKED_MESS
                 raise LoginError(err_mess)
 
             sms_data = {'to_nummer': to, 'nachricht': message}
-            req = s.post(self._websms_url, data=sms_data)
+            r = s.post(self._websms_url, data=sms_data)
 
-            if req.status_code == 403 or req.status_code == 404:
+            if r.status_code == 403 or r.status_code == 404:
                 raise SMSSendingError("YesssSMS: error sending SMS")
-            if _UNSUPPORTED_CHARS_STRING in req.text:
+            if _UNSUPPORTED_CHARS_STRING in r.text:
                 raise UnsupportedCharsError("YesssSMS: message contains unsupported character(s)")
 
             s.get(self._logout_url)
