@@ -1,2 +1,3 @@
 include LICENSE.txt
 global-exclude *pyc
+exclude secrets.py
