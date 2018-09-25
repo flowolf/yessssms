@@ -51,7 +51,7 @@ YESSS_PASSWD = None # your password
 
 # alternatively import pass and number from external file
 try:
-    from secrets import *
+    from secrets import YESSS_LOGIN, YESSS_PASSWD
 except:
     pass
 
