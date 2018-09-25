@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """ Send SMS via yesss.at web interface with your yesss login and password """
 #from __future__ import print_function
-VERSION = "0.1.2"
+VERSION = "0.2.0a"
 
 #
 # @author: Florian Klien <flowolf@klienux.org>
