@@ -3,3 +3,6 @@ secrets.pyc
 dist/
 YesssSMS.egg-info/
 YesssSMS/__pycache__/
+YesssSMS/tests/__pycache__/
+__pycache__
+.cache
