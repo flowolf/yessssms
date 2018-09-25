@@ -3,7 +3,7 @@ import YesssSMS
 from requests import Session
 
 try:
-    from secrets import *
+    from secrets import YESSS_LOGIN, YESSS_PASSWD, YESSS_TO
 except:
     pass
 
