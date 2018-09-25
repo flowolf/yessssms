@@ -1,11 +1,11 @@
 from setuptools import setup, find_packages
-from YesssSMS.YesssSMS import VERSION, LONG_DESC, DESC
+import YesssSMS.const as const
 
 setup(
     name='YesssSMS',
-    version=VERSION,
-    description=DESC,
-    long_description=LONG_DESC,
+    version=const.VERSION,
+    description=const.DESC,
+    long_description=const.LONG_DESC,
     url='https://github.com/flowolf/yessssms',
     author='Florian Klien',
     author_email='flowolf@klienux.org',
