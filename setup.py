@@ -1,11 +1,31 @@
 from setuptools import setup, find_packages
-import YesssSMS.const as const
+
+DESC = "YesssSMS let's you send SMS via yesss.at's website"
+LONG_DESC = """\
+YesssSMS
+========
+YesssSMS let's you send SMS via yesss.at's website. Regular rates apply and a
+contract or prepaid plan is needed.
+
+Use your website login and password.
+
+This module is not suitable for batch SMS sending.
+Each send() call logs in and out of yesss.at's website.
+
+usage:
+::
+
+>>> from YesssSMS import YesssSMS
+>>> sms = YesssSMS(YOUR_LOGIN, YOUR_PASSWORD)
+>>> sms.send(TO_NUMBER, "Message")
+
+"""
 
 setup(
     name='YesssSMS',
-    version=const.VERSION,
-    description=const.DESC,
-    long_description=const.LONG_DESC,
+    version="0.2.0",
+    description=DESC,
+    long_description=LONG_DESC,
     url='https://github.com/flowolf/yessssms',
     author='Florian Klien',
     author_email='flowolf@klienux.org',
