@@ -21,9 +21,18 @@ usage:
 
 """
 
+version_file = open("YesssSMS/const.py")
+VERSION=None
+for c in version_file.readlines():
+    c = c.strip()
+    if not c.startswith("VERSION"):
+        continue
+    key, val = c.split('=')
+    VERSION = val.strip().split('"')[1]
+
 setup(
     name='YesssSMS',
-    version="0.2.0",
+    version=VERSION,
     description=DESC,
     long_description=LONG_DESC,
     url='https://github.com/flowolf/yessssms',
