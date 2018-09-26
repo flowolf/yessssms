@@ -17,6 +17,5 @@ Each send() call logs in and out of yesss.at's website.
 ```python
 >>> from YesssSMS import YesssSMS
 >>> sms = YesssSMS(YOUR_LOGIN, YOUR_PASSWORD)
->>> TO_NUMBER = "066412345678"
 >>> sms.send(TO_NUMBER, "Message")
 ```
