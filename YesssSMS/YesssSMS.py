@@ -33,22 +33,22 @@ try:
 except:
     pass
 
-class NoRecipientError(ValueError):
-    pass
-
-class EmptyMessageError(ValueError):
-    pass
-
-class LoginError(ValueError):
-    pass
-
-class SMSSendingError(RuntimeError):
-    pass
-
-class UnsupportedCharsError(ValueError):
-    pass
-
 class YesssSMS():
+    class NoRecipientError(ValueError):
+        pass
+
+    class EmptyMessageError(ValueError):
+        pass
+
+    class LoginError(ValueError):
+        pass
+
+    class SMSSendingError(RuntimeError):
+        pass
+
+    class UnsupportedCharsError(ValueError):
+        pass
+
     def __init__( self, yesss_login=YESSS_LOGIN, yesss_pw=YESSS_PASSWD ):
         self._version = VERSION
         self._login_url = _LOGIN_URL
