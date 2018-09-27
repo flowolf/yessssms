@@ -43,6 +43,10 @@ class YesssSMS():
     class LoginError(ValueError):
         pass
 
+    class AccountSuspendedError(LoginError):
+        """too many failed login tries, account suspended for one hour"""
+        pass
+
     class SMSSendingError(RuntimeError):
         pass
 
@@ -57,6 +61,7 @@ class YesssSMS():
         self._websms_url = _WEBSMS_URL
         self._logindata = { 'login_rufnummer': yesss_login,
                             'login_passwort': yesss_pw}
+        self._suspended = False
 
     def _login(self, session, get_request=False):
         r = session.post(self._login_url, data=self._logindata)
@@ -66,24 +71,40 @@ class YesssSMS():
             err_mess = "YesssSMS: login failed, username or password wrong"
             if _LOGIN_LOCKED_MESS in r.text:
                 err_mess += ", page says: " + _LOGIN_LOCKED_MESS
-            raise LoginError(err_mess)
+                self._suspended = True
+                raise self.AccountSuspendedError(err_mess)
+            raise self.LoginError(err_mess)
+        self._suspended = False # login worked
         if get_request:
             #s.get(self._logout_url)
             return (session, r)
         else:
             return session
 
+    def login_data_valid(self):
+        """check for working login data"""
+        login_working = False
+        try:
+            with self._login(requests.Session()) as s:
+                s.get(self._logout_url)
+        except self.LoginError as ex:
+            print(ex)
+            pass
+        else:
+            login_working = True
+        return login_working
+
     def send(self, to, message):
         if self._logindata['login_rufnummer'] == None or \
                 self._logindata['login_passwort'] == None:
             err_mess = "YesssSMS: Login data required"
-            raise LoginError(err_mess)
+            raise self.LoginError(err_mess)
         if to == None or to == "":
-            raise NoRecipientError("YesssSMS: recipient number missing")
+            raise self.NoRecipientError("YesssSMS: recipient number missing")
         if type(to) != str:
             raise ValueError("YesssSMS: str expected as recipient number")
         if len(message) == 0:
-            raise EmptyMessageError("YesssSMS: message is empty")
+            raise self.EmptyMessageError("YesssSMS: message is empty")
 
         with self._login(requests.Session()) as s:
 
@@ -91,9 +112,9 @@ class YesssSMS():
             r = s.post(self._websms_url, data=sms_data)
 
             if r.status_code == 403 or r.status_code == 404:
-                raise SMSSendingError("YesssSMS: error sending SMS")
+                raise self.SMSSendingError("YesssSMS: error sending SMS")
             if _UNSUPPORTED_CHARS_STRING in r.text:
-                raise UnsupportedCharsError("YesssSMS: message contains unsupported character(s)")
+                raise self.UnsupportedCharsError("YesssSMS: message contains unsupported character(s)")
 
             s.get(self._logout_url)
 
