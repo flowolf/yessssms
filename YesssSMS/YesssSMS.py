@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """ Send SMS via yesss.at web interface with your yesss login and password """
-#from __future__ import print_function
 #
 # @author: Florian Klien <flowolf@klienux.org>
 #
 from YesssSMS.const import VERSION
 import requests
+
 # import sys
 # from builtins import input
 # import argparse
@@ -27,7 +27,7 @@ _UNSUPPORTED_CHARS_STRING = "<strong>Achtung:</strong> Ihre SMS konnte nicht ver
 YESSS_LOGIN = None # normally your phone number
 YESSS_PASSWD = None # your password
 
-# alternatively import pass and number from external file
+# alternatively import passwd and number from external file
 try:
     from secrets import YESSS_LOGIN, YESSS_PASSWD
 except:
@@ -35,12 +35,15 @@ except:
 
 class YesssSMS():
     class NoRecipientError(ValueError):
+        """empty recipient"""
         pass
 
     class EmptyMessageError(ValueError):
+        """empty message"""
         pass
 
     class LoginError(ValueError):
+        """login credentials not accepted"""
         pass
 
     class AccountSuspendedError(LoginError):
@@ -48,9 +51,11 @@ class YesssSMS():
         pass
 
     class SMSSendingError(RuntimeError):
+        """error during sending"""
         pass
 
     class UnsupportedCharsError(ValueError):
+        """yesss.at refused characters in message"""
         pass
 
     def __init__( self, yesss_login=YESSS_LOGIN, yesss_pw=YESSS_PASSWD ):
