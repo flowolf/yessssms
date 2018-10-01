@@ -73,7 +73,7 @@ class YesssSMS():
             err_mess = "YesssSMS: login failed, username or password wrong"
 
             if _LOGIN_LOCKED_MESS in r.text:
-                err_mess += ", page says: " + _LOGIN_LOCKED_MESS
+                err_mess += ", page says: " + _LOGIN_LOCKED_MESS_ENG
                 self._suspended = True
                 raise self.AccountSuspendedError(err_mess)
             raise self.LoginError(err_mess)
@@ -84,6 +84,9 @@ class YesssSMS():
             return (session, r)
         else:
             return session
+
+    def account_is_suspended(self):
+        return self._suspended
 
     def login_data_valid(self):
         """check for working login data"""
