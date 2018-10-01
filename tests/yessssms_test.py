@@ -51,6 +51,8 @@ def test_login_suspended_error():
     # LoginError
     with pytest.raises(sms.AccountSuspendedError) as e_info:
         sms.send(YESSS_TO, "test")
+    assert sms._suspended is True
+    assert sms.account_is_suspended() is True
 
 
 def test_send_sms():
