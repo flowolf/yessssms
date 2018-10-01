@@ -7,14 +7,6 @@
 from YesssSMS.const import VERSION
 import requests
 
-# import sys
-# from builtins import input
-# import argparse
-# try:
-#     from BeautifulSoup import BeautifulSoup as bs
-# except ImportError:
-#     from bs4 import BeautifulSoup as bs
-
 _LOGIN_URL = "https://www.yesss.at/kontomanager.at/index.php"
 _LOGOUT_URL = "https://www.yesss.at/kontomanager.at/index.php?dologout=2"
 _KONTOMANAGER_URL = "https://www.yesss.at/kontomanager.at/kundendaten.php"
@@ -74,6 +66,7 @@ class YesssSMS():
                 r.status_code == 403 or \
                 r.url == _LOGIN_URL:
             err_mess = "YesssSMS: login failed, username or password wrong"
+
             if _LOGIN_LOCKED_MESS in r.text:
                 err_mess += ", page says: " + _LOGIN_LOCKED_MESS
                 self._suspended = True
