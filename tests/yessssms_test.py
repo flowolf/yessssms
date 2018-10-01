@@ -1,6 +1,7 @@
 import pytest
 import YesssSMS
 from requests import Session
+import time
 
 try:
     from secrets import YESSS_LOGIN, YESSS_PASSWD, YESSS_TO
@@ -30,7 +31,20 @@ def test_login_error():
     # non existing user and password
     sms = YesssSMS.YesssSMS("0000000000","2d4faa0ea6f55813")
     # LoginError
-    with pytest.raises(ValueError) as e_info:
+    with pytest.raises(sms.LoginError) as e_info:
+        sms.send(YESSS_TO, "test")
+
+def test_login_suspended_error():
+    # non existing user and password
+    sms = YesssSMS.YesssSMS("0000000123","CU4uNvCsee")
+    assert (sms.login_data_valid() == False)
+    time.sleep(1.4)
+    assert (sms.login_data_valid() == False)
+    time.sleep(2.6)
+    assert (sms.login_data_valid() == False)
+    time.sleep(3.1)
+    # LoginError
+    with pytest.raises(sms.AccountSuspendedError) as e_info:
         sms.send(YESSS_TO, "test")
 
 def test_send_sms():
