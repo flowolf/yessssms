@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 DESC = "YesssSMS let's you send SMS via yesss.at's website"
 
 version_file = open("YesssSMS/const.py")
-VERSION=None
+VERSION = None
 for c in version_file.readlines():
     c = c.strip()
     if not c.startswith("VERSION"):

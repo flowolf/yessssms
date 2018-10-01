@@ -14,16 +14,21 @@ _WEBSMS_URL = "https://www.yesss.at/kontomanager.at/websms_send.php"
 
 # yesss.at responds with HTTP 200 on non successful login
 _LOGIN_ERROR_STRING = "<strong>Login nicht erfolgreich"
-_LOGIN_LOCKED_MESS = "Wegen 3 ungültigen Login-Versuchen ist Ihr Account für eine Stunde gesperrt."
-_UNSUPPORTED_CHARS_STRING = "<strong>Achtung:</strong> Ihre SMS konnte nicht versendet werden, da sie folgende ungültige Zeichen enthält:"
-YESSS_LOGIN = None # normally your phone number
-YESSS_PASSWD = None # your password
+_LOGIN_LOCKED_MESS = "Wegen 3 ungültigen Login-Versuchen ist Ihr Account für \
+eine Stunde gesperrt."
+_LOGIN_LOCKED_MESS_ENG = "because of 3 failed login-attempts, your account \
+has been suspended for one hour"
+_UNSUPPORTED_CHARS_STRING = "<strong>Achtung:</strong> Ihre SMS konnte nicht \
+versendet werden, da sie folgende ungültige Zeichen enthält:"
+YESSS_LOGIN = None  # normally your phone number
+YESSS_PASSWD = None  # your password
 
 # alternatively import passwd and number from external file
 try:
     from secrets import YESSS_LOGIN, YESSS_PASSWD
-except:
+except ImportError:
     pass
+
 
 class YesssSMS():
     class NoRecipientError(ValueError):
@@ -50,15 +55,15 @@ class YesssSMS():
         """yesss.at refused characters in message"""
         pass
 
-    def __init__( self, yesss_login=YESSS_LOGIN, yesss_pw=YESSS_PASSWD ):
+    def __init__(self, yesss_login=YESSS_LOGIN, yesss_pw=YESSS_PASSWD):
         self._version = VERSION
         self._login_url = _LOGIN_URL
         self._logout_url = _LOGOUT_URL
         self._kontomanager = _KONTOMANAGER_URL
         self._websms_url = _WEBSMS_URL
-        self._logindata = { 'login_rufnummer': yesss_login,
-                            'login_passwort': yesss_pw}
         self._suspended = False
+        self._logindata = {'login_rufnummer': yesss_login,
+                           'login_passwort': yesss_pw}
 
     def _login(self, session, get_request=False):
         r = session.post(self._login_url, data=self._logindata)
@@ -72,9 +77,10 @@ class YesssSMS():
                 self._suspended = True
                 raise self.AccountSuspendedError(err_mess)
             raise self.LoginError(err_mess)
-        self._suspended = False # login worked
+
+        self._suspended = False  # login worked
         if get_request:
-            #s.get(self._logout_url)
+            # s.get(self._logout_url)
             return (session, r)
         else:
             return session
@@ -93,11 +99,12 @@ class YesssSMS():
         return login_working
 
     def send(self, to, message):
-        if self._logindata['login_rufnummer'] == None or \
-                self._logindata['login_passwort'] == None:
+        """send a SMS"""
+        if self._logindata['login_rufnummer'] is None or \
+                self._logindata['login_passwort'] is None:
             err_mess = "YesssSMS: Login data required"
             raise self.LoginError(err_mess)
-        if to == None or to == "":
+        if to is None or to == "":
             raise self.NoRecipientError("YesssSMS: recipient number missing")
         if type(to) != str:
             raise ValueError("YesssSMS: str expected as recipient number")
@@ -112,7 +119,8 @@ class YesssSMS():
             if r.status_code == 403 or r.status_code == 404:
                 raise self.SMSSendingError("YesssSMS: error sending SMS")
             if _UNSUPPORTED_CHARS_STRING in r.text:
-                raise self.UnsupportedCharsError("YesssSMS: message contains unsupported character(s)")
+                raise self.UnsupportedCharsError(
+                    "YesssSMS: message contains unsupported character(s)")
 
             s.get(self._logout_url)
 
