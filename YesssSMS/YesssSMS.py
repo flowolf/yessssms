@@ -20,6 +20,7 @@ _LOGIN_LOCKED_MESS_ENG = "because of 3 failed login-attempts, your account \
 has been suspended for one hour"
 _UNSUPPORTED_CHARS_STRING = "<strong>Achtung:</strong> Ihre SMS konnte nicht \
 versendet werden, da sie folgende ungültige Zeichen enthält:"
+_SMS_SENDING_SUCCESSFUL_STRING = ">Ihre SMS wurde erfolgreich verschickt!<"
 YESSS_LOGIN = None  # normally your phone number
 YESSS_PASSWD = None  # your password
 
@@ -119,13 +120,18 @@ class YesssSMS():
             sms_data = {'to_nummer': to, 'nachricht': message}
             r = s.post(self._websms_url, data=sms_data)
 
-            if r.status_code == 403 or r.status_code == 404:
+            if not r.status_code == 200 or \
+                    not _SMS_SENDING_SUCCESSFUL_STRING in r.text:
                 raise self.SMSSendingError("YesssSMS: error sending SMS")
+
             if _UNSUPPORTED_CHARS_STRING in r.text:
                 raise self.UnsupportedCharsError(
                     "YesssSMS: message contains unsupported character(s)")
 
             s.get(self._logout_url)
+
+    def version(self):
+        return self._version
 
 # if __name__ == "__main__":
 #     pass

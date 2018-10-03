@@ -59,6 +59,6 @@ def test_send_sms():
     try:
         sms = YesssSMS.YesssSMS()
         sms.send(YESSS_TO, "testing YesssSMS version {}, seems to work! :)"
-                           .format(sms._version))
+                           .format(sms.version()))
     except ValueError or RuntimeError:
         pytest.fail("Exception raised while sending SMS")
