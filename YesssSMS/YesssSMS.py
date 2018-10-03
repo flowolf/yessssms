@@ -96,7 +96,6 @@ class YesssSMS():
             with self._login(requests.Session()) as s:
                 s.get(self._logout_url)
         except self.LoginError as ex:
-            print(ex)
             pass
         else:
             login_working = True
@@ -120,7 +119,7 @@ class YesssSMS():
             sms_data = {'to_nummer': to, 'nachricht': message}
             r = s.post(self._websms_url, data=sms_data)
 
-            if not r.status_code == 200 or \
+            if not (r.status_code == 200 or r.status_code == 302) or \
                     not _SMS_SENDING_SUCCESSFUL_STRING in r.text:
                 raise self.SMSSendingError("YesssSMS: error sending SMS")
 
