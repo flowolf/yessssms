@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """ Mocked tests for YesssSMS Module """
 import pytest
 import requests

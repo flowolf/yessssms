@@ -1,5 +1,7 @@
 # YesssSMS
 
+[![Gitlab CI Badge](https://gitlab.com/flowolf/yessssms/badges/master/pipeline.svg)](https://gitlab.com/flowolf/yessssms/pipelines)
+
 YesssSMS let's you send SMS via yesss.at's website. Regular rates apply and a
 contract or prepaid plan is needed.
 
