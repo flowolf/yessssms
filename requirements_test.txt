@@ -7,7 +7,7 @@ more-itertools==4.3.0
 pluggy==0.8.0
 py==1.7.0
 pytest==3.9.1
-requests==2.19.1
+requests==2.20.0
 requests-mock==1.5.2
 six==1.11.0
 urllib3==1.23
