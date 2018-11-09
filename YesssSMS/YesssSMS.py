@@ -119,13 +119,15 @@ class YesssSMS():
             sms_data = {'to_nummer': to, 'nachricht': message}
             r = s.post(self._websms_url, data=sms_data)
 
-            if not (r.status_code == 200 or r.status_code == 302) or \
-                    not _SMS_SENDING_SUCCESSFUL_STRING in r.text:
+            if not (r.status_code == 200 or r.status_code == 302):
                 raise self.SMSSendingError("YesssSMS: error sending SMS")
 
             if _UNSUPPORTED_CHARS_STRING in r.text:
                 raise self.UnsupportedCharsError(
-                    "YesssSMS: message contains unsupported character(s)")
+                "YesssSMS: message contains unsupported character(s)")
+
+            if not _SMS_SENDING_SUCCESSFUL_STRING in r.text:
+                raise self.SMSSendingError("YesssSMS: error sending SMS")
 
             s.get(self._logout_url)
 
