@@ -1,7 +1,15 @@
+---
 image: python:3.6-stretch
+
+before_script:
+  - pip install yamllint
+  - python --version
+  - pip --version
+
 test:
   script:
   - apt-get update -yq
   - apt-get install -y python3-pip python3-dev
   - pip3 install -r requirements_test.txt
   - pytest
+  - pytest --cov=YesssSMS tests
