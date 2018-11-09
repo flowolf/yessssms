@@ -5,7 +5,7 @@ import pytest
 import requests
 import requests_mock
 import YesssSMS
-from YesssSMS.const import VERSION
+from YesssSMS.const import VERSION, _UNSUPPORTED_CHARS_STRING
 
 try:
     from secrets import YESSS_LOGIN, YESSS_PASSWD, YESSS_TO
@@ -104,6 +104,120 @@ def test_login_error():
                           status_code=200,
                           )
         with pytest.raises(sms.LoginError):
+            sms.send(YESSS_TO, "test")
+
+def test_login_empty_password_error():
+    """test error handling of empty password"""
+    sms = YesssSMS.YesssSMS("0000000000", None)
+    with pytest.raises(sms.LoginError):
+        sms.send(YESSS_TO, "test")
+
+def test_login_empty_login_error():
+    """test error handling of empty login"""
+    sms = YesssSMS.YesssSMS("", "2d4faa0ea6f55813")
+    with pytest.raises(sms.LoginError):
+        sms.send(YESSS_TO, "test")
+
+def test_no_recipient_error():
+    """test error handling of no recipient"""
+    sms = YesssSMS.YesssSMS("0000000000", "2d4faa0ea6f55813")
+    with pytest.raises(sms.NoRecipientError):
+        sms.send("", "test")
+
+def test_recipient_not_str_error():
+    """test error handling of wrong recipient data type"""
+    sms = YesssSMS.YesssSMS("0000000000", "2d4faa0ea6f55813")
+    with pytest.raises(ValueError):
+        sms.send(176264916361239, "test")
+
+def test_message_sending_error():
+    """test handling of status codes other than 200 and 302"""
+    with requests_mock.Mocker() as mock:
+        sms = YesssSMS.YesssSMS("0000000000", "2d4faa0ea6f55813")
+        mock.register_uri('POST',
+                          # pylint: disable=protected-access
+                          sms._login_url,
+                          status_code=302,
+                          # pylint: disable=protected-access
+                          headers={'location': sms._kontomanager}
+                          )
+        mock.register_uri('GET',
+                          # pylint: disable=protected-access
+                          sms._kontomanager,
+                          status_code=200,
+                          )
+        mock.register_uri('POST',
+                          # pylint: disable=protected-access
+                          sms._websms_url,
+                          status_code=400,
+                          text="<h1>OOOOPS</h1>"
+                          )
+        mock.register_uri('GET',
+                          # pylint: disable=protected-access
+                          sms._logout_url,
+                          status_code=200,
+                          )
+        with pytest.raises(sms.SMSSendingError):
+            sms.send(YESSS_TO, "test")
+
+def test_unsupported_chars_error():
+    """test error handling for unsupported chars"""
+    with requests_mock.Mocker() as mock:
+        sms = YesssSMS.YesssSMS("0000000000", "2d4faa0ea6f55813")
+        mock.register_uri('POST',
+                          # pylint: disable=protected-access
+                          sms._login_url,
+                          status_code=302,
+                          # pylint: disable=protected-access
+                          headers={'location': sms._kontomanager}
+                          )
+        mock.register_uri('GET',
+                          # pylint: disable=protected-access
+                          sms._kontomanager,
+                          status_code=200,
+                          )
+        mock.register_uri('POST',
+                          # pylint: disable=protected-access
+                          sms._websms_url,
+                          status_code=200,
+                          text=_UNSUPPORTED_CHARS_STRING
+                          )
+        mock.register_uri('GET',
+                          # pylint: disable=protected-access
+                          sms._logout_url,
+                          status_code=200,
+                          )
+        with pytest.raises(sms.UnsupportedCharsError):
+            sms.send(YESSS_TO, "test")
+
+def test_sms_sending_error():
+    """test error handling for missing success string"""
+    with requests_mock.Mocker() as mock:
+        sms = YesssSMS.YesssSMS("0000000000", "2d4faa0ea6f55813")
+        mock.register_uri('POST',
+                          # pylint: disable=protected-access
+                          sms._login_url,
+                          status_code=302,
+                          # pylint: disable=protected-access
+                          headers={'location': sms._kontomanager}
+                          )
+        mock.register_uri('GET',
+                          # pylint: disable=protected-access
+                          sms._kontomanager,
+                          status_code=200,
+                          )
+        mock.register_uri('POST',
+                          # pylint: disable=protected-access
+                          sms._websms_url,
+                          status_code=200,
+                          text="some text i'm not looking for"
+                          )
+        mock.register_uri('GET',
+                          # pylint: disable=protected-access
+                          sms._logout_url,
+                          status_code=200,
+                          )
+        with pytest.raises(sms.SMSSendingError):
             sms.send(YESSS_TO, "test")
 
 def test_login_suspended_error():
