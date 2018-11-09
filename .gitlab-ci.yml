@@ -1,6 +1,5 @@
+image: python:3.6-stretch
 test:
-  services:
-  - python:3.6-stretch
   script:
   - apt-get update -yq
   - apt-get install -y python3-pip python3-dev
