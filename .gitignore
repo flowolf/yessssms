@@ -10,3 +10,4 @@ __pycache__
 .cache
 .coverage
 *,cover
+.tox
