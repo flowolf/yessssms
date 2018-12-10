@@ -3,6 +3,23 @@ before_script:
   - python --version
   - pip --version
 
+
+test:3.4:
+  image: python:3.4-alpine
+  script:
+  - apk add py-pip python3-dev
+  - pip3 install -r requirements_test.txt
+  - pytest --version
+  - tox -e py34
+
+test:3.5:
+  image: python:3.5-alpine
+  script:
+  - apk add py-pip python3-dev
+  - pip3 install -r requirements_test.txt
+  - pytest --version
+  - tox -e py35
+
 test:3.6:
   image: python:3.6-stretch
   script:
