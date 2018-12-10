@@ -13,3 +13,7 @@ test:
   - pip3 install -r requirements_test.txt
   - pytest
   - pytest --cov=YesssSMS tests
+  - cat YesssSMS/YesssSMS.py,cover
+  # or
+  # - pytest --cov=YesssSMS -cov-report html tests
+  # publish html to webserver
