@@ -4,8 +4,10 @@
 #
 # @author: Florian Klien <flowolf@klienux.org>
 #
-from YesssSMS.const import VERSION
 import requests
+from contextlib import suppress
+
+from YesssSMS.const import VERSION
 
 _LOGIN_URL = "https://www.yesss.at/kontomanager.at/index.php"
 _LOGOUT_URL = "https://www.yesss.at/kontomanager.at/index.php?dologout=2"
@@ -25,11 +27,8 @@ YESSS_LOGIN = None  # normally your phone number
 YESSS_PASSWD = None  # your password
 
 # alternatively import passwd and number from external file
-try:
+with suppress(ImportError):
     from secrets import YESSS_LOGIN, YESSS_PASSWD
-except ImportError:
-    pass
-
 
 class YesssSMS():
     class NoRecipientError(ValueError):
