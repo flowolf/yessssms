@@ -4,8 +4,12 @@
 #
 # @author: Florian Klien <flowolf@klienux.org>
 #
-import requests
+# pylint not amused about package name
+# pylint: disable-msg=C0103
+
 from contextlib import suppress
+
+import requests
 
 from YesssSMS.const import VERSION
 
@@ -31,6 +35,7 @@ with suppress(ImportError):
     from secrets import YESSS_LOGIN, YESSS_PASSWD
 
 class YesssSMS():
+    """YesssSMS class for sending SMS via yesss.at website"""
     class NoRecipientError(ValueError):
         """empty recipient"""
         pass
@@ -66,71 +71,70 @@ class YesssSMS():
                            'login_passwort': yesss_pw}
 
     def _login(self, session, get_request=False):
-        r = session.post(self._login_url, data=self._logindata)
-        if _LOGIN_ERROR_STRING in r.text or \
-                r.status_code == 403 or \
-                r.url == _LOGIN_URL:
+        req = session.post(self._login_url, data=self._logindata)
+        if _LOGIN_ERROR_STRING in req.text or \
+                req.status_code == 403 or \
+                req.url == _LOGIN_URL:
             err_mess = "YesssSMS: login failed, username or password wrong"
 
-            if _LOGIN_LOCKED_MESS in r.text:
+            if _LOGIN_LOCKED_MESS in req.text:
                 err_mess += ", page says: " + _LOGIN_LOCKED_MESS_ENG
                 self._suspended = True
                 raise self.AccountSuspendedError(err_mess)
             raise self.LoginError(err_mess)
 
         self._suspended = False  # login worked
-        if get_request:
-            # s.get(self._logout_url)
-            return (session, r)
-        else:
-            return session
+
+        return (session, req) if get_request else session
 
     def account_is_suspended(self):
+        """return if account is suspended"""
         return self._suspended
 
     def login_data_valid(self):
         """check for working login data"""
         login_working = False
         try:
-            with self._login(requests.Session()) as s:
-                s.get(self._logout_url)
-        except self.LoginError as ex:
+            with self._login(requests.Session()) as sess:
+                sess.get(self._logout_url)
+        except self.LoginError:
             pass
         else:
             login_working = True
         return login_working
 
-    def send(self, to, message):
+    def send(self, recipient, message):
         """send a SMS"""
         if self._logindata['login_rufnummer'] is None or \
                 self._logindata['login_passwort'] is None:
             err_mess = "YesssSMS: Login data required"
             raise self.LoginError(err_mess)
-        if to is None or to == "":
+        if not recipient:
             raise self.NoRecipientError("YesssSMS: recipient number missing")
-        if type(to) != str:
+        if not isinstance(recipient, str):
             raise ValueError("YesssSMS: str expected as recipient number")
-        if len(message) == 0:
+        if not message:
             raise self.EmptyMessageError("YesssSMS: message is empty")
 
-        with self._login(requests.Session()) as s:
+        with self._login(requests.Session()) as sess:
 
-            sms_data = {'to_nummer': to, 'nachricht': message}
-            r = s.post(self._websms_url, data=sms_data)
+            sms_data = {'to_nummer': recipient, 'nachricht': message}
+            req = sess.post(self._websms_url, data=sms_data)
 
-            if not (r.status_code == 200 or r.status_code == 302):
+            if not (req.status_code == 200 or req.status_code == 302):
                 raise self.SMSSendingError("YesssSMS: error sending SMS")
 
-            if _UNSUPPORTED_CHARS_STRING in r.text:
+            if _UNSUPPORTED_CHARS_STRING in req.text:
                 raise self.UnsupportedCharsError(
-                "YesssSMS: message contains unsupported character(s)")
+                    "YesssSMS: message contains unsupported character(s)")
 
-            if not _SMS_SENDING_SUCCESSFUL_STRING in r.text:
+            if not _SMS_SENDING_SUCCESSFUL_STRING in req.text:
                 raise self.SMSSendingError("YesssSMS: error sending SMS")
 
-            s.get(self._logout_url)
+            sess.get(self._logout_url)
 
     def version(self):
+        """get version of YesssSMS package"""
         return self._version
 
 # if __name__ == "__main__":
