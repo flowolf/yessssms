@@ -20,7 +20,7 @@ setup(
     description=DESC,
     long_description=LONG_DESC,
     long_description_content_type="text/markdown",
-    url='https://github.com/flowolf/yessssms',
+    url='https://gitlab.com/flowolf/yessssms',
     author='Florian Klien',
     author_email='flowolf@klienux.org',
     license='MIT',
