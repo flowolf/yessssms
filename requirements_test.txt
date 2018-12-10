@@ -2,13 +2,12 @@ atomicwrites
 attrs
 certifi
 chardet
-idna
+idna==2.7
 more-itertools
 pluggy
 py
 pytest
 pytest-cov
-idna==2.8
 requests>2.20.0
 requests-mock
 six
