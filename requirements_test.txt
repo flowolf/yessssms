@@ -2,7 +2,6 @@ atomicwrites
 attrs
 certifi
 chardet
-idna==2.7
 more-itertools
 pluggy
 py
