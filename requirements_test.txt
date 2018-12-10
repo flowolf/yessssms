@@ -12,3 +12,4 @@ requests-mock
 six
 urllib3
 yessssms
+tox
