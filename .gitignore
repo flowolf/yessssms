@@ -2,9 +2,11 @@ secrets.py
 secrets.pyc
 dist/
 build/
+htmlcov/
 YesssSMS.egg-info/
 YesssSMS/__pycache__/
 YesssSMS/tests/__pycache__/
 __pycache__
 .cache
 .coverage
+*,cover
