@@ -83,7 +83,7 @@ def test_login():
 
 def test_empty_message():
     """test error handling for empty message"""
-    sms = YesssSMS.YesssSMS()
+    sms = YesssSMS.YesssSMS(YESSS_LOGIN, YESSS_PASSWD)
     with pytest.raises(ValueError):
         sms.send(YESSS_TO, "")
     with pytest.raises(sms.EmptyMessageError):
