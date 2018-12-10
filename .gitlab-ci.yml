@@ -1,21 +1,29 @@
 ---
-image: python:3.6-stretch
-
 before_script:
   - python --version
   - pip --version
 
-test:
+test:3.6:
+  image: python:3.6-stretch
   script:
   - apt-get update -yq
-  - apt-get install -y python3-pip python3-dev python3.7
+  - apt-get install -y python3-pip python3-dev
   - pip3 install -r requirements_test.txt
   - pytest --version
   # - pytest
   # - pytest -v --cov=YesssSMS tests
   # - pytest --cov=YesssSMS --cov-report annotate tests
   # - cat YesssSMS/YesssSMS.py,cover
-  - tox
+  - tox -e py36
   # or
   # - pytest --cov=YesssSMS -cov-report html tests
   # publish html to webserver
+
+test:3.7:
+  image: python:3.7-stretch
+  script:
+  - apt-get update -yq
+  - apt-get install -y python3-pip python3-dev
+  - pip3 install -r requirements_test.txt
+  - pytest --version
+  - tox -e py37
