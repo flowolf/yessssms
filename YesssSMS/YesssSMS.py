@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-""" Send SMS via yesss.at web interface with your yesss login and password """
+"""Send SMS via yesss.at web interface with your yesss login and password."""
 #
 # @author: Florian Klien <flowolf@klienux.org>
 #
@@ -34,33 +34,42 @@ YESSS_PASSWD = None  # your password
 with suppress(ImportError):
     from secrets import YESSS_LOGIN, YESSS_PASSWD
 
+
 class YesssSMS():
-    """YesssSMS class for sending SMS via yesss.at website"""
+    """YesssSMS class for sending SMS via yesss.at website."""
+
     class NoRecipientError(ValueError):
-        """empty recipient"""
+        """empty recipient."""
+
         pass
 
     class EmptyMessageError(ValueError):
-        """empty message"""
+        """empty message."""
+
         pass
 
     class LoginError(ValueError):
-        """login credentials not accepted"""
+        """login credentials not accepted."""
+
         pass
 
     class AccountSuspendedError(LoginError):
-        """too many failed login tries, account suspended for one hour"""
+        """too many failed login tries, account suspended for one hour."""
+
         pass
 
     class SMSSendingError(RuntimeError):
-        """error during sending"""
+        """error during sending."""
+
         pass
 
     class UnsupportedCharsError(ValueError):
-        """yesss.at refused characters in message"""
+        """yesss.at refused characters in message."""
+
         pass
 
     def __init__(self, yesss_login=YESSS_LOGIN, yesss_pw=YESSS_PASSWD):
+        """Initialize YesssSMS member variables."""
         self._version = VERSION
         self._login_url = _LOGIN_URL
         self._logout_url = _LOGOUT_URL
@@ -71,6 +80,7 @@ class YesssSMS():
                            'login_passwort': yesss_pw}
 
     def _login(self, session, get_request=False):
+        """Return a session for yesss.at."""
         req = session.post(self._login_url, data=self._logindata)
         if _LOGIN_ERROR_STRING in req.text or \
                 req.status_code == 403 or \
@@ -88,11 +98,11 @@ class YesssSMS():
         return (session, req) if get_request else session
 
     def account_is_suspended(self):
-        """return if account is suspended"""
+        """Return if account is suspended."""
         return self._suspended
 
     def login_data_valid(self):
-        """check for working login data"""
+        """Check for working login data."""
         login_working = False
         try:
             with self._login(requests.Session()) as sess:
@@ -104,7 +114,7 @@ class YesssSMS():
         return login_working
 
     def send(self, recipient, message):
-        """send a SMS"""
+        """Send an SMS."""
         if self._logindata['login_rufnummer'] is None or \
                 self._logindata['login_passwort'] is None:
             err_mess = "YesssSMS: Login data required"
@@ -128,13 +138,13 @@ class YesssSMS():
                 raise self.UnsupportedCharsError(
                     "YesssSMS: message contains unsupported character(s)")
 
-            if not _SMS_SENDING_SUCCESSFUL_STRING in req.text:
+            if _SMS_SENDING_SUCCESSFUL_STRING not in req.text:
                 raise self.SMSSendingError("YesssSMS: error sending SMS")
 
             sess.get(self._logout_url)
 
     def version(self):
-        """get version of YesssSMS package"""
+        """Get version of YesssSMS package."""
         return self._version
 
 # if __name__ == "__main__":
