@@ -1,4 +1,4 @@
-""" Live Tests for YesssSMS module """
+"""Live Tests for YesssSMS module."""
 import time
 import pytest
 import requests
@@ -11,7 +11,7 @@ except ImportError:
 
 
 def test_credentials_exist():
-    """check for existing login data"""
+    """Check for existing login data."""
     sms = YesssSMS.YesssSMS(YESSS_LOGIN, YESSS_PASSWD)
     # pylint: disable=protected-access
     assert isinstance(sms._logindata['login_rufnummer'], str)
@@ -22,8 +22,9 @@ def test_credentials_exist():
     # pylint: disable=protected-access
     assert sms._logindata['login_passwort']
 
+
 def test_login():
-    """test if login works"""
+    """Test if login works."""
     sms = YesssSMS.YesssSMS(YESSS_LOGIN, YESSS_PASSWD)
     # pylint: disable=protected-access
     session, request = sms._login(requests.Session(), get_request=True)
@@ -33,22 +34,25 @@ def test_login():
     # pylint: disable=protected-access
     assert request.url == sms._kontomanager
 
+
 def test_empty_message():
-    """test error handling for empty message"""
+    """Test error handling for empty message."""
     sms = YesssSMS.YesssSMS(YESSS_LOGIN, YESSS_PASSWD)
     with pytest.raises(ValueError):
         sms.send(YESSS_TO, "")
 
+
 def test_login_error():
-    """test error handling of faulty login"""
+    """Test error handling of faulty login."""
     # non existing user and password
     sms = YesssSMS.YesssSMS("0000000000", "2d4faa0ea6f55813")
     # LoginError
     with pytest.raises(sms.LoginError):
         sms.send(YESSS_TO, "test")
 
+
 def test_login_suspended_error():
-    """test error handling for suspended account"""
+    """Test error handling for suspended account."""
     # non existing user and password
     sms = YesssSMS.YesssSMS("0000000123", "CU4uNvCsee")
     assert sms.login_data_valid() is False
@@ -64,7 +68,7 @@ def test_login_suspended_error():
 
 
 def test_send_sms():
-    """test SMS sending"""
+    """Test SMS sending."""
     try:
         sms = YesssSMS.YesssSMS(YESSS_LOGIN, YESSS_PASSWD)
         sms.send(YESSS_TO, "testing YesssSMS version {}, seems to work! :)"

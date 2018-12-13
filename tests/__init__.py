@@ -1,1 +1,1 @@
-"""Tests for YesssSMS"""
+"""Tests for YesssSMS."""

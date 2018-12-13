@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-""" Mocked tests for YesssSMS Module """
+"""Mocked tests for YesssSMS Module."""
 import pytest
 import requests
 import requests_mock
@@ -16,7 +16,7 @@ except ImportError:
 
 
 def test_credentials_work():
-    """test for working credentials"""
+    """Test for working credentials."""
     with requests_mock.Mocker() as mock:
         sms = YesssSMS.YesssSMS(YESSS_LOGIN, YESSS_PASSWD)
         mock.register_uri('POST',
@@ -49,8 +49,9 @@ def test_credentials_work():
         # pylint: disable=protected-access
         assert sms._logindata['login_passwort']
 
+
 def test_login():
-    """test if login works"""
+    """Test if login works."""
     with requests_mock.Mocker() as mock:
         sms = YesssSMS.YesssSMS(YESSS_LOGIN, YESSS_PASSWD)
         mock.register_uri('POST',
@@ -82,7 +83,7 @@ def test_login():
 
 
 def test_empty_message():
-    """test error handling for empty message"""
+    """Test error handling for empty message."""
     sms = YesssSMS.YesssSMS(YESSS_LOGIN, YESSS_PASSWD)
     with pytest.raises(ValueError):
         sms.send(YESSS_TO, "")
@@ -91,7 +92,7 @@ def test_empty_message():
 
 
 def test_login_error():
-    """test error handling of faulty login"""
+    """Test error handling of faulty login."""
     with requests_mock.Mocker() as mock:
         sms = YesssSMS.YesssSMS("0000000000", "2d4faa0ea6f55813")
         mock.register_uri('POST',
@@ -108,32 +109,37 @@ def test_login_error():
         with pytest.raises(sms.LoginError):
             sms.send(YESSS_TO, "test")
 
+
 def test_login_empty_password_error():
-    """test error handling of empty password"""
+    """Test error handling of empty password."""
     sms = YesssSMS.YesssSMS("0000000000", None)
     with pytest.raises(sms.LoginError):
         sms.send(YESSS_TO, "test")
 
+
 def test_login_empty_login_error():
-    """test error handling of empty login"""
+    """Test error handling of empty login."""
     sms = YesssSMS.YesssSMS("", "2d4faa0ea6f55813")
     with pytest.raises(sms.LoginError):
         sms.send(YESSS_TO, "test")
 
+
 def test_no_recipient_error():
-    """test error handling of no recipient"""
+    """Test error handling of no recipient."""
     sms = YesssSMS.YesssSMS("0000000000", "2d4faa0ea6f55813")
     with pytest.raises(sms.NoRecipientError):
         sms.send("", "test")
 
+
 def test_recipient_not_str_error():
-    """test error handling of wrong recipient data type"""
+    """Test error handling of wrong recipient data type."""
     sms = YesssSMS.YesssSMS("0000000000", "2d4faa0ea6f55813")
     with pytest.raises(ValueError):
         sms.send(176264916361239, "test")
 
+
 def test_message_sending_error():
-    """test handling of status codes other than 200 and 302"""
+    """Test handling of status codes other than 200 and 302."""
     with requests_mock.Mocker() as mock:
         sms = YesssSMS.YesssSMS("0000000000", "2d4faa0ea6f55813")
         mock.register_uri('POST',
@@ -162,8 +168,9 @@ def test_message_sending_error():
         with pytest.raises(sms.SMSSendingError):
             sms.send(YESSS_TO, "test")
 
+
 def test_unsupported_chars_error():
-    """test error handling for unsupported chars"""
+    """Test error handling for unsupported chars."""
     with requests_mock.Mocker() as mock:
         sms = YesssSMS.YesssSMS("0000000000", "2d4faa0ea6f55813")
         mock.register_uri('POST',
@@ -192,8 +199,9 @@ def test_unsupported_chars_error():
         with pytest.raises(sms.UnsupportedCharsError):
             sms.send(YESSS_TO, "test")
 
+
 def test_sms_sending_error():
-    """test error handling for missing success string"""
+    """Test error handling for missing success string."""
     with requests_mock.Mocker() as mock:
         sms = YesssSMS.YesssSMS("0000000000", "2d4faa0ea6f55813")
         mock.register_uri('POST',
@@ -222,8 +230,9 @@ def test_sms_sending_error():
         with pytest.raises(sms.SMSSendingError):
             sms.send(YESSS_TO, "test")
 
+
 def test_login_suspended_error():
-    """test error handling for suspended account"""
+    """Test error handling for suspended account."""
     with requests_mock.Mocker() as mock:
         # non existing user and password
         sms = YesssSMS.YesssSMS(YESSS_LOGIN, YESSS_PASSWD)
@@ -249,7 +258,7 @@ def test_login_suspended_error():
 
 
 def test_send_sms():
-    """test SMS sending"""
+    """Test SMS sending."""
     with requests_mock.Mocker() as mock:
         sms = YesssSMS.YesssSMS(YESSS_LOGIN, YESSS_PASSWD)
         mock.register_uri('POST',
@@ -268,7 +277,8 @@ def test_send_sms():
                           # pylint: disable=protected-access
                           sms._websms_url,
                           status_code=200,
-                          text="<h1>Ihre SMS wurde erfolgreich verschickt!</h1>"
+                          text="<h1>Ihre SMS wurde erfolgreich " +
+                               "verschickt!</h1>"
                           )
         mock.register_uri('GET',
                           # pylint: disable=protected-access
