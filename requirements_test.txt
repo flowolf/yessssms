@@ -7,7 +7,7 @@ pluggy
 py
 pytest
 pytest-cov
-requests>2.20.0
+requests
 requests-mock
 six
 urllib3
