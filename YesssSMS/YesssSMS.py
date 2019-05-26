@@ -8,10 +8,11 @@
 # pylint: disable-msg=C0103
 
 from contextlib import suppress
+import argparse
 
 import requests
 
-from YesssSMS.const import VERSION
+from YesssSMS.const import VERSION, HELP
 
 _LOGIN_URL = "https://www.yesss.at/kontomanager.at/index.php"
 _LOGOUT_URL = "https://www.yesss.at/kontomanager.at/index.php?dologout=2"
@@ -147,5 +148,17 @@ class YesssSMS():
         """Get version of YesssSMS package."""
         return self._version
 
-# if __name__ == "__main__":
-#     pass
+def cli():
+    parser = argparse.ArgumentParser(description=
+                                     'Send an SMS via the yesss.at website')
+    parser.add_argument('-t', '--to', dest='recipient', help=HELP['to_help'])
+    parser.add_argument('-m', '--message', help=HELP['message'])
+    args = parser.parse_args()
+    # print(args)
+    print(YESSS_LOGIN)
+    sms = YesssSMS(YESSS_LOGIN, YESSS_PASSWD)
+    sms.send(args.recipient, args.message)
+
+
+if __name__ == "__main__":
+    cli()
