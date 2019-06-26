@@ -22,3 +22,9 @@ Currently the library supports Python 3.3+, but is only [tested against Python 3
 >>> sms = YesssSMS(YOUR_LOGIN, YOUR_PASSWORD)
 >>> sms.send(TO_NUMBER, "Message")
 ```
+or for the command line:
+```bash
+> echo '[YESSS_AT]\nYESSS_LOGIN=06501234567\nYESSS_PASSWD=password' > ~/.config/yessssms.conf
+> yessssms --test # test your setup, send yourself a message
+> yessssms -t 0664123123123 -m "sending SMS from the command line :)"
+```

@@ -9,10 +9,24 @@
 
 from contextlib import suppress
 import argparse
+from datetime import datetime
+import configparser
+from os.path import abspath
+from os.path import isfile
+from os.path import expanduser
 
 import requests
 
-from YesssSMS.const import VERSION, HELP
+from YesssSMS.const import VERSION, HELP,\
+                           _LOGIN_ERROR_STRING,\
+                           _LOGIN_LOCKED_MESS,\
+                           _LOGIN_LOCKED_MESS_ENG,\
+                           _UNSUPPORTED_CHARS_STRING,\
+                           _SMS_SENDING_SUCCESSFUL_STRING
+
+CONFIG_FILE_PATHS = ["/etc/yessssms.conf",
+                     "~/.config/yessssms.conf",
+                    ]
 
 _LOGIN_URL = "https://www.yesss.at/kontomanager.at/index.php"
 _LOGOUT_URL = "https://www.yesss.at/kontomanager.at/index.php?dologout=2"
@@ -20,14 +34,6 @@ _KONTOMANAGER_URL = "https://www.yesss.at/kontomanager.at/kundendaten.php"
 _WEBSMS_URL = "https://www.yesss.at/kontomanager.at/websms_send.php"
 
 # yesss.at responds with HTTP 200 on non successful login
-_LOGIN_ERROR_STRING = "<strong>Login nicht erfolgreich"
-_LOGIN_LOCKED_MESS = "Wegen 3 ungültigen Login-Versuchen ist Ihr Account für \
-eine Stunde gesperrt."
-_LOGIN_LOCKED_MESS_ENG = "because of 3 failed login-attempts, your account \
-has been suspended for one hour"
-_UNSUPPORTED_CHARS_STRING = "<strong>Achtung:</strong> Ihre SMS konnte nicht \
-versendet werden, da sie folgende ungültige Zeichen enthält:"
-_SMS_SENDING_SUCCESSFUL_STRING = ">Ihre SMS wurde erfolgreich verschickt!<"
 YESSS_LOGIN = None  # normally your phone number
 YESSS_PASSWD = None  # your password
 
@@ -148,16 +154,84 @@ class YesssSMS():
         """Get version of YesssSMS package."""
         return self._version
 
+def version_info():
+    print("yessssms {}".format(YesssSMS().version()))
+
+def print_config_file():
+    print("[YESSS_AT]\nYESSS_LOGIN = 06501234567\nYESSS_PASSWD = mySecretPassword")
+    print("# you can define a default recipient (will be overridden by -t option)")
+    print("# YESSS_TO = +43664123123123")
+
 def cli():
-    parser = argparse.ArgumentParser(description=
-                                     'Send an SMS via the yesss.at website')
+    parser = argparse.ArgumentParser(description=HELP['desc'])
     parser.add_argument('-t', '--to', dest='recipient', help=HELP['to_help'])
     parser.add_argument('-m', '--message', help=HELP['message'])
+    parser.add_argument('-c', '--configfile', help=HELP['configfile'])
+    parser.add_argument('-l', '--login', dest='login', help=HELP['login'])
+    parser.add_argument('-p', '--password', dest='password', help=HELP['password'])
+    parser.add_argument('--version', action='store_true',
+                        default=False, help=HELP['version'])
+    parser.add_argument("--test", action='store_true',
+                        default=False, help=HELP['test'])
+    parser.add_argument("--print-config-file", action='store_true',
+                        default=False, help=HELP['print-config-file'])
     args = parser.parse_args()
     # print(args)
-    print(YESSS_LOGIN)
+
+    if args.print_config_file:
+        print_config_file()
+        return
+    if args.version:
+        version_info()
+        return
+
+    if args.configfile:
+        CONFIG_FILE_PATHS.append(args.configfile)
+
+    # print("conffile: {}".format(CONFIG_FILE_PATHS))
+    for conffile in CONFIG_FILE_PATHS:
+        conffile = expanduser(conffile)
+        conffile = abspath(conffile)
+        # print(conffile)
+        try:
+            if not isfile(conffile): # check if file is there
+                continue
+            config = configparser.ConfigParser()
+            config.read(conffile)
+            YESSS_LOGIN = str(config.get('YESSS_AT', 'YESSS_LOGIN'))
+            YESSS_PASSWD = str(config.get('YESSS_AT', 'YESSS_PASSWD'))
+            if config.has_option("YESSS_AT", "YESSS_TO"):
+                # set a default recipient
+                DEFAULT_RECIPIENT = config.get('YESSS_AT', 'YESSS_TO')
+            else:
+                DEFAULT_RECIPIENT = None
+        except (KeyError, configparser.NoSectionError) as ex:
+            print("settings not found: {}".format(conffile))
+            pass
+
+    if args.login and args.password:
+        YESSS_LOGIN = args.login
+        YESSS_PASSWD = args.password
     sms = YesssSMS(YESSS_LOGIN, YESSS_PASSWD)
-    sms.send(args.recipient, args.message)
+
+    if args.recipient:
+        recipient = args.recipient
+    elif DEFAULT_RECIPIENT != None:
+        recipient = DEFAULT_RECIPIENT
+    else:
+        recipient = None
+
+    # print(sms._logindata)
+    if args.test:
+        if args.message:
+            message = args.message
+        else:
+            message = "yessssms test message at {}".format(datetime.now().isoformat())
+        sms.send(YESSS_LOGIN, message)
+        # print("\n\n  sent TEST message!\n\n")
+    else:
+        sms.send(recipient, args.message)
+        # print("\n\n  sent message!\n\n")
 
 
 if __name__ == "__main__":
