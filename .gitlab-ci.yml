@@ -53,8 +53,7 @@ test_release:
   - python setup.py sdist bdist_wheel
   - twine upload -r testpypi dist/*.tar.gz
   only:
-    tags:
-      - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant
+    - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant
 
 # release:
 #   stage: release
