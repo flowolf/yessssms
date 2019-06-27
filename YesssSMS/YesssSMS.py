@@ -214,20 +214,19 @@ def cli():
         YESSS_PASSWD = args.password
     sms = YesssSMS(YESSS_LOGIN, YESSS_PASSWD)
 
-    if args.recipient:
-        recipient = args.recipient
-    elif DEFAULT_RECIPIENT != None:
-        recipient = DEFAULT_RECIPIENT
-    else:
-        recipient = None
+    recipient = DEFAULT_RECIPIENT or args.recipient
+    # if args.recipient:
+    #     recipient = args.recipient
+    # elif DEFAULT_RECIPIENT != None:
+    #     recipient = DEFAULT_RECIPIENT
+    # else:
+    #     recipient = None
 
     # print(sms._logindata)
     if args.test:
-        if args.message:
-            message = args.message
-        else:
-            message = "yessssms test message at {}".format(datetime.now().isoformat())
-        sms.send(YESSS_LOGIN, message)
+        message = args.message or "yessssms test message at {}".format(datetime.now().isoformat())
+        recipient = args.recipient or DEFAULT_RECIPIENT or YESSS_LOGIN
+        sms.send(recipient, message)
         # print("\n\n  sent TEST message!\n\n")
     else:
         sms.send(recipient, args.message)
