@@ -52,7 +52,7 @@ test_release:
     echo "password: ${PYPI_TEST_PASSWD}" >> ~/.pypirc
   - python3 setup.py check sdist bdist_wheel
   - ls -lha dist
-  - twine upload  --verbose -r testpypi dist/*.tar.gz
+  - twine upload  --verbose -r testpypi dist/*.tar.gz dist/*.whl
   only:
     - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant
 
