@@ -212,15 +212,10 @@ def cli():
     if args.login and args.password:
         YESSS_LOGIN = args.login
         YESSS_PASSWD = args.password
+
     sms = YesssSMS(YESSS_LOGIN, YESSS_PASSWD)
 
     recipient = DEFAULT_RECIPIENT or args.recipient
-    # if args.recipient:
-    #     recipient = args.recipient
-    # elif DEFAULT_RECIPIENT != None:
-    #     recipient = DEFAULT_RECIPIENT
-    # else:
-    #     recipient = None
 
     # print(sms._logindata)
     if args.test:
