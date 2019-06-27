@@ -50,9 +50,9 @@ test_release:
     echo "repository: ${PYPI_TEST_REPO}" >> ~/.pypirc
     echo "username: ${PYPI_TEST_USER}" >> ~/.pypirc
     echo "password: ${PYPI_TEST_PASSWD}" >> ~/.pypirc
-  - python3 setup.py check sdist bdist
-  - python setup.py sdist bdist_wheel
-  - twine upload -r testpypi dist/*.tar.gz
+  - python3 setup.py check sdist bdist_wheel
+  - ls -lha dist
+  - twine upload  --verbose -r testpypi dist/*.tar.gz
   only:
     - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant
 
