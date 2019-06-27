@@ -1,6 +1,6 @@
 ---
 stages:
-  - test
+  # - test
   - release
 
 before_script:
@@ -8,29 +8,29 @@ before_script:
   - pip --version
 
 
-test:3.5:
-  image: python:3.5-alpine
-  script:
-  - apk add py-pip python3-dev
-  - pip3 install -r requirements_test.txt
-  - pytest --version
-  - tox -e py35
-
-test:3.6:
-  image: python:3.6-alpine
-  script:
-  - apk add py-pip python3-dev
-  - pip3 install -r requirements_test.txt
-  - pytest --version
-  - tox -e py36
-
-test:3.7:
-  image: python:3.7-alpine
-  script:
-  - apk add py-pip python3-dev
-  - pip3 install -r requirements_test.txt
-  - pytest --version
-  - tox -e py37
+# test:3.5:
+#   image: python:3.5-alpine
+#   script:
+#   - apk add py-pip python3-dev
+#   - pip3 install -r requirements_test.txt
+#   - pytest --version
+#   - tox -e py35
+#
+# test:3.6:
+#   image: python:3.6-alpine
+#   script:
+#   - apk add py-pip python3-dev
+#   - pip3 install -r requirements_test.txt
+#   - pytest --version
+#   - tox -e py36
+#
+# test:3.7:
+#   image: python:3.7-alpine
+#   script:
+#   - apk add py-pip python3-dev
+#   - pip3 install -r requirements_test.txt
+#   - pytest --version
+#   - tox -e py37
 
 test_release:
   stage: release
@@ -46,9 +46,9 @@ test_release:
   - echo "    testpypi" >> ~/.pypirc
   - echo "" >> ~/.pypirc
   - echo "[testpypi]" >> ~/.pypirc
-  - echo "${PYPI_TEST_REPO}" >> ~/.pypirc
-  - echo "${PYPI_TEST_USER}" >> ~/.pypirc
-  - echo "${PYPI_TEST_PASSWD}" >> ~/.pypirc
+  - echo "repository: ${PYPI_TEST_REPO}" >> ~/.pypirc
+  - echo "username: ${PYPI_TEST_USER}" >> ~/.pypirc
+  - echo "password: ${PYPI_TEST_PASSWD}" >> ~/.pypirc
   - python3 setup.py check sdist bdist
   - python setup.py sdist bdist_wheel
   - twine upload -r testpypi dist/*.tar.gz
