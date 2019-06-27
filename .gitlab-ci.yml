@@ -1,4 +1,8 @@
 ---
+stages:
+  - test
+  - release
+
 before_script:
   - python --version
   - pip --version
@@ -27,6 +31,55 @@ test:3.7:
   - pip3 install -r requirements_test.txt
   - pytest --version
   - tox -e py37
+
+test_release:
+  stage: release
+  image: python:3.7-alpine
+  script:
+  - pip install twine
+  - rm -rf dist
+  # - export TWINE_USERNAME=$PYPI_TEST_USER
+  # - export TWINE_PASSWORD=$PYPI_TEST_PASSWD
+  - echo "[distutils]" >> ~/.pypirc
+  - echo "index-servers=" >> ~/.pypirc
+  - echo "    pypi" >> ~/.pypirc
+  - echo "    testpypi" >> ~/.pypirc
+  - echo "" >> ~/.pypirc
+  - echo "[testpypi]" >> ~/.pypirc
+  - echo "${PYPI_TEST_REPO}" >> ~/.pypirc
+  - echo "${PYPI_TEST_USER}" >> ~/.pypirc
+  - echo "${PYPI_TEST_PASSWD}" >> ~/.pypirc
+  - python3 setup.py check sdist bdist
+  - python setup.py sdist bdist_wheel
+  - twine upload -r testpypi dist/*.tar.gz
+  only:
+    tags:
+      - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant
+
+# release:
+#   stage: release
+#   image: python:3.7-alpine
+#   script:
+#   - pip install twine
+#   - rm -rf dist
+#   # - export TWINE_USERNAME=$PYPI_USER
+#   # - export TWINE_PASSWORD=$PYPI_PASSWD
+#   - echo "[distutils]" >> ~/.pypirc
+#   - echo "index-servers=" >> ~/.pypirc
+#   - echo "    pypi" >> ~/.pypirc
+#   - echo "    testpypi" >> ~/.pypirc
+#   - echo "" >> ~/.pypirc
+#   - echo "[pypi]" >> ~/.pypirc
+#   - echo "${PYPI_REPO}" >> ~/.pypirc
+#   - echo "${PYPI_USER}" >> ~/.pypirc
+#   - echo "${PYPI_PASSWD}" >> ~/.pypirc
+#   - python3 setup.py check sdist bdist  # This will fail if your creds are bad.
+#   - python setup.py sdist bdist_wheel
+#   - twine upload -r pypi dist/*.tar.gz
+#   only:
+#     tags:
+#       - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant
+
 
 # test:3.6:
 #   image: python:3.6-stretch

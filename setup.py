@@ -36,7 +36,7 @@ setup(
     ],
     platforms='any',
     keywords=['SMS', 'Yesss', 'messaging'],
-    packages=find_packages(exclude=['contrib', 'docs', 'tests']),
+    packages=find_packages(exclude=['contrib', 'docs', 'tests', 'logo']),
 
     # List run-time dependencies here.  These will be installed by pip
     install_requires=['requests'],
