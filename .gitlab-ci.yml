@@ -15,22 +15,22 @@ test:3.5:
   - pip3 install -r requirements_test.txt
   - pytest --version
   - tox -e py35
-#
-# test:3.6:
-#   image: python:3.6-alpine
-#   script:
-#   - apk add py-pip python3-dev
-#   - pip3 install -r requirements_test.txt
-#   - pytest --version
-#   - tox -e py36
-#
-# test:3.7:
-#   image: python:3.7-alpine
-#   script:
-#   - apk add py-pip python3-dev
-#   - pip3 install -r requirements_test.txt
-#   - pytest --version
-#   - tox -e py37
+
+test:3.6:
+  image: python:3.6-alpine
+  script:
+  - apk add py-pip python3-dev
+  - pip3 install -r requirements_test.txt
+  - pytest --version
+  - tox -e py36
+
+test:3.7:
+  image: python:3.7-alpine
+  script:
+  - apk add py-pip python3-dev
+  - pip3 install -r requirements_test.txt
+  - pytest --version
+  - tox -e py37
 
 test_release:
   stage: release
@@ -38,8 +38,6 @@ test_release:
   script:
   - pip install twine
   - rm -rf dist
-  # - export TWINE_USERNAME=$PYPI_TEST_USER
-  # - export TWINE_PASSWORD=$PYPI_TEST_PASSWD
   - echo "[distutils]" >> ~/.pypirc
   - echo "index-servers=" >> ~/.pypirc
   - echo "    pypi" >> ~/.pypirc
@@ -54,31 +52,27 @@ test_release:
   - ls -lha dist
   - twine upload  --verbose -r testpypi dist/*.tar.gz dist/*.whl
   only:
-    - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant
+    - /^test_v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant
 
-# release:
-#   stage: release
-#   image: python:3.7-alpine
-#   script:
-#   - pip install twine
-#   - rm -rf dist
-#   # - export TWINE_USERNAME=$PYPI_USER
-#   # - export TWINE_PASSWORD=$PYPI_PASSWD
-#   - echo "[distutils]" >> ~/.pypirc
-#   - echo "index-servers=" >> ~/.pypirc
-#   - echo "    pypi" >> ~/.pypirc
-#   - echo "    testpypi" >> ~/.pypirc
-#   - echo "" >> ~/.pypirc
-#   - echo "[pypi]" >> ~/.pypirc
-#   - echo "${PYPI_REPO}" >> ~/.pypirc
-#   - echo "${PYPI_USER}" >> ~/.pypirc
-#   - echo "${PYPI_PASSWD}" >> ~/.pypirc
-#   - python3 setup.py check sdist bdist  # This will fail if your creds are bad.
-#   - python setup.py sdist bdist_wheel
-#   - twine upload -r pypi dist/*.tar.gz
-#   only:
-#     tags:
-#       - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant
+release:
+  stage: release
+  image: python:3.7-alpine
+  script:
+  - pip install twine
+  - rm -rf dist
+  - echo "[distutils]" >> ~/.pypirc
+  - echo "index-servers=" >> ~/.pypirc
+  - echo "    pypi" >> ~/.pypirc
+  - echo "" >> ~/.pypirc
+  - echo "[pypi]" >> ~/.pypirc
+  - |2
+    echo "username: ${PYPI_USER}" >> ~/.pypirc
+    echo "password: ${PYPI_PASSWD}" >> ~/.pypirc
+  - python3 setup.py check sdist bdist_wheel
+  - ls -lha dist
+  - twine upload  --verbose -r pypi dist/*.tar.gz dist/*.whl
+  only:
+    - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant
 
 
 # test:3.6:
