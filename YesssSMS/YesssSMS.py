@@ -176,7 +176,6 @@ def cli():
     parser.add_argument("--print-config-file", action='store_true',
                         default=False, help=HELP['print-config-file'])
     args = parser.parse_args()
-    # print(args)
 
     if args.print_config_file:
         print_config_file()
@@ -188,11 +187,9 @@ def cli():
     if args.configfile:
         CONFIG_FILE_PATHS.append(args.configfile)
 
-    # print("conffile: {}".format(CONFIG_FILE_PATHS))
     for conffile in CONFIG_FILE_PATHS:
         conffile = expanduser(conffile)
         conffile = abspath(conffile)
-        # print(conffile)
         try:
             if not isfile(conffile): # check if file is there
                 continue
@@ -201,7 +198,6 @@ def cli():
             YESSS_LOGIN = str(config.get('YESSS_AT', 'YESSS_LOGIN'))
             YESSS_PASSWD = str(config.get('YESSS_AT', 'YESSS_PASSWD'))
             if config.has_option("YESSS_AT", "YESSS_TO"):
-                # set a default recipient
                 DEFAULT_RECIPIENT = config.get('YESSS_AT', 'YESSS_TO')
             else:
                 DEFAULT_RECIPIENT = None
@@ -217,15 +213,12 @@ def cli():
 
     recipient = DEFAULT_RECIPIENT or args.recipient
 
-    # print(sms._logindata)
     if args.test:
         message = args.message or "yessssms test message at {}".format(datetime.now().isoformat())
         recipient = args.recipient or DEFAULT_RECIPIENT or YESSS_LOGIN
         sms.send(recipient, message)
-        # print("\n\n  sent TEST message!\n\n")
     else:
         sms.send(recipient, args.message)
-        # print("\n\n  sent message!\n\n")
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 """constants for YesssSMS."""
-VERSION = "0.3.0b5"
+VERSION = "0.3.0"
 _UNSUPPORTED_CHARS_STRING = "<strong>Achtung:</strong> Ihre SMS konnte nicht \
 versendet werden, da sie folgende ungültige Zeichen enthält:"
 _LOGIN_ERROR_STRING = "<strong>Login nicht erfolgreich"
@@ -11,7 +11,8 @@ _UNSUPPORTED_CHARS_STRING = "<strong>Achtung:</strong> Ihre SMS konnte nicht \
 versendet werden, da sie folgende ungültige Zeichen enthält:"
 _SMS_SENDING_SUCCESSFUL_STRING = ">Ihre SMS wurde erfolgreich verschickt!<"
 # <div class='alert alert-warning'>Lieber yesss! Kunde,<br /><br />Ihre Karte wurde deaktiviert, da Sie innerhalb der letzten 12 Monate nicht mehr aufgeladen haben. Bitte laden Sie zur Aktivierung Ihrer SIM-Karte Ihr Guthaben wieder auf, da andernfalls in Kürze die Rufnummer gelöscht wird.<br /><br />Ihr yesss! Team</div>
-_ACCOUNT_LOCKED_WARNING = ">Ihre Karte wurde deaktiviert, da Sie innerhalb der letzten 12 Monate nicht mehr aufgeladen haben."
+_ACCOUNT_LOCKED_WARNING = ">Ihre Karte wurde deaktiviert, da Sie innerhalb \
+der letzten 12 Monate nicht mehr aufgeladen haben."
 HELP = {'to_help': 'Recipient phone number in the format: +436601234567',
         'desc': 'Send an SMS via the yesss.at website',
         'configfile': "Path of a config-file. Default paths are: '/etc/yessssms.conf' and '~/.config/yessssms.conf'. An example file is yessssms_sample.conf.",
