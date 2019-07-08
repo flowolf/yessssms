@@ -5,6 +5,7 @@ import pytest
 import requests
 import requests_mock
 import YesssSMS
+from YesssSMS.YesssSMS import version_info, cli, print_config_file
 from YesssSMS.const import VERSION, _UNSUPPORTED_CHARS_STRING
 
 try:
@@ -290,3 +291,14 @@ def test_send_sms():
                      .format(sms.version()))
         except (ValueError, RuntimeError):
             pytest.fail("Exception raised while sending SMS")
+
+def test_cli_print_config_file(capsys):
+    """test for correct config file output"""
+    print_config_file()
+    captured = capsys.readouterr()
+    assert(captured.out == """[YESSS_AT]
+YESSS_LOGIN = 06501234567
+YESSS_PASSWD = mySecretPassword
+# you can define a default recipient (will be overridden by -t option)
+# YESSS_TO = +43664123123123
+""")
