@@ -185,7 +185,7 @@ def parse_args(args):
 
 def cli():
     args = parse_args(sys.argv[1:])
-    print(args)
+
     if args.print_config_file:
         print_config_file()
         return
