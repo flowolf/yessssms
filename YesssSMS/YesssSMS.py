@@ -223,7 +223,7 @@ def cli():
     recipient = DEFAULT_RECIPIENT or args.recipient
 
     if args.test:
-        message = args.message or "yessssms test message at {}".format(datetime.now().isoformat())
+        message = args.message or "yessssms ("+ VERSION +") test message at {}".format(datetime.now().isoformat())
         recipient = args.recipient or DEFAULT_RECIPIENT or YESSS_LOGIN
         sms.send(recipient, message)
     else:
