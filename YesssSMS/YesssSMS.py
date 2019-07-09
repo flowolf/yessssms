@@ -41,6 +41,7 @@ YESSS_PASSWD = None  # your password
 
 # alternatively import passwd and number from external file
 with suppress(ImportError):
+    # pylint: disable-msg=E0611
     from secrets import YESSS_LOGIN, YESSS_PASSWD
 
 
@@ -178,12 +179,13 @@ def parse_args(args):
                         default=False, help=HELP['test'])
     parser.add_argument("--print-config-file", action='store_true',
                         default=False, help=HELP['print-config-file'])
-    if len(args) == 0:
+    if not args:
         parser.print_help()
         parser.exit()
     return parser.parse_args(args)
 
 def cli():
+    """Handle arguments for command line interface"""
     args = parse_args(sys.argv[1:])
 
     if args.print_config_file:
@@ -204,6 +206,7 @@ def cli():
                 continue
             config = configparser.ConfigParser()
             config.read(conffile)
+            # pylint: disable-msg=W0621
             YESSS_LOGIN = str(config.get('YESSS_AT', 'YESSS_LOGIN'))
             YESSS_PASSWD = str(config.get('YESSS_AT', 'YESSS_PASSWD'))
             if config.has_option("YESSS_AT", "YESSS_TO"):
@@ -211,8 +214,7 @@ def cli():
             else:
                 DEFAULT_RECIPIENT = None
         except (KeyError, configparser.NoSectionError) as ex:
-            print("settings not found: {}".format(conffile))
-            pass
+            print("settings not found: {} ({})".format(conffile, ex))
 
     if args.login and args.password:
         YESSS_LOGIN = args.login
@@ -223,7 +225,8 @@ def cli():
     recipient = DEFAULT_RECIPIENT or args.recipient
 
     if args.test:
-        message = args.message or "yessssms ("+ VERSION +") test message at {}".format(datetime.now().isoformat())
+        message = args.message or "yessssms ("+ VERSION +\
+                  ") test message at {}".format(datetime.now().isoformat())
         recipient = args.recipient or DEFAULT_RECIPIENT or YESSS_LOGIN
         sms.send(recipient, message)
     else:
