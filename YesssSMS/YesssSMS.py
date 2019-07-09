@@ -181,12 +181,18 @@ def parse_args(args):
                         default=False, help=HELP['print-config-file'])
     if not args:
         parser.print_help()
-        parser.exit()
+        return None
+
     return parser.parse_args(args)
 
 def cli():
     """Handle arguments for command line interface"""
     args = parse_args(sys.argv[1:])
+
+    DEFAULT_RECIPIENT = None
+
+    if not args:
+        return
 
     if args.print_config_file:
         print_config_file()
@@ -211,8 +217,6 @@ def cli():
             YESSS_PASSWD = str(config.get('YESSS_AT', 'YESSS_PASSWD'))
             if config.has_option("YESSS_AT", "YESSS_TO"):
                 DEFAULT_RECIPIENT = config.get('YESSS_AT', 'YESSS_TO')
-            else:
-                DEFAULT_RECIPIENT = None
         except (KeyError, configparser.NoSectionError) as ex:
             print("settings not found: {} ({})".format(conffile, ex))
 
@@ -220,9 +224,13 @@ def cli():
         YESSS_LOGIN = args.login
         YESSS_PASSWD = args.password
 
-    sms = YesssSMS(YESSS_LOGIN, YESSS_PASSWD)
+    try:
+        YESSS_LOGIN or YESSS_PASSWD
+    except UnboundLocalError:
+        print("error: no username or password defined (use --help for help)")
+        return
 
-    recipient = DEFAULT_RECIPIENT or args.recipient
+    sms = YesssSMS(YESSS_LOGIN, YESSS_PASSWD)
 
     if args.test:
         message = args.message or "yessssms ("+ VERSION +\
@@ -230,7 +238,7 @@ def cli():
         recipient = args.recipient or DEFAULT_RECIPIENT or YESSS_LOGIN
         sms.send(recipient, message)
     else:
-        sms.send(recipient, args.message)
+        sms.send(DEFAULT_RECIPIENT or args.recipient, args.message)
 
 
 if __name__ == "__main__":

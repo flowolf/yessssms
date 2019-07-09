@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """Mocked tests for YesssSMS Module."""
+import sys
 import pytest
 import requests
 import requests_mock
@@ -9,6 +10,11 @@ from unittest import mock
 
 import YesssSMS
 from YesssSMS.YesssSMS import version_info, cli, print_config_file, parse_args
+from YesssSMS.YesssSMS import _LOGIN_URL,\
+                              _LOGOUT_URL,\
+                              _KONTOMANAGER_URL,\
+                              _WEBSMS_URL,\
+                              CONFIG_FILE_PATHS
 from YesssSMS.const import VERSION,\
                            _UNSUPPORTED_CHARS_STRING,\
                            CONFIG_FILE_CONTENT
@@ -27,7 +33,7 @@ def test_credentials_work():
         sms = YesssSMS.YesssSMS(YESSS_LOGIN, YESSS_PASSWD)
         mock.register_uri('POST',
                           # pylint: disable=protected-access
-                          sms._login_url,
+                          _LOGIN_URL,
                           status_code=302,
                           # pylint: disable=protected-access
                           headers={'location': sms._kontomanager}
@@ -297,17 +303,20 @@ def test_send_sms():
         except (ValueError, RuntimeError):
             pytest.fail("Exception raised while sending SMS")
 
+
 def test_cli_print_config_file(capsys):
     """test for correct config file output"""
     print_config_file()
     captured = capsys.readouterr()
     assert(captured.out == CONFIG_FILE_CONTENT)
 
+
 def test_cli_version_info(capsys):
     """test for correct version info print"""
     version_info()
     captured = capsys.readouterr()
     assert(captured.out == "yessssms " + VERSION + "\n")
+
 
 def test_cli_boolean_args():
     """test parser for boolean arguments"""
@@ -351,3 +360,123 @@ def test_cli_argparse():
 
     args = parse_args(["-m", "testmessage 123 - can you see this?"])
     assert(args.message == "testmessage 123 - can you see this?")
+
+
+def test_cli_with_test_args():
+    """Test command line arguments with --test"""
+    testargs = ["yessssms", "--test",
+                "-l","06641234567","-p","passw0rd","-t","+43676564736"]
+    with mock.patch.object(sys, 'argv', testargs):
+        with requests_mock.Mocker() as m:
+            m.register_uri('POST',
+                              _LOGIN_URL,
+                              status_code=302,
+                              # pylint: disable=protected-access
+                              headers={'location': _KONTOMANAGER_URL}
+                              )
+            m.register_uri('GET',
+                              _KONTOMANAGER_URL,
+                              status_code=200,
+                              )
+            m.register_uri('POST',
+                              _WEBSMS_URL,
+                              status_code=200,
+                              text="<h1>Ihre SMS wurde erfolgreich " +
+                                   "verschickt!</h1>"
+                              )
+            m.register_uri('GET',
+                              _LOGOUT_URL,
+                              status_code=200,
+                              )
+            cli()
+
+
+def test_cli_with_printconfigfile_arg(capsys):
+    testargs = ["yessssms", "--print-config-file"]
+    with mock.patch.object(sys, 'argv', testargs):
+        cli()
+        captured = capsys.readouterr()
+        assert(captured.out == CONFIG_FILE_CONTENT)
+
+
+def test_cli_with_version_arg(capsys):
+    testargs = ["yessssms", "--version"]
+    with mock.patch.object(sys, 'argv', testargs):
+        cli()
+        captured = capsys.readouterr()
+        assert(captured.out == "yessssms " + VERSION + "\n")
+
+
+def test_cli_with_no_arg(capsys):
+    testargs = ["yessssms"]
+    with mock.patch.object(sys, 'argv', testargs):
+        cli()
+        captured = capsys.readouterr()
+        assert("usage: yessssms " in captured.out)
+
+
+def test_cli_with_configfile_arg():
+    testargs = ["yessssms","-c","/tmp/testconfig_1234.conf","-m","test",
+                "-l","06641234567","-p","passw0rd","-t","+43676564736"
+                ]
+    with mock.patch.object(sys, 'argv', testargs) as a:
+        with requests_mock.Mocker() as m:
+            m.register_uri('POST',
+                              # pylint: disable=protected-access
+                              _LOGIN_URL,
+                              status_code=302,
+                              # pylint: disable=protected-access
+                              headers={'location': _KONTOMANAGER_URL}
+                              )
+            m.register_uri('GET',
+                              # pylint: disable=protected-access
+                              _KONTOMANAGER_URL,
+                              status_code=200,
+                              )
+            m.register_uri('POST',
+                              # pylint: disable=protected-access
+                              _WEBSMS_URL,
+                              status_code=200,
+                              text="<h1>Ihre SMS wurde erfolgreich " +
+                                   "verschickt!</h1>"
+                              )
+            m.register_uri('GET',
+                              # pylint: disable=protected-access
+                              _LOGOUT_URL,
+                              status_code=200,
+                              )
+            cli()
+            assert("/tmp/testconfig_1234.conf" in CONFIG_FILE_PATHS)
+
+
+def test_cli_with_no_login_or_password(capsys):
+    testargs = ["yessssms","-m","test"]
+    with mock.patch.object(sys, 'argv', testargs) as a:
+        with requests_mock.Mocker() as m:
+            m.register_uri('POST',
+                              # pylint: disable=protected-access
+                              _LOGIN_URL,
+                              status_code=302,
+                              # pylint: disable=protected-access
+                              headers={'location': _KONTOMANAGER_URL}
+                              )
+            m.register_uri('GET',
+                              # pylint: disable=protected-access
+                              _KONTOMANAGER_URL,
+                              status_code=200,
+                              )
+            m.register_uri('POST',
+                              # pylint: disable=protected-access
+                              _WEBSMS_URL,
+                              status_code=200,
+                              text="<h1>Ihre SMS wurde erfolgreich " +
+                                   "verschickt!</h1>"
+                              )
+            m.register_uri('GET',
+                              # pylint: disable=protected-access
+                              _LOGOUT_URL,
+                              status_code=200,
+                              )
+            cli()
+            captured = capsys.readouterr()
+            assert("error: no username or password defined " in captured.out)
