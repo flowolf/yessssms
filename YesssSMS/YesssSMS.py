@@ -175,6 +175,9 @@ def parse_args(args):
                         default=False, help=HELP['test'])
     parser.add_argument("--print-config-file", action='store_true',
                         default=False, help=HELP['print-config-file'])
+    if len(args) == 0:
+        parser.print_help()
+        parser.exit()
     return parser.parse_args(args)
 
 def cli():
