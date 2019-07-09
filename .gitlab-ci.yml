@@ -31,6 +31,10 @@ test:3.7:
   - pip3 install -r requirements_test.txt
   - pytest --version
   - tox -e py37
+  artifacts:
+    paths:
+      - htmlcov
+    expire_in: 2 weeks
 
 test_release:
   stage: release
