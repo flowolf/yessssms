@@ -26,10 +26,6 @@ from YesssSMS.const import VERSION, HELP,\
                            _SMS_SENDING_SUCCESSFUL_STRING,\
                            CONFIG_FILE_CONTENT
 
-CONFIG_FILE_PATHS = ["/etc/yessssms.conf",
-                     "~/.config/yessssms.conf",
-                    ]
-
 _LOGIN_URL = "https://www.yesss.at/kontomanager.at/index.php"
 _LOGOUT_URL = "https://www.yesss.at/kontomanager.at/index.php?dologout=2"
 _KONTOMANAGER_URL = "https://www.yesss.at/kontomanager.at/kundendaten.php"
@@ -187,6 +183,8 @@ def parse_args(args):
 
 def cli():
     """Handle arguments for command line interface"""
+    from YesssSMS.const import CONFIG_FILE_PATHS
+
     args = parse_args(sys.argv[1:])
 
     DEFAULT_RECIPIENT = None

@@ -38,3 +38,6 @@ YESSS_PASSWD = mySecretPassword
 # you can define a default recipient (will be overridden by -t option)
 # YESSS_TO = +43664123123123
 """
+CONFIG_FILE_PATHS = ["/etc/yessssms.conf",
+                     "~/.config/yessssms.conf",
+                    ]

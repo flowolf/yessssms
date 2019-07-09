@@ -16,11 +16,12 @@ from YesssSMS.YesssSMS import version_info, cli, print_config_file, parse_args
 from YesssSMS.YesssSMS import _LOGIN_URL,\
                               _LOGOUT_URL,\
                               _KONTOMANAGER_URL,\
-                              _WEBSMS_URL,\
-                              CONFIG_FILE_PATHS
+                              _WEBSMS_URL
+# import YesssSMS.const
 from YesssSMS.const import VERSION,\
                            _UNSUPPORTED_CHARS_STRING,\
-                           CONFIG_FILE_CONTENT
+                           CONFIG_FILE_CONTENT,\
+                           CONFIG_FILE_PATHS
 
 try:
     from secrets import YESSS_LOGIN, YESSS_PASSWD, YESSS_TO
@@ -456,9 +457,11 @@ def test_cli_with_configfile_arg():
             assert "/tmp/testconfig_1234.conf" in CONFIG_FILE_PATHS
 
 
+@mock.patch("YesssSMS.const.CONFIG_FILE_PATHS", [])
 def test_cli_with_no_login_or_password(capsys):
     """Test empty login parameters"""
     testargs = ["yessssms", "-m", "test"]
+    print("test:..." + str(YesssSMS.const.CONFIG_FILE_PATHS))
     with mock.patch.object(sys, 'argv', testargs):
         with requests_mock.Mocker() as m:
             m.register_uri('POST',
