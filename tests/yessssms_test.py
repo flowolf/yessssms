@@ -309,8 +309,8 @@ def test_cli_version_info(capsys):
     captured = capsys.readouterr()
     assert(captured.out == "yessssms " + VERSION + "\n")
 
-def test_cli_argparse():
-    """test parser for different arguments"""
+def test_cli_boolean_args():
+    """test parser for boolean arguments"""
     args = parse_args(["--version"])
     assert(args.version == True)
 
@@ -320,6 +320,8 @@ def test_cli_argparse():
     args = parse_args(["--print-config-file"])
     assert(args.print_config_file == True)
 
+def test_cli_argparse():
+    """test parser for different arguments"""
     args = parse_args(["-t","0664123456"])
     assert(args.recipient == "0664123456")
 
