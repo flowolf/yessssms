@@ -157,12 +157,15 @@ class YesssSMS():
         return self._version
 
 def version_info():
+    """Display version information"""
     print("yessssms {}".format(YesssSMS().version()))
 
 def print_config_file():
+    """Print a sample config file, to pipe into a file"""
     print(CONFIG_FILE_CONTENT, end="")
 
 def parse_args(args):
+    """Parse arguments and return namespace"""
     parser = argparse.ArgumentParser(description=HELP['desc'])
     parser.add_argument('-t', '--to', dest='recipient', help=HELP['to_help'])
     parser.add_argument('-m', '--message', help=HELP['message'])
@@ -182,7 +185,7 @@ def parse_args(args):
 
 def cli():
     args = parse_args(sys.argv[1:])
-
+    print(args)
     if args.print_config_file:
         print_config_file()
         return
