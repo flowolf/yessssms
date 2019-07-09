@@ -1,5 +1,5 @@
 """constants for YesssSMS."""
-VERSION = "0.3.1a2"
+VERSION = "0.3.1a3"
 _UNSUPPORTED_CHARS_STRING = "<strong>Achtung:</strong> Ihre SMS konnte nicht \
 versendet werden, da sie folgende ungültige Zeichen enthält:"
 _LOGIN_ERROR_STRING = "<strong>Login nicht erfolgreich"
@@ -23,3 +23,9 @@ HELP = {'to_help': 'Recipient phone number in the format: +436601234567',
         'test': 'send a test message to yourself',
         'print-config-file': 'prints a sample config file, that can be piped into eg. ~/.config/yessssms.conf.',
        }
+CONFIG_FILE_CONTENT = """[YESSS_AT]
+YESSS_LOGIN = 06501234567
+YESSS_PASSWD = mySecretPassword
+# you can define a default recipient (will be overridden by -t option)
+# YESSS_TO = +43664123123123
+"""

@@ -7,10 +7,11 @@
 # pylint not amused about package name
 # pylint: disable-msg=C0103
 
-from contextlib import suppress
+import sys
 import argparse
-from datetime import datetime
 import configparser
+from datetime import datetime
+from contextlib import suppress
 from os.path import abspath
 from os.path import isfile
 from os.path import expanduser
@@ -22,7 +23,8 @@ from YesssSMS.const import VERSION, HELP,\
                            _LOGIN_LOCKED_MESS,\
                            _LOGIN_LOCKED_MESS_ENG,\
                            _UNSUPPORTED_CHARS_STRING,\
-                           _SMS_SENDING_SUCCESSFUL_STRING
+                           _SMS_SENDING_SUCCESSFUL_STRING,\
+                           CONFIG_FILE_CONTENT
 
 CONFIG_FILE_PATHS = ["/etc/yessssms.conf",
                      "~/.config/yessssms.conf",
@@ -158,11 +160,9 @@ def version_info():
     print("yessssms {}".format(YesssSMS().version()))
 
 def print_config_file():
-    print("[YESSS_AT]\nYESSS_LOGIN = 06501234567\nYESSS_PASSWD = mySecretPassword")
-    print("# you can define a default recipient (will be overridden by -t option)")
-    print("# YESSS_TO = +43664123123123")
+    print(CONFIG_FILE_CONTENT, end="")
 
-def cli():
+def parse_args(args):
     parser = argparse.ArgumentParser(description=HELP['desc'])
     parser.add_argument('-t', '--to', dest='recipient', help=HELP['to_help'])
     parser.add_argument('-m', '--message', help=HELP['message'])
@@ -175,7 +175,10 @@ def cli():
                         default=False, help=HELP['test'])
     parser.add_argument("--print-config-file", action='store_true',
                         default=False, help=HELP['print-config-file'])
-    args = parser.parse_args()
+    return parser.parse_args(args)
+
+def cli():
+    args = parse_args(sys.argv[1:])
 
     if args.print_config_file:
         print_config_file()

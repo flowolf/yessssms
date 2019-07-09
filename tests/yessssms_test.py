@@ -4,9 +4,14 @@
 import pytest
 import requests
 import requests_mock
+
+from unittest import mock
+
 import YesssSMS
-from YesssSMS.YesssSMS import version_info, cli, print_config_file
-from YesssSMS.const import VERSION, _UNSUPPORTED_CHARS_STRING
+from YesssSMS.YesssSMS import version_info, cli, print_config_file, parse_args
+from YesssSMS.const import VERSION,\
+                           _UNSUPPORTED_CHARS_STRING,\
+                           CONFIG_FILE_CONTENT
 
 try:
     from secrets import YESSS_LOGIN, YESSS_PASSWD, YESSS_TO
@@ -296,9 +301,51 @@ def test_cli_print_config_file(capsys):
     """test for correct config file output"""
     print_config_file()
     captured = capsys.readouterr()
-    assert(captured.out == """[YESSS_AT]
-YESSS_LOGIN = 06501234567
-YESSS_PASSWD = mySecretPassword
-# you can define a default recipient (will be overridden by -t option)
-# YESSS_TO = +43664123123123
-""")
+    assert(captured.out == CONFIG_FILE_CONTENT)
+
+def test_cli_version_info(capsys):
+    """test for correct version info print"""
+    version_info()
+    captured = capsys.readouterr()
+    assert(captured.out == "yessssms " + VERSION + "\n")
+
+def test_cli_argparse():
+    """test parser for different arguments"""
+    args = parse_args(["--version"])
+    assert(args.version == True)
+
+    args = parse_args(["--test"])
+    assert(args.test == True)
+
+    args = parse_args(["--print-config-file"])
+    assert(args.print_config_file == True)
+
+    args = parse_args(["-t","0664123456"])
+    assert(args.recipient == "0664123456")
+
+    args = parse_args(["--to","0664123456"])
+    assert(args.recipient == "0664123456")
+
+    args = parse_args(["-l","0676456789123"])
+    assert(args.login == "0676456789123")
+
+    args = parse_args(["--login","0676456789123"])
+    assert(args.login == "0676456789123")
+
+    args = parse_args(["-p","s3cret..11"])
+    assert(args.password == "s3cret..11")
+
+    args = parse_args(["--password","s3cret..11"])
+    assert(args.password == "s3cret..11")
+
+    args = parse_args(["-c", ".yessssms.config"])
+    assert(args.configfile == ".yessssms.config")
+
+    args = parse_args(["--configfile", ".yessssms.config"])
+    assert(args.configfile == ".yessssms.config")
+
+    args = parse_args(["--message", "testmessage 123 - can you see this?"])
+    assert(args.message == "testmessage 123 - can you see this?")
+
+    args = parse_args(["-m", "testmessage 123 - can you see this?"])
+    assert(args.message == "testmessage 123 - can you see this?")
