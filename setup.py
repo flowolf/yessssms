@@ -40,7 +40,7 @@ setup(
 
     # List run-time dependencies here.  These will be installed by pip
     install_requires=['requests'],
-    python_requires='>=3.3',
+    python_requires='>=3.5',
 
     # To provide executable scripts, use entry points in preference to the
     # "scripts" keyword. Entry points provide cross-platform support and allow

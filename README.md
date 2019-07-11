@@ -10,7 +10,7 @@ Use your website login and password.
 This module is not suitable for batch SMS sending.
 Each send() call logs in and out of yesss.at's website.
 
-Currently the library supports Python 3.3+, but is only [tested against Python 3.5 to 3.7](https://gitlab.com/flowolf/yessssms/-/jobs).
+Currently the library supports Python 3.5+, and is [tested against Python 3.5 to 3.7](https://gitlab.com/flowolf/yessssms/-/jobs).
 
 ### Install
 ```bash
