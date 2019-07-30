@@ -27,4 +27,9 @@ or for the command line:
 > echo '[YESSS_AT]\nYESSS_LOGIN=06501234567\nYESSS_PASSWD=password' > ~/.config/yessssms.conf
 > yessssms --test # test your setup, send yourself a message
 > yessssms -t 0664123123123 -m "sending SMS from the command line :)"
+
+> # if a default recipient is defined, you can omit the -t flag
+> # the message can be piped into yessssms (it will be cut to max 3 SMS, 3*160 chars)
+> echo "important message!" | yessssms -m -
+
 ```
