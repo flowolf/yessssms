@@ -1,5 +1,5 @@
 """constants for YesssSMS."""
-VERSION = "0.3.2"
+VERSION = "0.3.3a1"
 _UNSUPPORTED_CHARS_STRING = "<strong>Achtung:</strong> Ihre SMS konnte nicht \
 versendet werden, da sie folgende ungültige Zeichen enthält:"
 _LOGIN_ERROR_STRING = "<strong>Login nicht erfolgreich"
