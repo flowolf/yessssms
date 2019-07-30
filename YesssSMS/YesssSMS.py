@@ -9,6 +9,7 @@
 
 import sys
 import argparse
+import logging
 import configparser
 from datetime import datetime
 from contextlib import suppress
@@ -30,6 +31,8 @@ _LOGIN_URL = "https://www.yesss.at/kontomanager.at/index.php"
 _LOGOUT_URL = "https://www.yesss.at/kontomanager.at/index.php?dologout=2"
 _KONTOMANAGER_URL = "https://www.yesss.at/kontomanager.at/kundendaten.php"
 _WEBSMS_URL = "https://www.yesss.at/kontomanager.at/websms_send.php"
+
+MAX_MESSAGE_LENGTH_STDIN = 3*160
 
 # yesss.at responds with HTTP 200 on non successful login
 YESSS_LOGIN = None  # normally your phone number
@@ -208,6 +211,7 @@ def cli():
         try:
             if not isfile(conffile): # check if file is there
                 continue
+            logging.debug("configfile ({}) found".format(conffile))
             config = configparser.ConfigParser()
             config.read(conffile)
             # pylint: disable-msg=W0621
@@ -223,20 +227,30 @@ def cli():
         YESSS_PASSWD = args.password
 
     try:
+        logging.debug("login: {}".format(YESSS_LOGIN))
         YESSS_LOGIN or YESSS_PASSWD
+        sms = YesssSMS(YESSS_LOGIN, YESSS_PASSWD)
     except UnboundLocalError:
         print("error: no username or password defined (use --help for help)")
         return
 
-    sms = YesssSMS(YESSS_LOGIN, YESSS_PASSWD)
+    if args.message == "-":
+        message = ""
+        for line in sys.stdin:
+            message += line
+            if len(message) > MAX_MESSAGE_LENGTH_STDIN:
+                break
+        message = message[:MAX_MESSAGE_LENGTH_STDIN] # maximum of 3 SMS if pipe is used
+    else:
+        message = args.message
 
     if args.test:
-        message = args.message or "yessssms ("+ VERSION +\
+        message = message or "yessssms ("+ VERSION +\
                   ") test message at {}".format(datetime.now().isoformat())
         recipient = args.recipient or DEFAULT_RECIPIENT or YESSS_LOGIN
         sms.send(recipient, message)
     else:
-        sms.send(DEFAULT_RECIPIENT or args.recipient, args.message)
+        sms.send(DEFAULT_RECIPIENT or args.recipient, message)
 
 
 if __name__ == "__main__":
