@@ -90,14 +90,13 @@ class YesssSMS():
         if custom_provider:
             URLS = custom_provider
         else:
-            try:
-                URLS = PROVIDER_URLS[self._provider]
-            except KeyError:
+            if self._provider not in PROVIDER_URLS:
                 available_providers = list(PROVIDER_URLS.keys())
                 error_mess = "provider ({}) is not known to YesssSMS, ".format(self._provider) + \
                     "try one of the following: {}".format(", ".join(available_providers))
                 raise self.UnsupportedProviderError(error_mess)
-
+            URLS = PROVIDER_URLS[self._provider]
+            
         self._login_url = URLS['LOGIN_URL']
         self._logout_url = URLS['LOGOUT_URL']
         self._kontomanager = URLS['KONTOMANAGER_URL']
