@@ -25,23 +25,19 @@ from YesssSMS.const import VERSION, HELP,\
                            _LOGIN_LOCKED_MESS_ENG,\
                            _UNSUPPORTED_CHARS_STRING,\
                            _SMS_SENDING_SUCCESSFUL_STRING,\
-                           CONFIG_FILE_CONTENT
-
-_LOGIN_URL = "https://www.yesss.at/kontomanager.at/index.php"
-_LOGOUT_URL = "https://www.yesss.at/kontomanager.at/index.php?dologout=2"
-_KONTOMANAGER_URL = "https://www.yesss.at/kontomanager.at/kundendaten.php"
-_WEBSMS_URL = "https://www.yesss.at/kontomanager.at/websms_send.php"
+                           CONFIG_FILE_CONTENT,\
+                           PROVIDER_URLS
 
 MAX_MESSAGE_LENGTH_STDIN = 3*160
 
 # yesss.at responds with HTTP 200 on non successful login
-YESSS_LOGIN = None  # normally your phone number
-YESSS_PASSWD = None  # your password
+LOGIN = None  # normally your phone number
+PASSWD = None  # your password
 
 # alternatively import passwd and number from external file
 with suppress(ImportError):
     # pylint: disable-msg=E0611
-    from secrets import YESSS_LOGIN, YESSS_PASSWD
+    from secrets import LOGIN, PASSWD
 
 
 class YesssSMS():
@@ -77,23 +73,30 @@ class YesssSMS():
 
         pass
 
-    def __init__(self, yesss_login=YESSS_LOGIN, yesss_pw=YESSS_PASSWD):
+    def __init__(self, login=LOGIN, passwd=PASSWD, provider='YESSS', custom_provider=None):
         """Initialize YesssSMS member variables."""
         self._version = VERSION
-        self._login_url = _LOGIN_URL
-        self._logout_url = _LOGOUT_URL
-        self._kontomanager = _KONTOMANAGER_URL
-        self._websms_url = _WEBSMS_URL
+        # set urls from provider
+        if custom_provider:
+            URLS = custom_provider
+            print("setting custom provider urls")
+        else:
+            URLS = PROVIDER_URLS[provider]
+
+        self._login_url = URLS['LOGIN_URL']
+        self._logout_url = URLS['LOGOUT_URL']
+        self._kontomanager = URLS['KONTOMANAGER_URL']
+        self._websms_url = URLS['WEBSMS_URL']
         self._suspended = False
-        self._logindata = {'login_rufnummer': yesss_login,
-                           'login_passwort': yesss_pw}
+        self._logindata = {'login_rufnummer': login,
+                           'login_passwort': passwd}
 
     def _login(self, session, get_request=False):
         """Return a session for yesss.at."""
         req = session.post(self._login_url, data=self._logindata)
         if _LOGIN_ERROR_STRING in req.text or \
                 req.status_code == 403 or \
-                req.url == _LOGIN_URL:
+                req.url == self._login_url:
             err_mess = "YesssSMS: login failed, username or password wrong"
 
             if _LOGIN_LOCKED_MESS in req.text:
@@ -172,6 +175,7 @@ def parse_args(args):
     parser.add_argument('-c', '--configfile', help=HELP['configfile'])
     parser.add_argument('-l', '--login', dest='login', help=HELP['login'])
     parser.add_argument('-p', '--password', dest='password', help=HELP['password'])
+    parser.add_argument('--mvno', dest='provider', help=HELP['provider'])
     parser.add_argument('--version', action='store_true',
                         default=False, help=HELP['version'])
     parser.add_argument("--test", action='store_true',
@@ -191,6 +195,8 @@ def cli():
     args = parse_args(sys.argv[1:])
 
     DEFAULT_RECIPIENT = None
+    PROVIDER = None
+    CUSTOM_PROVIDER_URLS = None
 
     if not args:
         return
@@ -215,21 +221,36 @@ def cli():
             config = configparser.ConfigParser()
             config.read(conffile)
             # pylint: disable-msg=W0621
-            YESSS_LOGIN = str(config.get('YESSS_AT', 'YESSS_LOGIN'))
-            YESSS_PASSWD = str(config.get('YESSS_AT', 'YESSS_PASSWD'))
-            if config.has_option("YESSS_AT", "YESSS_TO"):
-                DEFAULT_RECIPIENT = config.get('YESSS_AT', 'YESSS_TO')
+            LOGIN = str(config.get('YESSSSMS', 'LOGIN'))
+            PASSWD = str(config.get('YESSSSMS', 'PASSWD'))
+            
+            if config.has_option("YESSSSMS", "DEFAULT_TO"):
+                DEFAULT_RECIPIENT = config.get('YESSSSMS', 'DEFAULT_TO')
+            if config.has_option("YESSSSMS", "MVNO"):
+                PROVIDER = config.get('YESSSSMS', 'MVNO')
+            if config.has_option("YESSSSMS_PROVIDER_URLS", "LOGIN_URL"):
+                CUSTOM_PROVIDER_URLS = {
+                    'LOGIN_URL': config.get('YESSSSMS_PROVIDER_URLS', 'LOGIN_URL'),
+                    'LOGOUT_URL': config.get('YESSSSMS_PROVIDER_URLS', 'LOGOUT_URL'),
+                    'KONTOMANAGER_URL': config.get('YESSSSMS_PROVIDER_URLS', 'KONTOMANAGER_URL'),
+                    'WEBSMS_URL': config.get('YESSSSMS_PROVIDER_URLS', 'WEBSMS_URL')
+                    }
         except (KeyError, configparser.NoSectionError) as ex:
             print("settings not found: {} ({})".format(conffile, ex))
 
     if args.login and args.password:
-        YESSS_LOGIN = args.login
-        YESSS_PASSWD = args.password
+        LOGIN = args.login
+        PASSWD = args.password
 
     try:
-        logging.debug("login: {}".format(YESSS_LOGIN))
-        YESSS_LOGIN or YESSS_PASSWD
-        sms = YesssSMS(YESSS_LOGIN, YESSS_PASSWD)
+        logging.debug("login: {}".format(LOGIN))
+        LOGIN or PASSWD
+        if CUSTOM_PROVIDER_URLS:
+            sms = YesssSMS(LOGIN, PASSWD, custom_provider=CUSTOM_PROVIDER_URLS)
+        elif PROVIDER:
+            sms = YesssSMS(LOGIN, PASSWD, provider=PROVIDER)
+        else:
+            sms = YesssSMS(LOGIN, PASSWD)
     except UnboundLocalError:
         print("error: no username or password defined (use --help for help)")
         return
@@ -247,7 +268,7 @@ def cli():
     if args.test:
         message = message or "yessssms ("+ VERSION +\
                   ") test message at {}".format(datetime.now().isoformat())
-        recipient = args.recipient or DEFAULT_RECIPIENT or YESSS_LOGIN
+        recipient = args.recipient or DEFAULT_RECIPIENT or LOGIN
         sms.send(recipient, message)
     else:
         sms.send(DEFAULT_RECIPIENT or args.recipient, message)
