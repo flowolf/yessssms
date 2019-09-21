@@ -7,6 +7,16 @@ contract or prepaid plan is needed.
 
 Use your website login and password.
 
+Alternatively you can use MVNOs (Mobile Virtual Network Operators) that use the kontomanager.at web interface.
+These include: 
+* YESSS
+* EDUCOM
+* SIMfonie
+* ...
+
+use the `--mvno` flag to set your provider, or define the used URLs in the config file.
+
+
 This module is not suitable for batch SMS sending.
 Each send() call logs in and out of yesss.at's website.
 
@@ -24,12 +34,17 @@ Currently the library supports Python 3.5+, and is [tested against Python 3.5 to
 ```
 or for the command line:
 ```bash
-> echo '[YESSS_AT]\nYESSS_LOGIN=06501234567\nYESSS_PASSWD=password' > ~/.config/yessssms.conf
+> yessssms --print-config-file > ~/.config/yessssms.conf
+# edit the config file
+> vi ~/.config/yessssms.conf
 > yessssms --test # test your setup, send yourself a message
 > yessssms -t 0664123123123 -m "sending SMS from the command line :)"
 
 > # if a default recipient is defined, you can omit the -t flag
 > # the message can be piped into yessssms (it will be cut to max 3 SMS, 3*160 chars)
 > echo "important message!" | yessssms -m -
+
+> # MVNO
+> yessssms --t 06501234567 --mvno EDUCOM -m 'testmessage ;)'
 
 ```
