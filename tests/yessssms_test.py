@@ -371,6 +371,18 @@ def test_cli_argparse():
     args = parse_args(["-m", "testmessage 123 - can you see this?"])
     assert args.message == "testmessage 123 - can you see this?"
 
+    args = parse_args(["--mvno", "YESSS"])
+    assert args.provider == "YESSS"
+
+    args = parse_args(["--mvno", "EDUCOM"])
+    assert args.provider == "EDUCOM"
+
+    args = parse_args(["--mvno", "SIMfonie"])
+    assert args.provider == "SIMfonie"
+
+    args = parse_args(["--mvno", "BLABLABLA"])
+    assert args.provider == "BLABLABLA"
+
 
 def test_cli_with_test_args():
     """Test command line arguments with --test"""
@@ -497,3 +509,122 @@ def test_cli_with_no_login_or_password(capsys):
             cli()
             captured = capsys.readouterr()
             assert "error: no username or password defined " in captured.out
+
+def test_cli_with_mvno_arg():
+    """Test command line arguments with --mvno"""
+    from YesssSMS.const import PROVIDER_URLS
+
+    PROVIDER = PROVIDER_URLS['EDUCOM']
+
+    _LOGIN_URL = PROVIDER['LOGIN_URL']
+    _LOGOUT_URL = PROVIDER['LOGOUT_URL']
+    _KONTOMANAGER_URL = PROVIDER['KONTOMANAGER_URL']
+    _WEBSMS_URL = PROVIDER['WEBSMS_URL']
+
+    testargs = ["yessssms", "--test",
+                "-l", "06641234567", "-p", "passw0rd", "-t", "+43676564736", "--mvno", "EDUCOM"]
+    with mock.patch.object(sys, 'argv', testargs):
+        with requests_mock.Mocker() as m:
+            m.register_uri('POST',
+                           _LOGIN_URL,
+                           status_code=302,
+                           # pylint: disable=protected-access
+                           headers={'location': _KONTOMANAGER_URL}
+                           )
+            m.register_uri('GET',
+                           _KONTOMANAGER_URL,
+                           status_code=200,
+                           )
+            m.register_uri('POST',
+                           _WEBSMS_URL,
+                           status_code=200,
+                           text="<h1>Ihre SMS wurde erfolgreich " +
+                           "verschickt!</h1>"
+                           )
+            m.register_uri('GET',
+                           _LOGOUT_URL,
+                           status_code=200,
+                           )
+            sms, args, message = cli(test=True)
+            assert 'EDUCOM' == sms._provider
+            assert _LOGIN_URL == sms._login_url
+            assert _LOGOUT_URL == sms._logout_url
+            assert _KONTOMANAGER_URL == sms._kontomanager
+            assert _WEBSMS_URL == sms._websms_url
+
+
+def test_cli_with_mvno_arg_error():
+    """Test command line arguments with wrong --mvno"""
+    from YesssSMS.YesssSMS import YesssSMS
+   
+    testargs = ["yessssms", "--test",
+                "-l", "06641234567", "-p", "passw0rd", "-t", "+43676564736", "--mvno", "UNKNOWN_provider"]
+
+    with mock.patch.object(sys, 'argv', testargs):
+        with pytest.raises(YesssSMS.UnsupportedProviderError):
+            sms, args, message = cli(test=True)
+
+
+def test_cli_stdin():
+    """Test command line with stdin"""
+    from YesssSMS.YesssSMS import MAX_MESSAGE_LENGTH_STDIN
+   
+    testargs = ["yessssms", "--test",
+                "-l", "06641234567", "-p", "passw0rd", "-m", "-"]
+
+    in_message = """Da steh’ ich nun, ich armer Thor!
+Und bin so klug als wie zuvor;
+Heiße Magister, heiße Doctor gar,
+Und ziehe schon an die zehen Jahr,
+Herauf, herab und quer und krumm,
+Meine Schüler an der Nase herum –
+Und sehe, daß wir nichts wissen können!
+Das will mir schier das Herz verbrennen.
+Zwar bin ich gescheidter als alle die Laffen,
+Doctoren, Magister, Schreiber und Pfaffen;
+Mich plagen keine Scrupel noch Zweifel,
+Fürchte mich weder vor Hölle noch Teufel –
+Dafür ist mir auch alle Freud’ entrissen,
+Bilde mir nicht ein was rechts zu wissen,
+Bilde mir nicht ein, ich könnte was lehren,
+Die Menschen zu bessern und zu bekehren.
+Auch hab’ ich weder Gut noch Geld,
+Noch Ehr’ und Herrlichkeit der Welt.
+Es möchte kein Hund so länger leben!
+Drum hab’ ich mich der Magie ergeben,
+Ob mir durch Geistes Kraft und Mund
+Nicht manch Geheimniß würde kund;
+Daß ich nicht mehr mit sauerm Schweiß,
+Zu sagen brauche, was ich nicht weiß;"""
+    with mock.patch.object(sys, 'argv', testargs):
+        with mock.patch.object(sys, 'stdin', in_message):
+            with requests_mock.Mocker() as m:
+                m.register_uri('POST',
+                            # pylint: disable=protected-access
+                            _LOGIN_URL,
+                            status_code=302,
+                            # pylint: disable=protected-access
+                            headers={'location': _KONTOMANAGER_URL}
+                            )
+                m.register_uri('GET',
+                            # pylint: disable=protected-access
+                            _KONTOMANAGER_URL,
+                            status_code=200,
+                            )
+                m.register_uri('POST',
+                            # pylint: disable=protected-access
+                            _WEBSMS_URL,
+                            status_code=200,
+                            text="<h1>Ihre SMS wurde erfolgreich " +
+                            "verschickt!</h1>"
+                            )
+                m.register_uri('GET',
+                            # pylint: disable=protected-access
+                            _LOGOUT_URL,
+                            status_code=200,
+                            )
+
+                _, __, message = cli(test=True)
+    
+    assert message.startswith("""Da steh’ ich nun, ich armer Thor!\nUnd bin so klug als wie zuvor;""")
+    assert message == in_message[:MAX_MESSAGE_LENGTH_STDIN]

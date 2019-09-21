@@ -78,22 +78,23 @@ class YesssSMS():
 
         pass
 
-    def __init__(self, login=LOGIN, passwd=PASSWD, provider='YESSS', custom_provider=None):
+    def __init__(self, login=LOGIN, passwd=PASSWD, provider=None, custom_provider=None):
         """Initialize YesssSMS member variables."""
         self._version = VERSION
-        
         if not provider:
-            provider = 'YESSS'
+            self._provider = 'YESSS'
+        else:
+            self._provider = provider
 
         # set urls from provider
         if custom_provider:
             URLS = custom_provider
         else:
             try:
-                URLS = PROVIDER_URLS[provider]
+                URLS = PROVIDER_URLS[self._provider]
             except KeyError:
                 available_providers = list(PROVIDER_URLS.keys())
-                error_mess = "provider ({}) is not known to YesssSMS, ".format(provider) + \
+                error_mess = "provider ({}) is not known to YesssSMS, ".format(self._provider) + \
                     "try one of the following: {}".format(", ".join(available_providers))
                 raise self.UnsupportedProviderError(error_mess)
 
@@ -202,7 +203,7 @@ def parse_args(args):
 
     return parser.parse_args(args)
 
-def cli():
+def cli(test=None):
     """Handle arguments for command line interface"""
     from YesssSMS.const import CONFIG_FILE_PATHS
 
@@ -289,6 +290,8 @@ def cli():
         sms.send(recipient, message)
     else:
         sms.send(DEFAULT_RECIPIENT or args.recipient, message)
+    if test:
+        return (sms, args, message)
 
 
 if __name__ == "__main__":
