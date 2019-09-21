@@ -13,10 +13,16 @@ import requests_mock
 
 import YesssSMS
 from YesssSMS.YesssSMS import version_info, cli, print_config_file, parse_args
-from YesssSMS.YesssSMS import _LOGIN_URL,\
-                              _LOGOUT_URL,\
-                              _KONTOMANAGER_URL,\
-                              _WEBSMS_URL
+from YesssSMS.const import PROVIDER_URLS
+
+# currently only testing YESSS
+PROVIDER = PROVIDER_URLS['YESSS']
+
+_LOGIN_URL = PROVIDER['LOGIN_URL']
+_LOGOUT_URL = PROVIDER['LOGOUT_URL']
+_KONTOMANAGER_URL = PROVIDER['KONTOMANAGER_URL']
+_WEBSMS_URL = PROVIDER['WEBSMS_URL']
+
 # import YesssSMS.const
 from YesssSMS.const import VERSION,\
                            _UNSUPPORTED_CHARS_STRING,\
@@ -24,9 +30,9 @@ from YesssSMS.const import VERSION,\
                            CONFIG_FILE_PATHS
 
 try:
-    from secrets import YESSS_LOGIN, YESSS_PASSWD, YESSS_TO
+    from secrets import LOGIN, YESSS_PASSWD, YESSS_TO
 except ImportError:
-    YESSS_LOGIN = "06641234567"
+    LOGIN = "06641234567"
     YESSS_PASSWD = "testpasswd"
     YESSS_TO = "06501234567"
 
@@ -34,7 +40,7 @@ except ImportError:
 def test_credentials_work():
     """Test for working credentials."""
     with requests_mock.Mocker() as m:
-        sms = YesssSMS.YesssSMS(YESSS_LOGIN, YESSS_PASSWD)
+        sms = YesssSMS.YesssSMS(LOGIN, YESSS_PASSWD)
         m.register_uri('POST',
                        # pylint: disable=protected-access
                        _LOGIN_URL,
@@ -54,7 +60,7 @@ def test_credentials_work():
                        )
         assert sms.version() == VERSION
         print("user: {}, pass: {}, to: {}".format(
-            YESSS_LOGIN, YESSS_PASSWD[0]+(len(YESSS_PASSWD)-1)*'*', YESSS_TO))
+            LOGIN, YESSS_PASSWD[0]+(len(YESSS_PASSWD)-1)*'*', YESSS_TO))
         assert sms.login_data_valid() is True
         # pylint: disable=protected-access
         assert isinstance(sms._logindata['login_rufnummer'], str)
@@ -69,7 +75,7 @@ def test_credentials_work():
 def test_login():
     """Test if login works."""
     with requests_mock.Mocker() as m:
-        sms = YesssSMS.YesssSMS(YESSS_LOGIN, YESSS_PASSWD)
+        sms = YesssSMS.YesssSMS(LOGIN, YESSS_PASSWD)
         m.register_uri('POST',
                        # pylint: disable=protected-access
                        sms._login_url,
@@ -81,7 +87,7 @@ def test_login():
                        # pylint: disable=protected-access
                        sms._kontomanager,
                        status_code=200,
-                       text="test..."+YESSS_LOGIN+"</a>"
+                       text="test..."+LOGIN+"</a>"
                        )
         m.register_uri('GET',
                        # pylint: disable=protected-access
@@ -100,7 +106,7 @@ def test_login():
 
 def test_empty_message():
     """Test error handling for empty message."""
-    sms = YesssSMS.YesssSMS(YESSS_LOGIN, YESSS_PASSWD)
+    sms = YesssSMS.YesssSMS(LOGIN, YESSS_PASSWD)
     with pytest.raises(ValueError):
         sms.send(YESSS_TO, "")
     with pytest.raises(sms.EmptyMessageError):
@@ -251,7 +257,7 @@ def test_login_suspended_error():
     """Test error handling for suspended account."""
     with requests_mock.Mocker() as m:
         # non existing user and password
-        sms = YesssSMS.YesssSMS(YESSS_LOGIN, YESSS_PASSWD)
+        sms = YesssSMS.YesssSMS(LOGIN, YESSS_PASSWD)
         m.register_uri('POST',
                        # pylint: disable=protected-access
                        sms._login_url,
@@ -276,7 +282,7 @@ def test_login_suspended_error():
 def test_send_sms():
     """Test SMS sending."""
     with requests_mock.Mocker() as m:
-        sms = YesssSMS.YesssSMS(YESSS_LOGIN, YESSS_PASSWD)
+        sms = YesssSMS.YesssSMS(LOGIN, YESSS_PASSWD)
         m.register_uri('POST',
                        # pylint: disable=protected-access
                        sms._login_url,
