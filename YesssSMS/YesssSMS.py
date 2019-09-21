@@ -73,15 +73,29 @@ class YesssSMS():
 
         pass
 
+    class UnsupportedProviderError(ValueError):
+        """the provider is not in the PROVIDER_URLS dict"""
+
+        pass
+
     def __init__(self, login=LOGIN, passwd=PASSWD, provider='YESSS', custom_provider=None):
         """Initialize YesssSMS member variables."""
         self._version = VERSION
+        
+        if not provider:
+            provider = 'YESSS'
+
         # set urls from provider
         if custom_provider:
             URLS = custom_provider
-            print("setting custom provider urls")
         else:
-            URLS = PROVIDER_URLS[provider]
+            try:
+                URLS = PROVIDER_URLS[provider]
+            except KeyError:
+                available_providers = list(PROVIDER_URLS.keys())
+                error_mess = "provider ({}) is not known to YesssSMS, ".format(provider) + \
+                    "try one of the following: {}".format(", ".join(available_providers))
+                raise self.UnsupportedProviderError(error_mess)
 
         self._login_url = URLS['LOGIN_URL']
         self._logout_url = URLS['LOGOUT_URL']

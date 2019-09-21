@@ -49,7 +49,7 @@ HELP = {'to_help': 'Recipient phone number in the format: +436601234567',
         'password': """Your password, it\'s not recommended to use this. \
           Use a config-file instead (see: -c, --configfile).""",
         'provider': """set a MVNO (mobile virtual network operator) other than Yesss.at (default)\
-          available are: {}""".format(list(PROVIDER_URLS.keys())),
+          available are: {}""".format(", ".join(list(PROVIDER_URLS.keys()))),
         'message': 'Message to be sent by SMS',
         'version': 'print version information.',
         'test': 'send a test message to yourself',
