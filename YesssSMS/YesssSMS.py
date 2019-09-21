@@ -201,6 +201,9 @@ def cli():
     if not args:
         return
 
+    if args.provider:
+        PROVIDER = args.provider
+
     if args.print_config_file:
         print_config_file()
         return
