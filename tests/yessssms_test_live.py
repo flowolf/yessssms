@@ -14,13 +14,13 @@ def test_credentials_exist():
     """Check for existing login data."""
     sms = YesssSMS.YesssSMS(YESSS_LOGIN, YESSS_PASSWD)
     # pylint: disable=protected-access
-    assert isinstance(sms._logindata['login_rufnummer'], str)
+    assert isinstance(sms._logindata["login_rufnummer"], str)
     # pylint: disable=protected-access
-    assert isinstance(sms._logindata['login_passwort'], str)
+    assert isinstance(sms._logindata["login_passwort"], str)
     # pylint: disable=protected-access
-    assert len(sms._logindata['login_rufnummer']) > 10
+    assert len(sms._logindata["login_rufnummer"]) > 10
     # pylint: disable=protected-access
-    assert sms._logindata['login_passwort']
+    assert sms._logindata["login_passwort"]
 
 
 def test_login():
@@ -30,7 +30,7 @@ def test_login():
     session, request = sms._login(requests.Session(), get_request=True)
     # pylint: disable=protected-access
     session.get(sms._logout_url)
-    assert sms._logindata['login_rufnummer'][-7:]+"</a>" in request.text
+    assert sms._logindata["login_rufnummer"][-7:] + "</a>" in request.text
     # pylint: disable=protected-access
     assert request.url == sms._kontomanager
 
@@ -71,7 +71,9 @@ def test_send_sms():
     """Test SMS sending."""
     try:
         sms = YesssSMS.YesssSMS(YESSS_LOGIN, YESSS_PASSWD)
-        sms.send(YESSS_TO, "testing YesssSMS version {}, seems to work! :)"
-                 .format(sms.version()))
+        sms.send(
+            YESSS_TO,
+            "testing YesssSMS version {}, seems to work! :)".format(sms.version()),
+        )
     except (ValueError, RuntimeError):
         pytest.fail("Exception raised while sending SMS")

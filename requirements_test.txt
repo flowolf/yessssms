@@ -2,13 +2,13 @@ atomicwrites
 attrs
 certifi
 chardet
-more-itertools
+more - itertools
 pluggy
 py
 pytest
-pytest-cov
+pytest - cov
 requests
-requests-mock
+requests - mock
 six
 urllib3
 yessssms
