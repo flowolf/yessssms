@@ -264,18 +264,18 @@ def cli(test=None):
     if not args:
         return
 
-    login, passwd, DEFAULT_RECIPIENT, PROVIDER,\
-        CUSTOM_PROVIDER_URLS = read_config_files(args.configfile or None)
-
-    if args.provider:
-        PROVIDER = args.provider
-
     if args.print_config_file:
         print_config_file()
         return
     if args.version:
         version_info()
         return
+
+    login, passwd, DEFAULT_RECIPIENT, PROVIDER,\
+        CUSTOM_PROVIDER_URLS = read_config_files(args.configfile or None)
+
+    if args.provider:
+        PROVIDER = args.provider
 
     if args.login and args.password:
         login = args.login
