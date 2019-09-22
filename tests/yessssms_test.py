@@ -14,6 +14,11 @@ import requests_mock
 import YesssSMS
 from YesssSMS.YesssSMS import version_info, cli, print_config_file, parse_args
 from YesssSMS.const import PROVIDER_URLS
+# import YesssSMS.const
+from YesssSMS.const import VERSION,\
+                           _UNSUPPORTED_CHARS_STRING,\
+                           CONFIG_FILE_CONTENT,\
+                           CONFIG_FILE_PATHS
 
 # currently only testing YESSS
 PROVIDER = PROVIDER_URLS['YESSS']
@@ -23,11 +28,6 @@ _LOGOUT_URL = PROVIDER['LOGOUT_URL']
 _KONTOMANAGER_URL = PROVIDER['KONTOMANAGER_URL']
 _WEBSMS_URL = PROVIDER['WEBSMS_URL']
 
-# import YesssSMS.const
-from YesssSMS.const import VERSION,\
-                           _UNSUPPORTED_CHARS_STRING,\
-                           CONFIG_FILE_CONTENT,\
-                           CONFIG_FILE_PATHS
 
 try:
     from secrets import LOGIN, YESSS_PASSWD, YESSS_TO
@@ -339,6 +339,7 @@ def test_cli_boolean_args():
     args = parse_args(["--print-config-file"])
     assert args.print_config_file is True
 
+
 def test_cli_argparse():
     """test parser for different arguments"""
     args = parse_args(["-t", "0664123456"])
@@ -510,6 +511,7 @@ def test_cli_with_no_login_or_password(capsys):
             captured = capsys.readouterr()
             assert "error: no username or password defined " in captured.out
 
+
 def test_cli_with_mvno_arg():
     """Test command line arguments with --mvno"""
     from YesssSMS.const import PROVIDER_URLS
@@ -522,7 +524,9 @@ def test_cli_with_mvno_arg():
     _WEBSMS_URL = PROVIDER['WEBSMS_URL']
 
     testargs = ["yessssms", "--test",
-                "-l", "06641234567", "-p", "passw0rd", "-t", "+43676564736", "--mvno", "EDUCOM"]
+                "-l", "06641234567", "-p", "passw0rd",
+                "-t", "+43676564736",
+                "--mvno", "EDUCOM"]
     with mock.patch.object(sys, 'argv', testargs):
         with requests_mock.Mocker() as m:
             m.register_uri('POST',
@@ -545,7 +549,7 @@ def test_cli_with_mvno_arg():
                            _LOGOUT_URL,
                            status_code=200,
                            )
-            sms, args, message = cli(test=True)
+            sms, _, __ = cli(test=True)
             assert 'EDUCOM' == sms._provider
             assert _LOGIN_URL == sms._login_url
             assert _LOGOUT_URL == sms._logout_url
@@ -556,19 +560,21 @@ def test_cli_with_mvno_arg():
 def test_cli_with_mvno_arg_error():
     """Test command line arguments with wrong --mvno"""
     from YesssSMS.YesssSMS import YesssSMS
-   
+
     testargs = ["yessssms", "--test",
-                "-l", "06641234567", "-p", "passw0rd", "-t", "+43676564736", "--mvno", "UNKNOWN_provider"]
+                "-l", "06641234567", "-p", "passw0rd",
+                "-t", "+43676564736",
+                "--mvno", "UNKNOWN_provider"]
 
     with mock.patch.object(sys, 'argv', testargs):
         with pytest.raises(YesssSMS.UnsupportedProviderError):
-            sms, args, message = cli(test=True)
+            cli(test=True)
 
 
 def test_cli_stdin():
     """Test command line with stdin"""
     from YesssSMS.YesssSMS import MAX_MESSAGE_LENGTH_STDIN
-   
+
     testargs = ["yessssms", "--test",
                 "-l", "06641234567", "-p", "passw0rd", "-m", "-"]
 
@@ -600,31 +606,32 @@ Zu sagen brauche, was ich nicht weiß;"""
         with mock.patch.object(sys, 'stdin', in_message):
             with requests_mock.Mocker() as m:
                 m.register_uri('POST',
-                            # pylint: disable=protected-access
-                            _LOGIN_URL,
-                            status_code=302,
-                            # pylint: disable=protected-access
-                            headers={'location': _KONTOMANAGER_URL}
-                            )
+                               # pylint: disable=protected-access
+                               _LOGIN_URL,
+                               status_code=302,
+                               # pylint: disable=protected-access
+                               headers={'location': _KONTOMANAGER_URL}
+                               )
                 m.register_uri('GET',
-                            # pylint: disable=protected-access
-                            _KONTOMANAGER_URL,
-                            status_code=200,
-                            )
+                               # pylint: disable=protected-access
+                               _KONTOMANAGER_URL,
+                               status_code=200,
+                               )
                 m.register_uri('POST',
-                            # pylint: disable=protected-access
-                            _WEBSMS_URL,
-                            status_code=200,
-                            text="<h1>Ihre SMS wurde erfolgreich " +
-                            "verschickt!</h1>"
-                            )
+                               # pylint: disable=protected-access
+                               _WEBSMS_URL,
+                               status_code=200,
+                               text="<h1>Ihre SMS wurde erfolgreich " +
+                               "verschickt!</h1>"
+                               )
                 m.register_uri('GET',
-                            # pylint: disable=protected-access
-                            _LOGOUT_URL,
-                            status_code=200,
-                            )
+                               # pylint: disable=protected-access
+                               _LOGOUT_URL,
+                               status_code=200,
+                               )
 
                 _, __, message = cli(test=True)
-    
-    assert message.startswith("""Da steh’ ich nun, ich armer Thor!\nUnd bin so klug als wie zuvor;""")
+
+    assert message.startswith("""Da steh’ ich nun, ich armer Thor!
+Und bin so klug als wie zuvor;""")
     assert message == in_message[:MAX_MESSAGE_LENGTH_STDIN]

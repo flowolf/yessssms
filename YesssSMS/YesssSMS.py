@@ -78,8 +78,13 @@ class YesssSMS():
 
         pass
 
-    def __init__(self, login=LOGIN, passwd=PASSWD, provider=None, custom_provider=None):
-        """Initialize YesssSMS member variables."""
+    def __init__(self, login=LOGIN, passwd=PASSWD,
+                 provider=None, custom_provider=None):
+        """Initialize YesssSMS
+
+        You can provide a different provider than YESSS.
+        Available providers are listed in the help prompt.
+        """
         self._version = VERSION
         if not provider:
             self._provider = 'YESSS'
@@ -92,11 +97,12 @@ class YesssSMS():
         else:
             if self._provider not in PROVIDER_URLS:
                 available_providers = list(PROVIDER_URLS.keys())
-                error_mess = "provider ({}) is not known to YesssSMS, ".format(self._provider) + \
-                    "try one of the following: {}".format(", ".join(available_providers))
+                error_mess = "provider ({}) is not known to YesssSMS, ".format(
+                    self._provider) + "try one of the following: {}".format(
+                    ", ".join(available_providers))
                 raise self.UnsupportedProviderError(error_mess)
             URLS = PROVIDER_URLS[self._provider]
-            
+
         self._login_url = URLS['LOGIN_URL']
         self._logout_url = URLS['LOGOUT_URL']
         self._kontomanager = URLS['KONTOMANAGER_URL']
@@ -173,13 +179,16 @@ class YesssSMS():
         """Get version of YesssSMS package."""
         return self._version
 
+
 def version_info():
     """Display version information"""
     print("yessssms {}".format(YesssSMS().version()))
 
+
 def print_config_file():
     """Print a sample config file, to pipe into a file"""
     print(CONFIG_FILE_CONTENT, end="")
+
 
 def parse_args(args):
     """Parse arguments and return namespace"""
@@ -188,7 +197,9 @@ def parse_args(args):
     parser.add_argument('-m', '--message', help=HELP['message'])
     parser.add_argument('-c', '--configfile', help=HELP['configfile'])
     parser.add_argument('-l', '--login', dest='login', help=HELP['login'])
-    parser.add_argument('-p', '--password', dest='password', help=HELP['password'])
+    parser.add_argument('-p', '--password',
+                        dest='password',
+                        help=HELP['password'])
     parser.add_argument('--mvno', dest='provider', help=HELP['provider'])
     parser.add_argument('--version', action='store_true',
                         default=False, help=HELP['version'])
@@ -201,6 +212,7 @@ def parse_args(args):
         return None
 
     return parser.parse_args(args)
+
 
 def cli(test=None):
     """Handle arguments for command line interface"""
@@ -232,7 +244,7 @@ def cli(test=None):
         conffile = expanduser(conffile)
         conffile = abspath(conffile)
         try:
-            if not isfile(conffile): # check if file is there
+            if not isfile(conffile):  # check if file is there
                 continue
             logging.debug("configfile ({}) found".format(conffile))
             config = configparser.ConfigParser()
@@ -240,17 +252,21 @@ def cli(test=None):
             # pylint: disable-msg=W0621
             LOGIN = str(config.get('YESSSSMS', 'LOGIN'))
             PASSWD = str(config.get('YESSSSMS', 'PASSWD'))
-            
+
             if config.has_option("YESSSSMS", "DEFAULT_TO"):
                 DEFAULT_RECIPIENT = config.get('YESSSSMS', 'DEFAULT_TO')
             if config.has_option("YESSSSMS", "MVNO"):
                 PROVIDER = config.get('YESSSSMS', 'MVNO')
             if config.has_option("YESSSSMS_PROVIDER_URLS", "LOGIN_URL"):
                 CUSTOM_PROVIDER_URLS = {
-                    'LOGIN_URL': config.get('YESSSSMS_PROVIDER_URLS', 'LOGIN_URL'),
-                    'LOGOUT_URL': config.get('YESSSSMS_PROVIDER_URLS', 'LOGOUT_URL'),
-                    'KONTOMANAGER_URL': config.get('YESSSSMS_PROVIDER_URLS', 'KONTOMANAGER_URL'),
-                    'WEBSMS_URL': config.get('YESSSSMS_PROVIDER_URLS', 'WEBSMS_URL')
+                    'LOGIN_URL': config.get('YESSSSMS_PROVIDER_URLS',
+                                            'LOGIN_URL'),
+                    'LOGOUT_URL': config.get('YESSSSMS_PROVIDER_URLS',
+                                             'LOGOUT_URL'),
+                    'KONTOMANAGER_URL': config.get('YESSSSMS_PROVIDER_URLS',
+                                                   'KONTOMANAGER_URL'),
+                    'WEBSMS_URL': config.get('YESSSSMS_PROVIDER_URLS',
+                                             'WEBSMS_URL')
                     }
         except (KeyError, configparser.NoSectionError) as ex:
             print("settings not found: {} ({})".format(conffile, ex))
@@ -278,12 +294,13 @@ def cli(test=None):
             message += line
             if len(message) > MAX_MESSAGE_LENGTH_STDIN:
                 break
-        message = message[:MAX_MESSAGE_LENGTH_STDIN] # maximum of 3 SMS if pipe is used
+        # maximum of 3 SMS if pipe is used
+        message = message[:MAX_MESSAGE_LENGTH_STDIN]
     else:
         message = args.message
 
     if args.test:
-        message = message or "yessssms ("+ VERSION +\
+        message = message or "yessssms (" + VERSION +\
                   ") test message at {}".format(datetime.now().isoformat())
         recipient = args.recipient or DEFAULT_RECIPIENT or LOGIN
         sms.send(recipient, message)

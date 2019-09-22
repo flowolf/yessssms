@@ -20,23 +20,23 @@ der letzten 12 Monate nicht mehr aufgeladen haben."
 
 PROVIDER_URLS = {
   'YESSS': {
-            'LOGIN_URL': "https://www.yesss.at/kontomanager.at/index.php",
-            'LOGOUT_URL': "https://www.yesss.at/kontomanager.at/index.php?dologout=2",
-            'KONTOMANAGER_URL': "https://www.yesss.at/kontomanager.at/kundendaten.php",
-            'WEBSMS_URL': "https://www.yesss.at/kontomanager.at/websms_send.php" 
-          },
+    'LOGIN_URL': "https://www.yesss.at/kontomanager.at/index.php",
+    'LOGOUT_URL': "https://www.yesss.at/kontomanager.at/index.php?dologout=2",
+    'KONTOMANAGER_URL': "https://www.yesss.at/kontomanager.at/kundendaten.php",
+    'WEBSMS_URL': "https://www.yesss.at/kontomanager.at/websms_send.php"
+    },
   'EDUCOM': {
-            'LOGIN_URL': "https://educom.kontomanager.at/index.php",
-            'LOGOUT_URL': "https://educom.kontomanager.at/index.php?dologout=2",
-            'KONTOMANAGER_URL': "https://educom.kontomanager.at/kundendaten.php",
-            'WEBSMS_URL': "https://educom.kontomanager.at/websms_send.php" 
-          },
+    'LOGIN_URL': "https://educom.kontomanager.at/index.php",
+    'LOGOUT_URL': "https://educom.kontomanager.at/index.php?dologout=2",
+    'KONTOMANAGER_URL': "https://educom.kontomanager.at/kundendaten.php",
+    'WEBSMS_URL': "https://educom.kontomanager.at/websms_send.php"
+    },
   'SIMfonie': {
-            'LOGIN_URL': "https://simfonie.kontomanager.at/index.php",
-            'LOGOUT_URL': "https://simfonie.kontomanager.at/index.php?dologout=2",
-            'KONTOMANAGER_URL': "https://simfonie.kontomanager.at/kundendaten.php",
-            'WEBSMS_URL': "https://simfonie.kontomanager.at/websms_send.php"
-          }
+    'LOGIN_URL': "https://simfonie.kontomanager.at/index.php",
+    'LOGOUT_URL': "https://simfonie.kontomanager.at/index.php?dologout=2",
+    'KONTOMANAGER_URL': "https://simfonie.kontomanager.at/kundendaten.php",
+    'WEBSMS_URL': "https://simfonie.kontomanager.at/websms_send.php"
+    },
 }
 
 HELP = {'to_help': 'Recipient phone number in the format: +436601234567',
@@ -48,14 +48,15 @@ HELP = {'to_help': 'Recipient phone number in the format: +436601234567',
           yesss.at',
         'password': """Your password, it\'s not recommended to use this. \
           Use a config-file instead (see: -c, --configfile).""",
-        'provider': """set a MVNO (mobile virtual network operator) other than Yesss.at (default)\
+        'provider': """set a MVNO (mobile virtual network operator) other \
+          than Yesss.at (default)\
           available are: {}""".format(", ".join(list(PROVIDER_URLS.keys()))),
         'message': 'Message to be sent by SMS',
         'version': 'print version information.',
         'test': 'send a test message to yourself',
         'print-config-file': 'prints a sample config file, that can be piped \
           into eg. ~/.config/yessssms.conf.',
-       }
+        }
 CONFIG_FILE_CONTENT = """# place this file, with correct credentials, at /etc/yessssms.conf
 # or ~/.config/yessssms.conf
 [YESSSSMS]
@@ -78,4 +79,4 @@ PASSWD = MySecre3tPassw0rd
 """
 CONFIG_FILE_PATHS = ["/etc/yessssms.conf",
                      "~/.config/yessssms.conf",
-                    ]
+                     ]
