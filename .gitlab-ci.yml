@@ -1,5 +1,6 @@
 ---
 stages:
+  - style
   - test
   - release
 
@@ -7,6 +8,12 @@ before_script:
   - python --version
   - pip --version
 
+style:flake8:
+  image: python:3.7-alpine
+  script:
+  - apk add py-pip python3-dev
+  - pip3 install flake8 tox
+  - tox -e flake8
 
 test:3.5:
   image: python:3.5-alpine
