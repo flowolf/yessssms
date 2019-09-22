@@ -12,15 +12,14 @@ style:flake8:
   stage: style
   image: python:3.7-alpine
   script:
-  - apk add py-pip python3-dev
+  - apk add py3-pip python3-dev
   - pip3 install flake8 tox
   - tox -e flake8
 
 style:pylint:
   stage: style
-  image: python:3.7-alpine
+  image: python:3.7
   script:
-  - apk add py-pip python3-dev
   - pip3 install pylint tox
   - tox -e pylint
 
@@ -28,7 +27,7 @@ test:3.5:
   stage: test
   image: python:3.5-alpine
   script:
-  - apk add py-pip python3-dev
+  - apk add py3-pip python3-dev
   - pip3 install -r requirements_test.txt
   - pytest --version
   - tox -e py35
