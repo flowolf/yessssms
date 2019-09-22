@@ -1,5 +1,5 @@
 """constants for YesssSMS."""
-VERSION = "0.4.0b4"
+VERSION = "0.4.0b5"
 _UNSUPPORTED_CHARS_STRING = "<strong>Achtung:</strong> Ihre SMS konnte nicht \
 versendet werden, da sie folgende ungültige Zeichen enthält:"
 _LOGIN_ERROR_STRING = "<strong>Login nicht erfolgreich"
@@ -19,24 +19,26 @@ _ACCOUNT_LOCKED_WARNING = ">Ihre Karte wurde deaktiviert, da Sie innerhalb \
 der letzten 12 Monate nicht mehr aufgeladen haben."
 
 PROVIDER_URLS = {
-  'YESSS': {
-    'LOGIN_URL': "https://www.yesss.at/kontomanager.at/index.php",
-    'LOGOUT_URL': "https://www.yesss.at/kontomanager.at/index.php?dologout=2",
-    'KONTOMANAGER_URL': "https://www.yesss.at/kontomanager.at/kundendaten.php",
-    'WEBSMS_URL': "https://www.yesss.at/kontomanager.at/websms_send.php"
-    },
-  'EDUCOM': {
-    'LOGIN_URL': "https://educom.kontomanager.at/index.php",
-    'LOGOUT_URL': "https://educom.kontomanager.at/index.php?dologout=2",
-    'KONTOMANAGER_URL': "https://educom.kontomanager.at/kundendaten.php",
-    'WEBSMS_URL': "https://educom.kontomanager.at/websms_send.php"
-    },
-  'SIMfonie': {
-    'LOGIN_URL': "https://simfonie.kontomanager.at/index.php",
-    'LOGOUT_URL': "https://simfonie.kontomanager.at/index.php?dologout=2",
-    'KONTOMANAGER_URL': "https://simfonie.kontomanager.at/kundendaten.php",
-    'WEBSMS_URL': "https://simfonie.kontomanager.at/websms_send.php"
-    },
+    'YESSS': {
+        'LOGIN_URL': "https://www.yesss.at/kontomanager.at/index.php",
+        'LOGOUT_URL':
+            "https://www.yesss.at/kontomanager.at/index.php?dologout=2",
+        'KONTOMANAGER_URL':
+            "https://www.yesss.at/kontomanager.at/kundendaten.php",
+        'WEBSMS_URL': "https://www.yesss.at/kontomanager.at/websms_send.php"
+        },
+    'EDUCOM': {
+        'LOGIN_URL': "https://educom.kontomanager.at/index.php",
+        'LOGOUT_URL': "https://educom.kontomanager.at/index.php?dologout=2",
+        'KONTOMANAGER_URL': "https://educom.kontomanager.at/kundendaten.php",
+        'WEBSMS_URL': "https://educom.kontomanager.at/websms_send.php"
+        },
+    'SIMfonie': {
+        'LOGIN_URL': "https://simfonie.kontomanager.at/index.php",
+        'LOGOUT_URL': "https://simfonie.kontomanager.at/index.php?dologout=2",
+        'KONTOMANAGER_URL': "https://simfonie.kontomanager.at/kundendaten.php",
+        'WEBSMS_URL': "https://simfonie.kontomanager.at/websms_send.php"
+        },
 }
 
 HELP = {'to_help': 'Recipient phone number in the format: +436601234567',
