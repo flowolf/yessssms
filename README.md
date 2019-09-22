@@ -8,7 +8,7 @@ contract or prepaid plan is needed.
 Use your website login and password.
 
 Alternatively you can use MVNOs (Mobile Virtual Network Operators) that use the kontomanager.at web interface.
-These include: 
+These include:
 * YESSS
 * EDUCOM
 * SIMfonie

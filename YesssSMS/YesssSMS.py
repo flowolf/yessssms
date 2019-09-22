@@ -252,7 +252,8 @@ def read_config_files(config_file):
     return (login, passwd, DEFAULT_RECIPIENT, PROVIDER, CUSTOM_PROVIDER_URLS)
 
 
-# pylint: disable-msg=R1710,R0912  # inconsistent return (testing), too many branches
+# inconsistent return (testing), too many branches
+# pylint: disable-msg=R1710,R0912
 def cli(test=None):
     """Handle arguments for command line interface"""
     args = parse_args(sys.argv[1:])

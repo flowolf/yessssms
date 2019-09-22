@@ -135,7 +135,7 @@ def test_login_error():
 def test_login_empty_password_error():
     """Test error handling of empty password."""
     with pytest.raises(YesssSMS.YesssSMS.MissingLoginCredentialsError):
-        sms = YesssSMS.YesssSMS("0000000000", None)
+        _ = YesssSMS.YesssSMS("0000000000", None)
 
 
 def test_login_empty_login_error():
