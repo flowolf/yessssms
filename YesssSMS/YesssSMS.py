@@ -142,10 +142,6 @@ class YesssSMS():
 
     def send(self, recipient, message):
         """Send an SMS."""
-        if self._logindata['login_rufnummer'] is None or \
-                self._logindata['login_passwort'] is None:
-            err_mess = "YesssSMS: Login data required"
-            raise self.LoginError(err_mess)
         if not recipient:
             raise self.NoRecipientError("YesssSMS: recipient number missing")
         if not isinstance(recipient, str):
