@@ -9,6 +9,7 @@ before_script:
   - pip --version
 
 style:flake8:
+  stage: style
   image: python:3.7-alpine
   script:
   - apk add py-pip python3-dev
@@ -16,6 +17,7 @@ style:flake8:
   - tox -e flake8
 
 test:3.5:
+  stage: test
   image: python:3.5-alpine
   script:
   - apk add py-pip python3-dev
@@ -24,6 +26,7 @@ test:3.5:
   - tox -e py35
 
 test:3.6:
+  stage: test
   image: python:3.6-alpine
   script:
   - apk add py-pip python3-dev
@@ -32,6 +35,7 @@ test:3.6:
   - tox -e py36
 
 test:3.7:
+  stage: test
   image: python:3.7-alpine
   script:
   - apk add py-pip python3-dev
@@ -100,20 +104,3 @@ release:
   - twine upload  --verbose -r pypi dist/*.tar.gz dist/*.whl
   only:
     - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant
-
-
-# test:3.6:
-#   image: python:3.6-stretch
-#   script:
-#   - apt-get update -yq
-#   - apt-get install -y python3-pip python3-dev
-#   - pip3 install -r requirements_test.txt
-#   - pytest --version
-#   # - pytest
-#   # - pytest -v --cov=YesssSMS tests
-#   # - pytest --cov=YesssSMS --cov-report annotate tests
-#   # - cat YesssSMS/YesssSMS.py,cover
-#   - tox -e py36
-#   # or
-#   # - pytest --cov=YesssSMS -cov-report html tests
-#   # publish html to webserver
