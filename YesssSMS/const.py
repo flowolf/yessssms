@@ -40,7 +40,8 @@ PROVIDER_URLS = {
 }
 
 HELP = {'to_help': 'Recipient phone number in the format: +436601234567',
-        'desc': 'Send an SMS via the yesss.at website',
+        'desc': """Send an SMS via the yesss.at website. Some MVNOs that use
+          the kontomanager.at interface are also supported.""",
         'configfile': "Path of a config-file. Default paths are: \
           '/etc/yessssms.conf' and '~/.config/yessssms.conf'. \
           An example file is yessssms_sample.conf.",
