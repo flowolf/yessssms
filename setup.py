@@ -1,6 +1,7 @@
-from setuptools import setup, find_packages
+"""YesssSMS let's you send SMS via yesss.at's website."""
+from setuptools import find_packages, setup
 
-DESC = "YesssSMS let's you send SMS via yesss.at's website"
+DESC = "YesssSMS let's you send SMS via yesss.at's website."
 
 version_file = open("YesssSMS/const.py")
 VERSION = None
