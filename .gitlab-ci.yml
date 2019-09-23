@@ -61,7 +61,7 @@ test_release:
   - pip install requests
   - |2
     python3 -c 'import sys as s; import requests as r; import YesssSMS;
-    v = YesssSMS.YesssSMS().version()
+    v = YesssSMS.const.VERSION
     g = r.get("https://test.pypi.org/project/YesssSMS/"+v+"/");
     if g.status_code == 200:
       print("{} already released".format(v))
@@ -91,7 +91,7 @@ release:
   - pip install requests
   - |2
     python3 -c 'import sys as s; import requests as r; import YesssSMS;
-    v = YesssSMS.YesssSMS().version()
+    v = YesssSMS.const.VERSION
     g = r.get("https://pypi.org/project/YesssSMS/"+v+"/");
     if g.status_code == 200:
       print("{} already released".format(v))
