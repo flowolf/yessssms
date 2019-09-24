@@ -10,15 +10,25 @@ Use your website login and password.
 Alternatively you can use MVNOs (Mobile Virtual Network Operators) that use the kontomanager.at web interface.
 These include:
 * YESSS
-* EDUCOM
-* SIMfonie
-* ...
+* billitel
+* educom
+* fenercell
+* georg
+* goood
+* kronemobile
+* kuriermobil
+* simfonie
+* teleplanet
+* wowww
+* yooopi
+
+![all provider logos](https://gitlab.com/flowolf/yessssms/blob/master/logo/all.png "all provider logos")
 
 use the `--mvno` flag to set your provider, or define the used URLs in the config file.
 
 
 This module is not suitable for batch SMS sending.
-Each send() call logs in and out of yesss.at's website.
+Each send() call logs in and out of your provider's website.
 
 Currently the library supports Python 3.5+, and is [tested against Python 3.5 to 3.7](https://gitlab.com/flowolf/yessssms/-/jobs).
 
