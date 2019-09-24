@@ -22,7 +22,7 @@ These include:
 * wowww
 * yooopi
 
-![all provider logos](https://gitlab.com/flowolf/yessssms/blob/master/logo/all.png "all provider logos")
+![all provider logos](https://gitlab.com/flowolf/yessssms/raw/master/logo/all.png "supported providers")
 
 use the `--mvno` flag to set your provider, or define the used URLs in the config file.
 
