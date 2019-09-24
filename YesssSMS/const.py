@@ -1,5 +1,5 @@
 """constants for YesssSMS."""
-VERSION = "0.4.0b5"
+VERSION = "0.4.0b6"
 _UNSUPPORTED_CHARS_STRING = "<strong>Achtung:</strong> Ihre SMS konnte nicht \
 versendet werden, da sie folgende ungültige Zeichen enthält:"
 _LOGIN_ERROR_STRING = "<strong>Login nicht erfolgreich"
@@ -10,32 +10,121 @@ has been suspended for one hour"
 _UNSUPPORTED_CHARS_STRING = "<strong>Achtung:</strong> Ihre SMS konnte nicht \
 versendet werden, da sie folgende ungültige Zeichen enthält:"
 _SMS_SENDING_SUCCESSFUL_STRING = ">Ihre SMS wurde erfolgreich verschickt!<"
-# <div class='alert alert-warning'>Lieber yesss! Kunde,<br /><br />Ihre Karte \
-# wurde deaktiviert, da Sie innerhalb der letzten 12 Monate nicht mehr \
-# aufgeladen haben. Bitte laden Sie zur Aktivierung Ihrer SIM-Karte Ihr \
-# Guthaben wieder auf, da andernfalls in Kürze die Rufnummer gelöscht wird.\
-# <br /><br />Ihr yesss! Team</div>
-_ACCOUNT_LOCKED_WARNING = ">Ihre Karte wurde deaktiviert, da Sie innerhalb \
-der letzten 12 Monate nicht mehr aufgeladen haben."
+
+PROVIDER_TLDS = {
+    "billitel": "billitel.kontomanager.at",
+    "fenercell": "fenercell.kontomanager.at",
+    "educom": "educom.kontomanager.at",
+    "goood": "goood.kontomanager.at",
+    "kronemobile": "kronemobile.kontomanager.at",
+    "georg": "kundencenter.georg.at",
+    "kuriermobil": "kuriermobil.kontomanager.at",
+    "simfonie": "simfonie.kontomanager.at",
+    "teleplanet": "teleplanet.kontomanager.at",
+    "wowww": "wowww.kontomanager.at",
+    "yooopi": "yooopi.kontomanager.at",
+}
 
 PROVIDER_URLS = {
-    "YESSS": {
+    "yesss": {
         "LOGIN_URL": "https://www.yesss.at/kontomanager.at/index.php",
         "LOGOUT_URL": "https://www.yesss.at/kontomanager.at/index.php?dologout=2",
         "KONTOMANAGER_URL": "https://www.yesss.at/kontomanager.at/kundendaten.php",
         "WEBSMS_URL": "https://www.yesss.at/kontomanager.at/websms_send.php",
     },
-    "EDUCOM": {
-        "LOGIN_URL": "https://educom.kontomanager.at/index.php",
-        "LOGOUT_URL": "https://educom.kontomanager.at/index.php?dologout=2",
-        "KONTOMANAGER_URL": "https://educom.kontomanager.at/kundendaten.php",
-        "WEBSMS_URL": "https://educom.kontomanager.at/websms_send.php",
+    "billitel": {
+        "LOGIN_URL": "https://{}/index.php".format(PROVIDER_TLDS["billitel"]),
+        "LOGOUT_URL": "https://{}/index.php?dologout=2".format(
+            PROVIDER_TLDS["billitel"]
+        ),
+        "KONTOMANAGER_URL": "https://{}/kundendaten.php".format(
+            PROVIDER_TLDS["billitel"]
+        ),
+        "WEBSMS_URL": "https://{}/websms_send.php".format(PROVIDER_TLDS["billitel"]),
     },
-    "SIMfonie": {
-        "LOGIN_URL": "https://simfonie.kontomanager.at/index.php",
-        "LOGOUT_URL": "https://simfonie.kontomanager.at/index.php?dologout=2",
-        "KONTOMANAGER_URL": "https://simfonie.kontomanager.at/kundendaten.php",
-        "WEBSMS_URL": "https://simfonie.kontomanager.at/websms_send.php",
+    "educom": {
+        "LOGIN_URL": "https://{}/index.php".format(PROVIDER_TLDS["educom"]),
+        "LOGOUT_URL": "https://{}/index.php?dologout=2".format(PROVIDER_TLDS["educom"]),
+        "KONTOMANAGER_URL": "https://{}/kundendaten.php".format(
+            PROVIDER_TLDS["educom"]
+        ),
+        "WEBSMS_URL": "https://{}/websms_send.php".format(PROVIDER_TLDS["educom"]),
+    },
+    "fenercell": {
+        "LOGIN_URL": "https://{}/index.php".format(PROVIDER_TLDS["fenercell"]),
+        "LOGOUT_URL": "https://{}/index.php?dologout=2".format(
+            PROVIDER_TLDS["fenercell"]
+        ),
+        "KONTOMANAGER_URL": "https://{}/kundendaten.php".format(
+            PROVIDER_TLDS["fenercell"]
+        ),
+        "WEBSMS_URL": "https://{}/websms_send.php".format(PROVIDER_TLDS["fenercell"]),
+    },
+    "georg": {
+        "LOGIN_URL": "https://{}/index.php".format(PROVIDER_TLDS["georg"]),
+        "LOGOUT_URL": "https://{}/index.php?dologout=2".format(PROVIDER_TLDS["georg"]),
+        "KONTOMANAGER_URL": "https://{}/kundendaten.php".format(PROVIDER_TLDS["georg"]),
+        "WEBSMS_URL": "https://{}/websms_send.php".format(PROVIDER_TLDS["georg"]),
+    },
+    "goood": {
+        "LOGIN_URL": "https://{}/index.php".format(PROVIDER_TLDS["goood"]),
+        "LOGOUT_URL": "https://{}/index.php?dologout=2".format(PROVIDER_TLDS["goood"]),
+        "KONTOMANAGER_URL": "https://{}/kundendaten.php".format(PROVIDER_TLDS["goood"]),
+        "WEBSMS_URL": "https://{}/websms_send.php".format(PROVIDER_TLDS["goood"]),
+    },
+    "kronemobile": {
+        "LOGIN_URL": "https://{}/index.php".format(PROVIDER_TLDS["kronemobile"]),
+        "LOGOUT_URL": "https://{}/index.php?dologout=2".format(
+            PROVIDER_TLDS["kronemobile"]
+        ),
+        "KONTOMANAGER_URL": "https://{}/kundendaten.php".format(
+            PROVIDER_TLDS["kronemobile"]
+        ),
+        "WEBSMS_URL": "https://{}/websms_send.php".format(PROVIDER_TLDS["kronemobile"]),
+    },
+    "kuriermobil": {
+        "LOGIN_URL": "https://{}/index.php".format(PROVIDER_TLDS["kuriermobil"]),
+        "LOGOUT_URL": "https://{}/index.php?dologout=2".format(
+            PROVIDER_TLDS["kuriermobil"]
+        ),
+        "KONTOMANAGER_URL": "https://{}/kundendaten.php".format(
+            PROVIDER_TLDS["kuriermobil"]
+        ),
+        "WEBSMS_URL": "https://{}/websms_send.php".format(PROVIDER_TLDS["kuriermobil"]),
+    },
+    "simfonie": {
+        "LOGIN_URL": "https://{}/index.php".format(PROVIDER_TLDS["simfonie"]),
+        "LOGOUT_URL": "https://{}/index.php?dologout=2".format(
+            PROVIDER_TLDS["simfonie"]
+        ),
+        "KONTOMANAGER_URL": "https://{}/kundendaten.php".format(
+            PROVIDER_TLDS["simfonie"]
+        ),
+        "WEBSMS_URL": "https://{}/websms_send.php".format(PROVIDER_TLDS["simfonie"]),
+    },
+    "teleplanet": {
+        "LOGIN_URL": "https://{}/index.php".format(PROVIDER_TLDS["teleplanet"]),
+        "LOGOUT_URL": "https://{}/index.php?dologout=2".format(
+            PROVIDER_TLDS["teleplanet"]
+        ),
+        "KONTOMANAGER_URL": "https://{}/kundendaten.php".format(
+            PROVIDER_TLDS["teleplanet"]
+        ),
+        "WEBSMS_URL": "https://{}/websms_send.php".format(PROVIDER_TLDS["teleplanet"]),
+    },
+    "wowww": {
+        "LOGIN_URL": "https://{}/index.php".format(PROVIDER_TLDS["wowww"]),
+        "LOGOUT_URL": "https://{}/index.php?dologout=2".format(PROVIDER_TLDS["wowww"]),
+        "KONTOMANAGER_URL": "https://{}/kundendaten.php".format(PROVIDER_TLDS["wowww"]),
+        "WEBSMS_URL": "https://{}/websms_send.php".format(PROVIDER_TLDS["wowww"]),
+    },
+    "yooopi": {
+        "LOGIN_URL": "https://{}/index.php".format(PROVIDER_TLDS["yooopi"]),
+        "LOGOUT_URL": "https://{}/index.php?dologout=2".format(PROVIDER_TLDS["yooopi"]),
+        "KONTOMANAGER_URL": "https://{}/kundendaten.php".format(
+            PROVIDER_TLDS["yooopi"]
+        ),
+        "WEBSMS_URL": "https://{}/websms_send.php".format(PROVIDER_TLDS["yooopi"]),
     },
 }
 

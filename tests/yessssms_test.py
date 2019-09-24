@@ -23,8 +23,8 @@ from YesssSMS.const import (
     CONFIG_FILE_PATHS,
 )
 
-# currently only testing YESSS
-PROVIDER = PROVIDER_URLS["YESSS"]
+# currently only testing yesss
+PROVIDER = PROVIDER_URLS["yesss"]
 
 _LOGIN_URL = PROVIDER["LOGIN_URL"]
 _LOGOUT_URL = PROVIDER["LOGOUT_URL"]
@@ -563,54 +563,6 @@ def test_cli_with_no_login_or_password(capsys):
             assert "error: no username or password defined " in captured.out
 
 
-def test_cli_with_mvno_arg():
-    """Test command line arguments with --mvno"""
-    from YesssSMS.const import PROVIDER_URLS
-
-    PROVIDER = PROVIDER_URLS["EDUCOM"]
-
-    _LOGIN_URL = PROVIDER["LOGIN_URL"]
-    _LOGOUT_URL = PROVIDER["LOGOUT_URL"]
-    _KONTOMANAGER_URL = PROVIDER["KONTOMANAGER_URL"]
-    _WEBSMS_URL = PROVIDER["WEBSMS_URL"]
-
-    testargs = [
-        "yessssms",
-        "--test",
-        "-l",
-        "06641234567",
-        "-p",
-        "passw0rd",
-        "-t",
-        "+43676564736",
-        "--mvno",
-        "EDUCOM",
-    ]
-    with mock.patch.object(sys, "argv", testargs):
-        with requests_mock.Mocker() as m:
-            m.register_uri(
-                "POST",
-                _LOGIN_URL,
-                status_code=302,
-                # pylint: disable=protected-access
-                headers={"location": _KONTOMANAGER_URL},
-            )
-            m.register_uri("GET", _KONTOMANAGER_URL, status_code=200)
-            m.register_uri(
-                "POST",
-                _WEBSMS_URL,
-                status_code=200,
-                text="<h1>Ihre SMS wurde erfolgreich " + "verschickt!</h1>",
-            )
-            m.register_uri("GET", _LOGOUT_URL, status_code=200)
-            sms, _, __ = cli(test=True)
-            assert "EDUCOM" == sms._provider
-            assert _LOGIN_URL == sms._login_url
-            assert _LOGOUT_URL == sms._logout_url
-            assert _KONTOMANAGER_URL == sms._kontomanager
-            assert _WEBSMS_URL == sms._websms_url
-
-
 def test_cli_with_mvno_arg_error():
     """Test command line arguments with wrong --mvno"""
     from YesssSMS.YesssSMS import YesssSMS
@@ -701,3 +653,163 @@ Zu sagen brauche, was ich nicht weiß;"""
 Und bin so klug als wie zuvor;"""
     )
     assert message == in_message[:MAX_MESSAGE_LENGTH_STDIN]
+
+
+def test_cli_with_mvno_educom_arg():
+    """Test command line arguments with --mvno"""
+    from YesssSMS.const import PROVIDER_URLS
+
+    PROVIDER = PROVIDER_URLS["EDUCOM".lower()]
+
+    _LOGIN_URL = PROVIDER["LOGIN_URL"]
+    _LOGOUT_URL = PROVIDER["LOGOUT_URL"]
+    _KONTOMANAGER_URL = PROVIDER["KONTOMANAGER_URL"]
+    _WEBSMS_URL = PROVIDER["WEBSMS_URL"]
+
+    testargs = [
+        "yessssms",
+        "--test",
+        "-l",
+        "06641234567",
+        "-p",
+        "passw0rd",
+        "-t",
+        "+43676564736",
+        "--mvno",
+        "EDUCOM",
+    ]
+    with mock.patch.object(sys, "argv", testargs):
+        with requests_mock.Mocker() as m:
+            m.register_uri(
+                "POST",
+                _LOGIN_URL,
+                status_code=302,
+                # pylint: disable=protected-access
+                headers={"location": _KONTOMANAGER_URL},
+            )
+            m.register_uri("GET", _KONTOMANAGER_URL, status_code=200)
+            m.register_uri(
+                "POST",
+                _WEBSMS_URL,
+                status_code=200,
+                text="<h1>Ihre SMS wurde erfolgreich " + "verschickt!</h1>",
+            )
+            m.register_uri("GET", _LOGOUT_URL, status_code=200)
+            sms, _, __ = cli(test=True)
+            assert "educom" == sms._provider
+            assert _LOGIN_URL == sms._login_url
+            assert _LOGOUT_URL == sms._logout_url
+            assert _KONTOMANAGER_URL == sms._kontomanager
+            assert _WEBSMS_URL == sms._websms_url
+            assert _LOGIN_URL == "https://educom.kontomanager.at/index.php"
+            assert _LOGOUT_URL == "https://educom.kontomanager.at/index.php?dologout=2"
+            assert _KONTOMANAGER_URL == "https://educom.kontomanager.at/kundendaten.php"
+            assert _WEBSMS_URL == "https://educom.kontomanager.at/websms_send.php"
+
+
+def test_cli_with_mvno_simfonie_arg():
+    """Test command line arguments with --mvno"""
+    from YesssSMS.const import PROVIDER_URLS
+
+    PROVIDER = PROVIDER_URLS["SIMfonie".lower()]
+
+    _LOGIN_URL = PROVIDER["LOGIN_URL"]
+    _LOGOUT_URL = PROVIDER["LOGOUT_URL"]
+    _KONTOMANAGER_URL = PROVIDER["KONTOMANAGER_URL"]
+    _WEBSMS_URL = PROVIDER["WEBSMS_URL"]
+
+    testargs = [
+        "yessssms",
+        "--test",
+        "-l",
+        "06641234567",
+        "-p",
+        "passw0rd",
+        "-t",
+        "+43676564736",
+        "--mvno",
+        "SIMfonie",
+    ]
+    with mock.patch.object(sys, "argv", testargs):
+        with requests_mock.Mocker() as m:
+            m.register_uri(
+                "POST",
+                _LOGIN_URL,
+                status_code=302,
+                # pylint: disable=protected-access
+                headers={"location": _KONTOMANAGER_URL},
+            )
+            m.register_uri("GET", _KONTOMANAGER_URL, status_code=200)
+            m.register_uri(
+                "POST",
+                _WEBSMS_URL,
+                status_code=200,
+                text="<h1>Ihre SMS wurde erfolgreich " + "verschickt!</h1>",
+            )
+            m.register_uri("GET", _LOGOUT_URL, status_code=200)
+            sms, _, __ = cli(test=True)
+            assert "simfonie" == sms._provider
+            assert _LOGIN_URL == sms._login_url
+            assert _LOGOUT_URL == sms._logout_url
+            assert _KONTOMANAGER_URL == sms._kontomanager
+            assert _WEBSMS_URL == sms._websms_url
+            assert _LOGIN_URL == "https://simfonie.kontomanager.at/index.php"
+            assert (
+                _LOGOUT_URL == "https://simfonie.kontomanager.at/index.php?dologout=2"
+            )
+            assert (
+                _KONTOMANAGER_URL == "https://simfonie.kontomanager.at/kundendaten.php"
+            )
+            assert _WEBSMS_URL == "https://simfonie.kontomanager.at/websms_send.php"
+
+
+def test_cli_with_mvno_div_arg():
+    """Test command line arguments with --mvno"""
+    from YesssSMS.const import PROVIDER_URLS
+
+    all_providers = PROVIDER_URLS.keys()
+
+    for provider in all_providers:
+
+        PROVIDER = PROVIDER_URLS[provider.lower()]
+
+        _LOGIN_URL = PROVIDER["LOGIN_URL"]
+        _LOGOUT_URL = PROVIDER["LOGOUT_URL"]
+        _KONTOMANAGER_URL = PROVIDER["KONTOMANAGER_URL"]
+        _WEBSMS_URL = PROVIDER["WEBSMS_URL"]
+
+        testargs = [
+            "yessssms",
+            "--test",
+            "-l",
+            "06641234567",
+            "-p",
+            "passw0rd",
+            "-t",
+            "+43676564736",
+            "--mvno",
+            provider.upper(),
+        ]
+        with mock.patch.object(sys, "argv", testargs):
+            with requests_mock.Mocker() as m:
+                m.register_uri(
+                    "POST",
+                    _LOGIN_URL,
+                    status_code=302,
+                    # pylint: disable=protected-access
+                    headers={"location": _KONTOMANAGER_URL},
+                )
+                m.register_uri("GET", _KONTOMANAGER_URL, status_code=200)
+                m.register_uri(
+                    "POST",
+                    _WEBSMS_URL,
+                    status_code=200,
+                    text="<h1>Ihre SMS wurde erfolgreich " + "verschickt!</h1>",
+                )
+                m.register_uri("GET", _LOGOUT_URL, status_code=200)
+                sms, _, __ = cli(test=True)
+                assert provider == sms._provider
+                assert _LOGIN_URL == sms._login_url
+                assert _LOGOUT_URL == sms._logout_url
+                assert _KONTOMANAGER_URL == sms._kontomanager
+                assert _WEBSMS_URL == sms._websms_url

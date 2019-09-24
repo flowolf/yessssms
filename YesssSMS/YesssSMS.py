@@ -84,9 +84,9 @@ class YesssSMS:
             raise self.MissingLoginCredentialsError()
 
         if not provider:
-            self._provider = "YESSS"
+            self._provider = "yesss"
         else:
-            self._provider = provider
+            self._provider = provider.lower()
 
         # set urls from provider
         if custom_provider:
