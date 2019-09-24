@@ -5,7 +5,6 @@
 YesssSMS let's you send SMS via yesss.at's website. Regular rates apply and a
 contract or prepaid plan is needed.
 
-Use your website login and password.
 
 Alternatively you can use MVNOs (Mobile Virtual Network Operators) that use the kontomanager.at web interface.
 These include:
@@ -24,8 +23,9 @@ These include:
 
 ![all provider logos](https://gitlab.com/flowolf/yessssms/raw/master/logo/all.png "supported providers")
 
-use the `--mvno` flag to set your provider, or define the used URLs in the config file.
+Use your website login and password.
 
+use the `--mvno` flag to set your provider, or define it in the config file.
 
 This module is not suitable for batch SMS sending.
 Each send() call logs in and out of your provider's website.
@@ -42,7 +42,7 @@ Currently the library supports Python 3.5+, and is [tested against Python 3.5 to
 >>> sms = YesssSMS(YOUR_LOGIN, YOUR_PASSWORD)
 >>> sms.send(TO_NUMBER, "Message")
 >>> # or with a different MVNO:
->>> sms = YesssSMS(YOUR_LOGIN, YOUR_PASSWORD, provider="georg")
+>>> sms = YesssSMS(YOUR_LOGIN, YOUR_PASSWORD, provider="goood")
 >>> sms.send(TO_NUMBER, "Message")
 ```
 or for the command line:
@@ -58,5 +58,5 @@ or for the command line:
 > echo "important message!" | yessssms -m -
 
 > # MVNO
-> yessssms --t 06501234567 --mvno educom -m 'sending SMS using a MVNO"
+> yessssms --t 06501234567 --mvno educom -m "sending SMS using a MVNO"
 ```
