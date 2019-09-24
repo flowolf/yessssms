@@ -11,15 +11,15 @@ Alternatively you can use MVNOs (Mobile Virtual Network Operators) that use the 
 These include:
 * YESSS
 * billitel
-* educom
+* EDUCOM
 * fenercell
 * georg
 * goood
 * kronemobile
 * kuriermobil
-* simfonie
+* SIMfonie
 * teleplanet
-* wowww
+* WOWWW
 * yooopi
 
 ![all provider logos](https://gitlab.com/flowolf/yessssms/raw/master/logo/all.png "supported providers")
@@ -41,11 +41,14 @@ Currently the library supports Python 3.5+, and is [tested against Python 3.5 to
 >>> from YesssSMS import YesssSMS
 >>> sms = YesssSMS(YOUR_LOGIN, YOUR_PASSWORD)
 >>> sms.send(TO_NUMBER, "Message")
+>>> # or with a different MVNO:
+>>> sms = YesssSMS(YOUR_LOGIN, YOUR_PASSWORD, provider="georg")
+>>> sms.send(TO_NUMBER, "Message")
 ```
 or for the command line:
 ```bash
 > yessssms --print-config-file > ~/.config/yessssms.conf
-# edit the config file
+# edit the config file, set a login, password, default recipient, and MVNO
 > vi ~/.config/yessssms.conf
 > yessssms --test # test your setup, send yourself a message
 > yessssms -t 0664123123123 -m "sending SMS from the command line :)"
@@ -55,6 +58,5 @@ or for the command line:
 > echo "important message!" | yessssms -m -
 
 > # MVNO
-> yessssms --t 06501234567 --mvno EDUCOM -m 'testmessage ;)'
-
+> yessssms --t 06501234567 --mvno educom -m 'sending SMS using a MVNO"
 ```
