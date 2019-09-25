@@ -193,6 +193,14 @@ class YesssSMS:
 
             sess.get(self._logout_url)
 
+    def get_login_url(self):
+        """Get currently set provider."""
+        return self._login_url
+
+    def get_provider(self):
+        """Get currently set provider."""
+        return self._provider
+
     def version(self):
         """Get version of YesssSMS package."""
         return self._version
