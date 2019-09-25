@@ -11,7 +11,6 @@ import sys
 import argparse
 import logging
 import configparser
-import socket
 from datetime import datetime
 from contextlib import suppress
 from functools import wraps
@@ -51,7 +50,7 @@ def connection_error_handled(func):
     def func_wrapper(self, *args, **kwargs):
         try:
             return func(self, *args, **kwargs)
-        except (socket.gaierror, requests.exceptions.ConnectionError):
+        except requests.exceptions.ConnectionError:
             raise YesssSMS.ConnectionError(
                 "YesssSMS cannot connect to provider"
             ) from None
