@@ -44,6 +44,8 @@ with suppress(ImportError):
 
 
 def connection_error_handled(func):
+    """decorator to handle network connection issues"""
+
     @wraps(func)
     def func_wrapper(self, *args, **kwargs):
         try:
@@ -291,6 +293,8 @@ def read_config_files(config_file):
 
 
 def cli_errors_handled(func):
+    """decorator to handle cli exceptions"""
+
     @wraps(func)
     def func_wrapper(*args, **kwargs):
         try:
