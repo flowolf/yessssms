@@ -1,5 +1,5 @@
 """constants for YesssSMS."""
-VERSION = "0.4.0"
+VERSION = "0.4.1a1"
 _UNSUPPORTED_CHARS_STRING = "<strong>Achtung:</strong> Ihre SMS konnte nicht \
 versendet werden, da sie folgende ungültige Zeichen enthält:"
 _LOGIN_ERROR_STRING = "<strong>Login nicht erfolgreich"
@@ -139,6 +139,7 @@ HELP = {
           yesss.at",
     "password": """Your password, it\'s not recommended to use this. \
           Use a config-file instead (see: -c, --configfile).""",
+    "check_login": """validates your login data""",
     "provider": """set a MVNO (mobile virtual network operator) other \
           than Yesss.at (default)\
           available are: {}""".format(

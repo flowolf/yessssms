@@ -13,6 +13,7 @@ import logging
 import configparser
 from datetime import datetime
 from contextlib import suppress
+from functools import wraps
 from os.path import abspath
 from os.path import expanduser
 
@@ -40,6 +41,19 @@ PASSWD = None  # your password
 with suppress(ImportError):
     # pylint: disable-msg=E0611
     from secrets import LOGIN, PASSWD
+
+
+def connection_error_handled(func):
+    @wraps(func)
+    def func_wrapper(self, *args, **kwargs):
+        try:
+            return func(self, *args, **kwargs)
+        except requests.exceptions.ConnectionError:
+            raise YesssSMS.ConnectionError(
+                "YesssSMS cannot connect to provider"
+            ) from None
+
+    return func_wrapper
 
 
 class YesssSMS:
@@ -70,6 +84,9 @@ class YesssSMS:
 
     class UnsupportedProviderError(ValueError):
         """the provider is not in the PROVIDER_URLS dict"""
+
+    class ConnectionError(requests.ConnectionError):
+        """YesssSMS cannot connect to the provider"""
 
     def __init__(self, login=LOGIN, passwd=PASSWD, provider=None, custom_provider=None):
         """Initialize YesssSMS
@@ -133,6 +150,7 @@ class YesssSMS:
         """Return if account is suspended."""
         return self._suspended
 
+    @connection_error_handled
     def login_data_valid(self):
         """Check for working login data."""
         login_working = False
@@ -145,6 +163,7 @@ class YesssSMS:
             login_working = True
         return login_working
 
+    @connection_error_handled
     def send(self, recipient, message):
         """Send an SMS."""
         if not recipient:
@@ -195,6 +214,13 @@ def parse_args(args):
     parser.add_argument("-c", "--configfile", help=HELP["configfile"])
     parser.add_argument("-l", "--login", dest="login", help=HELP["login"])
     parser.add_argument("-p", "--password", dest="password", help=HELP["password"])
+    parser.add_argument(
+        "-T",
+        "--check-login",
+        action="store_true",
+        default=False,
+        help=HELP["check_login"],
+    )
     parser.add_argument("--mvno", dest="provider", help=HELP["provider"])
     parser.add_argument(
         "--version", action="store_true", default=False, help=HELP["version"]
@@ -255,25 +281,48 @@ def read_config_files(config_file):
                 "WEBSMS_URL": config.get("YESSSSMS_PROVIDER_URLS", "WEBSMS_URL"),
             }
     except (KeyError, configparser.NoSectionError) as ex:
-        print("settings not found: {}".format(ex))
+        if config_file:
+            print("error: settings not found: {}".format(ex))
+        else:
+            # only interested in missing settings if custom file is defined
+            # else ignore it.
+            pass
     return (login, passwd, DEFAULT_RECIPIENT, PROVIDER, CUSTOM_PROVIDER_URLS)
+
+
+def cli_errors_handled(func):
+    @wraps(func)
+    def func_wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except YesssSMS.MissingLoginCredentialsError:
+            print("error: no username or password defined (use --help for help)")
+            return 2
+        except YesssSMS.ConnectionError:
+            print(
+                "error: could not connect to provider. check your Internet connection."
+            )
+            return 3
+
+    return func_wrapper
 
 
 # inconsistent return (testing), too many branches
 # pylint: disable-msg=R1710,R0912
+@cli_errors_handled
 def cli(test=None):
     """Handle arguments for command line interface"""
     args = parse_args(sys.argv[1:])
 
     if not args:
-        return
+        return 0
 
     if args.print_config_file:
         print_config_file()
-        return
+        return 0
     if args.version:
         version_info()
-        return
+        return 0
 
     login, passwd, DEFAULT_RECIPIENT, PROVIDER, CUSTOM_PROVIDER_URLS = read_config_files(
         args.configfile or None
@@ -286,17 +335,18 @@ def cli(test=None):
         login = args.login
         passwd = args.password
 
-    try:
-        logging.debug("login: %s", login)
-        if CUSTOM_PROVIDER_URLS:
-            sms = YesssSMS(login, passwd, custom_provider=CUSTOM_PROVIDER_URLS)
-        elif PROVIDER:
-            sms = YesssSMS(login, passwd, provider=PROVIDER)
-        else:
-            sms = YesssSMS(login, passwd)
-    except YesssSMS.MissingLoginCredentialsError:
-        print("error: no username or password defined (use --help for help)")
-        return
+    logging.debug("login: %s", login)
+    if CUSTOM_PROVIDER_URLS:
+        sms = YesssSMS(login, passwd, custom_provider=CUSTOM_PROVIDER_URLS)
+    elif PROVIDER:
+        sms = YesssSMS(login, passwd, provider=PROVIDER)
+    else:
+        sms = YesssSMS(login, passwd)
+
+    if args.check_login:
+        valid = sms.login_data_valid()
+        print("login data is {}valid.".format("" if valid else "NOT "))
+        return 0 if valid else 1
 
     if args.message == "-":
         message = ""
@@ -319,7 +369,7 @@ def cli(test=None):
         sms.send(DEFAULT_RECIPIENT or args.recipient, message)
     if test:
         return (sms, args, message)
-    return None
+    return 0
 
 
 if __name__ == "__main__":

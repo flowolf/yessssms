@@ -446,7 +446,8 @@ def test_cli_with_test_args():
                 text="<h1>Ihre SMS wurde erfolgreich " + "verschickt!</h1>",
             )
             m.register_uri("GET", _LOGOUT_URL, status_code=200)
-            cli()
+            val = cli()
+            assert val == 0
 
 
 def test_cli_with_printconfigfile_arg(capsys):
@@ -522,6 +523,46 @@ def test_cli_with_configfile_arg():
             )
             cli()
             assert "/tmp/testconfig_1234.conf" in CONFIG_FILE_PATHS
+
+
+def test_cli_with_test_login_arg(capsys):
+    """Test check-login argument"""
+    testargs = ["yessssms", "-m", "test", "-l", "06641234567", "-p", "passw0rd", "-T"]
+    with mock.patch.object(sys, "argv", testargs):
+        with requests_mock.Mocker() as m:
+
+            m.register_uri(
+                "POST",
+                # pylint: disable=protected-access
+                _LOGIN_URL,
+                status_code=302,
+                # pylint: disable=protected-access
+                headers={"location": _KONTOMANAGER_URL},
+            )
+            m.register_uri(
+                "GET",
+                # pylint: disable=protected-access
+                _KONTOMANAGER_URL,
+                status_code=200,
+            )
+            m.register_uri(
+                "POST",
+                # pylint: disable=protected-access
+                _WEBSMS_URL,
+                status_code=200,
+                text="<h1>Ihre SMS wurde erfolgreich " + "verschickt!</h1>",
+            )
+            m.register_uri(
+                "GET",
+                # pylint: disable=protected-access
+                _LOGOUT_URL,
+                status_code=200,
+            )
+            val = cli()
+            captured = capsys.readouterr()
+
+            assert val == 0
+            assert captured.out == "login data is valid.\n"
 
 
 @mock.patch("YesssSMS.const.CONFIG_FILE_PATHS", [])
