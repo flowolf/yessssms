@@ -357,7 +357,8 @@ def cli(test=None):
 
     if args.check_login:
         valid = sms.login_data_valid()
-        print("login data is {}valid.".format("" if valid else "NOT "))
+        text = ("ok", "") if valid else ("error", "NOT ")
+        print("{}: login data is {}valid.".format(text[0], text[1]))
         return 0 if valid else 1
 
     if args.message == "-":

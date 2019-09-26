@@ -562,7 +562,33 @@ def test_cli_with_test_login_arg(capsys):
             captured = capsys.readouterr()
 
             assert val == 0
-            assert captured.out == "login data is valid.\n"
+            assert captured.out == "ok: login data is valid.\n"
+
+
+def test_cli_with_invalid_test_login_arg(capsys):
+    """Test check-login argument"""
+    testargs = ["yessssms", "-m", "test", "-l", "06641234567", "-p", "passw0rd", "-T"]
+    with mock.patch.object(sys, "argv", testargs):
+        with requests_mock.Mocker() as m:
+
+            m.register_uri(
+                "POST",
+                # pylint: disable=protected-access
+                _LOGIN_URL,
+                status_code=200,
+                text="Bla bla<strong>Login nicht erfolgreichBlaBla",
+            )
+            m.register_uri(
+                "GET",
+                # pylint: disable=protected-access
+                _LOGOUT_URL,
+                status_code=200,
+            )
+            val = cli()
+            captured = capsys.readouterr()
+
+            assert val == 1
+            assert "error: login data is NOT valid" in captured.out
 
 
 @mock.patch("YesssSMS.const.CONFIG_FILE_PATHS", [])
