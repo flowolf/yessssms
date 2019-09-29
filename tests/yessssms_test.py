@@ -404,6 +404,9 @@ def test_cli_argparse():
     args = parse_args(["-m", "testmessage 123 - can you see this?"])
     assert args.message == "testmessage 123 - can you see this?"
 
+    args = parse_args(["--print-config-file"])
+    assert args.print_config_file is True
+
     args = parse_args(["--mvno", "YESSS"])
     assert args.provider == "YESSS"
 
@@ -415,6 +418,12 @@ def test_cli_argparse():
 
     args = parse_args(["--mvno", "BLABLABLA"])
     assert args.provider == "BLABLABLA"
+
+    args = parse_args(["--test"])
+    assert args.test is True
+
+    args = parse_args(["-T"])
+    assert args.check_login is True
 
 
 def test_cli_with_test_args():
