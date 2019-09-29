@@ -386,4 +386,4 @@ def cli(test=None):
 
 
 if __name__ == "__main__":
-    _ = cli()
+    cli()

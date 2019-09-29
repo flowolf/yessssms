@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Mocked tests for YesssSMS Module."""
+"""Tests for YesssSMS Module."""
 #
 # pylint: disable-msg=C0103
 import sys
@@ -38,6 +38,64 @@ except ImportError:
     LOGIN = "06641234567"
     YESSS_PASSWD = "testpasswd"
     YESSS_TO = "06501234567"
+
+
+@pytest.fixture
+def valid_connection():
+    sms = YesssSMS.YesssSMS("", "")
+    with requests_mock.Mocker() as m:
+        m.register_uri(
+            "POST",
+            # pylint: disable=protected-access
+            sms._login_url,
+            status_code=302,
+            # pylint: disable=protected-access
+            headers={"location": sms._kontomanager},
+        )
+        m.register_uri(
+            "GET",
+            # pylint: disable=protected-access
+            sms._kontomanager,
+            status_code=200,
+            text="test..." + LOGIN + "</a>",
+        )
+        m.register_uri(
+            "GET",
+            # pylint: disable=protected-access
+            sms._logout_url,
+            status_code=200,
+        )
+        yield
+
+
+@pytest.fixture(name="connection_error")
+def simulate_connection_error(valid_connection):
+    """Simulate a connection error with requests."""
+    path = "YesssSMS.YesssSMS._login"
+    with mock.patch(path, side_effect=requests.exceptions.ConnectionError()):
+        yield
+
+
+def test_connection_error(connection_error):
+    """Test connection error."""
+    sms = YesssSMS.YesssSMS(LOGIN, YESSS_PASSWD)
+    with pytest.raises(YesssSMS.YesssSMS.ConnectionError):
+        sms.login_data_valid()
+
+
+def test_login_url_getter():
+    sms = YesssSMS.YesssSMS(LOGIN, YESSS_PASSWD)
+
+    login_url = sms.get_login_url()
+    assert login_url == YesssSMS.const.PROVIDER_URLS["yesss"]["LOGIN_URL"]
+
+
+def test_provider_getter():
+    sms = YesssSMS.YesssSMS(LOGIN, YESSS_PASSWD, provider="goood")
+    provider = sms.get_provider()
+
+    # pylint: disable=protected-access
+    assert provider == sms._provider
 
 
 def test_credentials_work():
