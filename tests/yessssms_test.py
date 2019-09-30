@@ -12,7 +12,9 @@ import requests
 import requests_mock
 
 import YesssSMS
-from YesssSMS.YesssSMS import version_info, cli, print_config_file, parse_args
+
+from YesssSMS.CLI import CLI
+
 from YesssSMS.const import PROVIDER_URLS
 
 # import YesssSMS.const
@@ -42,7 +44,7 @@ except ImportError:
 
 @pytest.fixture
 def valid_connection():
-    sms = YesssSMS.YesssSMS("", "")
+    sms = YesssSMS.YesssSMS("", "", provider="yesss")
     with requests_mock.Mocker() as m:
         m.register_uri(
             "POST",
@@ -60,6 +62,13 @@ def valid_connection():
             text="test..." + LOGIN + "</a>",
         )
         m.register_uri(
+            "POST",
+            # pylint: disable=protected-access
+            sms._websms_url,
+            status_code=200,
+            text="<h1>Ihre SMS wurde erfolgreich " + "verschickt!</h1>",
+        )
+        m.register_uri(
             "GET",
             # pylint: disable=protected-access
             sms._logout_url,
@@ -68,19 +77,18 @@ def valid_connection():
         yield
 
 
-@pytest.fixture(name="connection_error")
-def simulate_connection_error(valid_connection):
-    """Simulate a connection error with requests."""
-    path = "YesssSMS.YesssSMS._login"
-    with mock.patch(path, side_effect=requests.exceptions.ConnectionError()):
+@pytest.fixture
+def invalid_login(valid_connection):
+    # sms = YesssSMS.YesssSMS("", "")
+    with requests_mock.Mocker() as m:
+        m.register_uri(
+            "POST",
+            # pylint: disable=protected-access
+            _LOGIN_URL,
+            status_code=200,
+            text="Bla bla<strong>Login nicht erfolgreichBlaBla",
+        )
         yield
-
-
-def test_connection_error(connection_error):
-    """Test connection error."""
-    sms = YesssSMS.YesssSMS(LOGIN, YESSS_PASSWD)
-    with pytest.raises(YesssSMS.YesssSMS.ConnectionError):
-        sms.login_data_valid()
 
 
 def test_login_url_getter():
@@ -174,7 +182,7 @@ def test_login():
         assert request.url == sms._kontomanager
 
 
-def test_empty_message():
+def test_empty_message(valid_connection):
     """Test error handling for empty message."""
     sms = YesssSMS.YesssSMS(LOGIN, YESSS_PASSWD)
     with pytest.raises(ValueError):
@@ -210,7 +218,7 @@ def test_login_empty_password_error():
         _ = YesssSMS.YesssSMS("0000000000", None)
 
 
-def test_login_empty_login_error():
+def test_login_empty_login_error(invalid_login):
     """Test error handling of empty login."""
     sms = YesssSMS.YesssSMS("", "2d4faa0ea6f55813")
     with pytest.raises(sms.LoginError):
@@ -406,82 +414,76 @@ def test_send_sms():
 
 def test_cli_print_config_file(capsys):
     """test for correct config file output"""
-    print_config_file()
+    CLI.print_config_file()
     captured = capsys.readouterr()
     assert captured.out == CONFIG_FILE_CONTENT
 
 
 def test_cli_version_info(capsys):
     """test for correct version info print"""
-    version_info()
+    CLI.version_info()
     captured = capsys.readouterr()
     assert captured.out == "yessssms " + VERSION + "\n"
 
 
 def test_cli_boolean_args():
     """test parser for boolean arguments"""
-    args = parse_args(["--version"])
+    args = CLI.parse_args(["--version"])
     assert args.version is True
 
-    args = parse_args(["--test"])
+    args = CLI.parse_args(["--test"])
     assert args.test is True
 
-    args = parse_args(["--print-config-file"])
+    args = CLI.parse_args(["--print-config-file"])
     assert args.print_config_file is True
+
+    args = CLI.parse_args(["-T"])
+    assert args.check_login is True
 
 
 def test_cli_argparse():
     """test parser for different arguments"""
-    args = parse_args(["-t", "0664123456"])
+    args = CLI.parse_args(["-t", "0664123456"])
     assert args.recipient == "0664123456"
 
-    args = parse_args(["--to", "0664123456"])
+    args = CLI.parse_args(["--to", "0664123456"])
     assert args.recipient == "0664123456"
 
-    args = parse_args(["-l", "0676456789123"])
+    args = CLI.parse_args(["-l", "0676456789123"])
     assert args.login == "0676456789123"
 
-    args = parse_args(["--login", "0676456789123"])
+    args = CLI.parse_args(["--login", "0676456789123"])
     assert args.login == "0676456789123"
 
-    args = parse_args(["-p", "s3cret..11"])
+    args = CLI.parse_args(["-p", "s3cret..11"])
     assert args.password == "s3cret..11"
 
-    args = parse_args(["--password", "s3cret..11"])
+    args = CLI.parse_args(["--password", "s3cret..11"])
     assert args.password == "s3cret..11"
 
-    args = parse_args(["-c", ".yessssms.config"])
+    args = CLI.parse_args(["-c", ".yessssms.config"])
     assert args.configfile == ".yessssms.config"
 
-    args = parse_args(["--configfile", ".yessssms.config"])
+    args = CLI.parse_args(["--configfile", ".yessssms.config"])
     assert args.configfile == ".yessssms.config"
 
-    args = parse_args(["--message", "testmessage 123 - can you see this?"])
+    args = CLI.parse_args(["--message", "testmessage 123 - can you see this?"])
     assert args.message == "testmessage 123 - can you see this?"
 
-    args = parse_args(["-m", "testmessage 123 - can you see this?"])
+    args = CLI.parse_args(["-m", "testmessage 123 - can you see this?"])
     assert args.message == "testmessage 123 - can you see this?"
 
-    args = parse_args(["--print-config-file"])
-    assert args.print_config_file is True
-
-    args = parse_args(["--mvno", "YESSS"])
+    args = CLI.parse_args(["--mvno", "YESSS"])
     assert args.provider == "YESSS"
 
-    args = parse_args(["--mvno", "EDUCOM"])
+    args = CLI.parse_args(["--mvno", "EDUCOM"])
     assert args.provider == "EDUCOM"
 
-    args = parse_args(["--mvno", "SIMfonie"])
+    args = CLI.parse_args(["--mvno", "SIMfonie"])
     assert args.provider == "SIMfonie"
 
-    args = parse_args(["--mvno", "BLABLABLA"])
+    args = CLI.parse_args(["--mvno", "BLABLABLA"])
     assert args.provider == "BLABLABLA"
-
-    args = parse_args(["--test"])
-    assert args.test is True
-
-    args = parse_args(["-T"])
-    assert args.check_login is True
 
 
 def test_cli_with_test_args():
@@ -513,7 +515,7 @@ def test_cli_with_test_args():
                 text="<h1>Ihre SMS wurde erfolgreich " + "verschickt!</h1>",
             )
             m.register_uri("GET", _LOGOUT_URL, status_code=200)
-            val = cli()
+            val = CLI().exit_status
             assert val == 0
 
 
@@ -521,7 +523,7 @@ def test_cli_with_printconfigfile_arg(capsys):
     """Test print-config-file parameter"""
     testargs = ["yessssms", "--print-config-file"]
     with mock.patch.object(sys, "argv", testargs):
-        cli()
+        CLI()
         captured = capsys.readouterr()
         assert captured.out == CONFIG_FILE_CONTENT
 
@@ -530,7 +532,7 @@ def test_cli_with_version_arg(capsys):
     """Test version cli argument"""
     testargs = ["yessssms", "--version"]
     with mock.patch.object(sys, "argv", testargs):
-        cli()
+        CLI()
         captured = capsys.readouterr()
         assert captured.out == "yessssms " + VERSION + "\n"
 
@@ -539,7 +541,7 @@ def test_cli_with_no_arg(capsys):
     """Test handling of no arguments"""
     testargs = ["yessssms"]
     with mock.patch.object(sys, "argv", testargs):
-        cli()
+        CLI()
         captured = capsys.readouterr()
         assert "usage: yessssms " in captured.out
 
@@ -588,7 +590,7 @@ def test_cli_with_configfile_arg():
                 _LOGOUT_URL,
                 status_code=200,
             )
-            cli()
+            CLI()
             assert "/tmp/testconfig_1234.conf" in CONFIG_FILE_PATHS
 
 
@@ -625,7 +627,7 @@ def test_cli_with_test_login_arg(capsys):
                 _LOGOUT_URL,
                 status_code=200,
             )
-            val = cli()
+            val = CLI().exit_status
             captured = capsys.readouterr()
 
             assert val == 0
@@ -651,7 +653,7 @@ def test_cli_with_invalid_test_login_arg(capsys):
                 _LOGOUT_URL,
                 status_code=200,
             )
-            val = cli()
+            val = CLI().exit_status
             captured = capsys.readouterr()
 
             assert val == 1
@@ -692,7 +694,7 @@ def test_cli_with_no_login_or_password(capsys):
                 _LOGOUT_URL,
                 status_code=200,
             )
-            cli()
+            CLI()
             captured = capsys.readouterr()
             assert "error: no username or password defined " in captured.out
 
@@ -716,7 +718,7 @@ def test_cli_with_mvno_arg_error():
 
     with mock.patch.object(sys, "argv", testargs):
         with pytest.raises(YesssSMS.UnsupportedProviderError):
-            cli(test=True)
+            CLI(test=True)
 
 
 def test_cli_stdin():
@@ -780,7 +782,7 @@ Zu sagen brauche, was ich nicht weiß;"""
                     status_code=200,
                 )
 
-                _, __, message = cli(test=True)
+                message = CLI(test=True).message
 
     assert message.startswith(
         """Da steh’ ich nun, ich armer Thor!
@@ -829,7 +831,7 @@ def test_cli_with_mvno_educom_arg():
                 text="<h1>Ihre SMS wurde erfolgreich " + "verschickt!</h1>",
             )
             m.register_uri("GET", _LOGOUT_URL, status_code=200)
-            sms, _, __ = cli(test=True)
+            sms = CLI(test=True).yessssms
             assert "educom" == sms._provider
             assert _LOGIN_URL == sms._login_url
             assert _LOGOUT_URL == sms._logout_url
@@ -881,7 +883,7 @@ def test_cli_with_mvno_simfonie_arg():
                 text="<h1>Ihre SMS wurde erfolgreich " + "verschickt!</h1>",
             )
             m.register_uri("GET", _LOGOUT_URL, status_code=200)
-            sms, _, __ = cli(test=True)
+            sms = CLI(test=True).yessssms
             assert "simfonie" == sms._provider
             assert _LOGIN_URL == sms._login_url
             assert _LOGOUT_URL == sms._logout_url
@@ -941,7 +943,8 @@ def test_cli_with_mvno_div_arg():
                     text="<h1>Ihre SMS wurde erfolgreich " + "verschickt!</h1>",
                 )
                 m.register_uri("GET", _LOGOUT_URL, status_code=200)
-                sms, _, __ = cli(test=True)
+                cli = CLI(test=True)
+                sms = cli.yessssms
                 assert provider == sms._provider
                 assert _LOGIN_URL == sms._login_url
                 assert _LOGOUT_URL == sms._logout_url

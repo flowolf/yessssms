@@ -1,0 +1,222 @@
+import sys
+import argparse
+import logging
+import configparser
+from datetime import datetime
+from os.path import abspath
+from os.path import expanduser
+from functools import wraps
+
+from YesssSMS import YesssSMS
+
+from YesssSMS.const import VERSION, HELP, CONFIG_FILE_CONTENT
+
+MAX_MESSAGE_LENGTH_STDIN = 3 * 160
+
+
+class CLI:
+    def __init__(self, test=False):
+        self.yessssms = None
+        self.message = None
+        self.exit_status = self.cli(test=test)
+
+    # def __call__(self, test=False):
+    #     self.__init__(test=test)
+    #     # self.cli()
+
+    @staticmethod
+    def version_info():
+        """Display version information"""
+        print("yessssms {}".format(YesssSMS("", "").version()))
+
+    @staticmethod
+    def print_config_file():
+        """Print a sample config file, to pipe into a file"""
+        print(CONFIG_FILE_CONTENT, end="")
+
+    @staticmethod
+    def parse_args(args):
+        """Parse arguments and return namespace"""
+        parser = argparse.ArgumentParser(description=HELP["desc"])
+        parser.add_argument("-t", "--to", dest="recipient", help=HELP["to_help"])
+        parser.add_argument("-m", "--message", help=HELP["message"])
+        parser.add_argument("-c", "--configfile", help=HELP["configfile"])
+        parser.add_argument("-l", "--login", dest="login", help=HELP["login"])
+        parser.add_argument("-p", "--password", dest="password", help=HELP["password"])
+        parser.add_argument(
+            "-T",
+            "--check-login",
+            action="store_true",
+            default=False,
+            help=HELP["check_login"],
+        )
+        parser.add_argument("--mvno", dest="provider", help=HELP["provider"])
+        parser.add_argument(
+            "--version", action="store_true", default=False, help=HELP["version"]
+        )
+        parser.add_argument(
+            "--test", action="store_true", default=False, help=HELP["test"]
+        )
+        parser.add_argument(
+            "--print-config-file",
+            action="store_true",
+            default=False,
+            help=HELP["print-config-file"],
+        )
+        if not args:
+            parser.print_help()
+            return None
+
+        return parser.parse_args(args)
+
+    def read_config_files(self, config_file):
+        """Read config files for settings"""
+        from YesssSMS.const import CONFIG_FILE_PATHS
+
+        config_files = CONFIG_FILE_PATHS
+
+        if config_file:
+            config_files.append(config_file)
+
+        parsable_files = []
+        for conffile in config_files:
+            conffile = expanduser(conffile)
+            conffile = abspath(conffile)
+            parsable_files.append(conffile)
+
+        login = None
+        passwd = None
+        DEFAULT_RECIPIENT = None
+        PROVIDER = None
+        CUSTOM_PROVIDER_URLS = None
+
+        try:
+            config = configparser.ConfigParser()
+            config.read(parsable_files)
+
+            login = str(config.get("YESSSSMS", "LOGIN"))
+            passwd = str(config.get("YESSSSMS", "PASSWD"))
+
+            if config.has_option("YESSSSMS", "DEFAULT_TO"):
+                DEFAULT_RECIPIENT = config.get("YESSSSMS", "DEFAULT_TO")
+            if config.has_option("YESSSSMS", "MVNO"):
+                PROVIDER = config.get("YESSSSMS", "MVNO")
+            if config.has_option("YESSSSMS_PROVIDER_URLS", "LOGIN_URL"):
+                CUSTOM_PROVIDER_URLS = {
+                    "LOGIN_URL": config.get("YESSSSMS_PROVIDER_URLS", "LOGIN_URL"),
+                    "LOGOUT_URL": config.get("YESSSSMS_PROVIDER_URLS", "LOGOUT_URL"),
+                    "KONTOMANAGER_URL": config.get(
+                        "YESSSSMS_PROVIDER_URLS", "KONTOMANAGER_URL"
+                    ),
+                    "WEBSMS_URL": config.get("YESSSSMS_PROVIDER_URLS", "WEBSMS_URL"),
+                }
+        except (KeyError, configparser.NoSectionError) as ex:
+            if config_file:
+                print("error: settings not found: {}".format(ex))
+            else:
+                # only interested in missing settings if custom file is defined
+                # else ignore it.
+                pass
+        # print((login, passwd, DEFAULT_RECIPIENT, PROVIDER, CUSTOM_PROVIDER_URLS))
+        return (login, passwd, DEFAULT_RECIPIENT, PROVIDER, CUSTOM_PROVIDER_URLS)
+
+    def cli_errors_handled(func):
+        """decorator to handle cli exceptions"""
+
+        @wraps(func)
+        def func_wrapper(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except YesssSMS.MissingLoginCredentialsError:
+                print("error: no username or password defined (use --help for help)")
+                return 2
+            except YesssSMS.ConnectionError:
+                print(
+                    "error: could not connect to provider. "
+                    "check your Internet connection."
+                )
+                return 3
+
+        return func_wrapper
+
+    # inconsistent return (testing), too many branches
+    # pylint: disable-msg=R1710,R0912
+    @cli_errors_handled
+    def cli(self, test=None):
+        """Handle arguments for command line interface
+
+        If test is True return (sms, args, message)
+        """
+        args = self.parse_args(sys.argv[1:])
+
+        if not args:
+            return 0
+
+        if args.print_config_file:
+            self.print_config_file()
+            return 0
+        if args.version:
+            self.version_info()
+            return 0
+
+        (
+            login,
+            passwd,
+            DEFAULT_RECIPIENT,
+            PROVIDER,
+            CUSTOM_PROVIDER_URLS,
+        ) = self.read_config_files(args.configfile or None)
+
+        if args.provider:
+            PROVIDER = args.provider
+
+        if args.login and args.password:
+            login = args.login
+            passwd = args.password
+
+        logging.debug("login: %s", login)
+        if CUSTOM_PROVIDER_URLS:
+            self.yessssms = YesssSMS(
+                login, passwd, custom_provider=CUSTOM_PROVIDER_URLS
+            )
+        elif PROVIDER:
+            self.yessssms = YesssSMS(login, passwd, provider=PROVIDER)
+        else:
+            self.yessssms = YesssSMS(login, passwd)
+
+        if args.check_login:
+            valid = self.yessssms.login_data_valid()
+            text = ("ok", "") if valid else ("error", "NOT ")
+            print("{}: login data is {}valid.".format(text[0], text[1]))
+            return 0 if valid else 1
+
+        if args.message == "-":
+            message = ""
+            for line in sys.stdin:
+                message += line
+                if len(message) > MAX_MESSAGE_LENGTH_STDIN:
+                    break
+            # maximum of 3 SMS if pipe is used
+            message = message[:MAX_MESSAGE_LENGTH_STDIN]
+        else:
+            message = args.message
+
+        if args.test:
+            message = message or "yessssms (" + VERSION + ") test message at {}".format(
+                datetime.now().isoformat()
+            )
+            recipient = args.recipient or DEFAULT_RECIPIENT or login
+            self.message = message
+            self.yessssms.send(recipient, message)
+        else:
+            self.message = message
+            self.yessssms.send(DEFAULT_RECIPIENT or args.recipient, message)
+        return 0
+
+
+def run():
+    CLI()
+
+
+if __name__ == "__main__":
+    run()
