@@ -1,3 +1,4 @@
+"""Command line interface for YesssSMS"""
 import sys
 import argparse
 import logging
@@ -14,11 +15,33 @@ from YesssSMS.const import VERSION, HELP, CONFIG_FILE_CONTENT
 MAX_MESSAGE_LENGTH_STDIN = 3 * 160
 
 
+def cli_errors_handled(func):
+    """decorator to handle cli exceptions"""
+
+    @wraps(func)
+    def func_wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except YesssSMS.MissingLoginCredentialsError:
+            print("error: no username or password defined (use --help for help)")
+            return 2
+        except YesssSMS.ConnectionError:
+            print(
+                "error: could not connect to provider. "
+                "check your Internet connection."
+            )
+            return 3
+
+    return func_wrapper
+
+
 class CLI:
-    def __init__(self, test=False):
+    """CLI class for YesssSMS"""
+
+    def __init__(self):
         self.yessssms = None
         self.message = None
-        self.exit_status = self.cli(test=test)
+        self.exit_status = self.cli()
 
     # def __call__(self, test=False):
     #     self.__init__(test=test)
@@ -69,7 +92,8 @@ class CLI:
 
         return parser.parse_args(args)
 
-    def read_config_files(self, config_file):
+    @staticmethod
+    def read_config_files(config_file):
         """Read config files for settings"""
         from YesssSMS.const import CONFIG_FILE_PATHS
 
@@ -120,29 +144,10 @@ class CLI:
         # print((login, passwd, DEFAULT_RECIPIENT, PROVIDER, CUSTOM_PROVIDER_URLS))
         return (login, passwd, DEFAULT_RECIPIENT, PROVIDER, CUSTOM_PROVIDER_URLS)
 
-    def cli_errors_handled(func):
-        """decorator to handle cli exceptions"""
-
-        @wraps(func)
-        def func_wrapper(*args, **kwargs):
-            try:
-                return func(*args, **kwargs)
-            except YesssSMS.MissingLoginCredentialsError:
-                print("error: no username or password defined (use --help for help)")
-                return 2
-            except YesssSMS.ConnectionError:
-                print(
-                    "error: could not connect to provider. "
-                    "check your Internet connection."
-                )
-                return 3
-
-        return func_wrapper
-
     # inconsistent return (testing), too many branches
     # pylint: disable-msg=R1710,R0912
     @cli_errors_handled
-    def cli(self, test=None):
+    def cli(self):
         """Handle arguments for command line interface
 
         If test is True return (sms, args, message)
@@ -205,18 +210,13 @@ class CLI:
             message = message or "yessssms (" + VERSION + ") test message at {}".format(
                 datetime.now().isoformat()
             )
-            recipient = args.recipient or DEFAULT_RECIPIENT or login
-            self.message = message
-            self.yessssms.send(recipient, message)
-        else:
-            self.message = message
-            self.yessssms.send(DEFAULT_RECIPIENT or args.recipient, message)
+        recipient = args.recipient or DEFAULT_RECIPIENT or login
+
+        self.message = message
+        self.yessssms.send(DEFAULT_RECIPIENT or recipient, self.message)
         return 0
 
 
 def run():
+    """Start and run the CLI"""
     CLI()
-
-
-if __name__ == "__main__":
-    run()

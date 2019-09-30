@@ -14,8 +14,8 @@ import requests_mock
 import YesssSMS
 
 from YesssSMS.CLI import CLI
-
 from YesssSMS.const import PROVIDER_URLS
+from YesssSMS.CLI import run as cli_run
 
 # import YesssSMS.const
 from YesssSMS.const import (
@@ -104,6 +104,23 @@ def test_connection_error(connection_error):
     sms = YesssSMS.YesssSMS(LOGIN, YESSS_PASSWD)
     with pytest.raises(YesssSMS.YesssSMS.ConnectionError):
         sms.login_data_valid()
+
+
+def test_cli_connection_error(connection_error):
+    """Test connection error."""
+    testargs = [
+        "yessssms",
+        "--test",
+        "-l",
+        "06641234567",
+        "-p",
+        "passw0rd",
+        "-t",
+        "+43676564736",
+    ]
+    with mock.patch.object(sys, "argv", testargs):
+        # with pytest.raises(YesssSMS.YesssSMS.ConnectionError):
+        assert 3 == CLI().cli()
 
 
 def test_login_url_getter():
@@ -733,7 +750,7 @@ def test_cli_with_mvno_arg_error():
 
     with mock.patch.object(sys, "argv", testargs):
         with pytest.raises(YesssSMS.UnsupportedProviderError):
-            CLI(test=True)
+            cli_run()
 
 
 def test_cli_stdin():
@@ -797,7 +814,7 @@ Zu sagen brauche, was ich nicht weiß;"""
                     status_code=200,
                 )
 
-                message = CLI(test=True).message
+                message = CLI().message
 
     assert message.startswith(
         """Da steh’ ich nun, ich armer Thor!
@@ -846,7 +863,7 @@ def test_cli_with_mvno_educom_arg():
                 text="<h1>Ihre SMS wurde erfolgreich " + "verschickt!</h1>",
             )
             m.register_uri("GET", _LOGOUT_URL, status_code=200)
-            sms = CLI(test=True).yessssms
+            sms = CLI().yessssms
             assert "educom" == sms._provider
             assert _LOGIN_URL == sms._login_url
             assert _LOGOUT_URL == sms._logout_url
@@ -898,7 +915,7 @@ def test_cli_with_mvno_simfonie_arg():
                 text="<h1>Ihre SMS wurde erfolgreich " + "verschickt!</h1>",
             )
             m.register_uri("GET", _LOGOUT_URL, status_code=200)
-            sms = CLI(test=True).yessssms
+            sms = CLI().yessssms
             assert "simfonie" == sms._provider
             assert _LOGIN_URL == sms._login_url
             assert _LOGOUT_URL == sms._logout_url
@@ -958,7 +975,7 @@ def test_cli_with_mvno_div_arg():
                     text="<h1>Ihre SMS wurde erfolgreich " + "verschickt!</h1>",
                 )
                 m.register_uri("GET", _LOGOUT_URL, status_code=200)
-                cli = CLI(test=True)
+                cli = CLI()
                 sms = cli.yessssms
                 assert provider == sms._provider
                 assert _LOGIN_URL == sms._login_url
