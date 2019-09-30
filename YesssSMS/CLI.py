@@ -10,7 +10,7 @@ from functools import wraps
 
 from YesssSMS import YesssSMS
 
-from YesssSMS.const import VERSION, HELP, CONFIG_FILE_CONTENT
+from YesssSMS.const import VERSION, HELP, CONFIG_FILE_CONTENT, CONFIG_FILE_PATHS
 
 MAX_MESSAGE_LENGTH_STDIN = 3 * 160
 
@@ -39,8 +39,10 @@ class CLI:
     """CLI class for YesssSMS"""
 
     def __init__(self):
+        self.config_files = CONFIG_FILE_PATHS
         self.yessssms = None
         self.message = None
+        self.recipient = None
         self.exit_status = self.cli()
 
     # def __call__(self, test=False):
@@ -92,18 +94,14 @@ class CLI:
 
         return parser.parse_args(args)
 
-    @staticmethod
-    def read_config_files(config_file):
+    def read_config_files(self, config_file):
         """Read config files for settings"""
-        from YesssSMS.const import CONFIG_FILE_PATHS
-
-        config_files = CONFIG_FILE_PATHS
 
         if config_file:
-            config_files.append(config_file)
+            self.config_files.append(config_file)
 
         parsable_files = []
-        for conffile in config_files:
+        for conffile in self.config_files:
             conffile = expanduser(conffile)
             conffile = abspath(conffile)
             parsable_files.append(conffile)
@@ -180,14 +178,12 @@ class CLI:
             passwd = args.password
 
         logging.debug("login: %s", login)
-        if CUSTOM_PROVIDER_URLS:
+        if PROVIDER:
+            self.yessssms = YesssSMS(login, passwd, provider=PROVIDER)
+        else:
             self.yessssms = YesssSMS(
                 login, passwd, custom_provider=CUSTOM_PROVIDER_URLS
             )
-        elif PROVIDER:
-            self.yessssms = YesssSMS(login, passwd, provider=PROVIDER)
-        else:
-            self.yessssms = YesssSMS(login, passwd)
 
         if args.check_login:
             valid = self.yessssms.login_data_valid()
@@ -212,6 +208,7 @@ class CLI:
             )
         recipient = args.recipient or DEFAULT_RECIPIENT or login
 
+        self.recipient = recipient
         self.message = message
         self.yessssms.send(DEFAULT_RECIPIENT or recipient, self.message)
         return 0

@@ -14,8 +14,9 @@ import requests_mock
 import YesssSMS
 
 from YesssSMS.CLI import CLI
-from YesssSMS.const import PROVIDER_URLS
 from YesssSMS.CLI import run as cli_run
+from YesssSMS.const import PROVIDER_URLS
+
 
 # import YesssSMS.const
 from YesssSMS.const import (
@@ -25,7 +26,6 @@ from YesssSMS.const import (
     CONFIG_FILE_PATHS,
 )
 
-# currently only testing yesss
 PROVIDER = PROVIDER_URLS["yesss"]
 
 _LOGIN_URL = PROVIDER["LOGIN_URL"]
@@ -78,6 +78,76 @@ def valid_connection():
 
 
 @pytest.fixture
+def valid_mock_connection():
+    # sms = YesssSMS.YesssSMS("", "", provider="yesss")
+    with requests_mock.Mocker() as m:
+        m.register_uri(
+            "POST",
+            # pylint: disable=protected-access
+            "mock://kontomanager.at/index.php",
+            status_code=302,
+            # pylint: disable=protected-access
+            headers={"location": "mock://kontomanager.at/kundendaten.php"},
+        )
+        m.register_uri(
+            "GET",
+            # pylint: disable=protected-access
+            "mock://kontomanager.at/kundendaten.php",
+            status_code=200,
+            text="test..." + LOGIN + "</a>",
+        )
+        m.register_uri(
+            "POST",
+            # pylint: disable=protected-access
+            "mock://kontomanager.at/websms_send.php",
+            status_code=200,
+            text="<h1>Ihre SMS wurde erfolgreich " + "verschickt!</h1>",
+        )
+        m.register_uri(
+            "GET",
+            # pylint: disable=protected-access
+            "mock://kontomanager.at/index.php?dologout=2",
+            status_code=200,
+        )
+        yield
+
+
+@pytest.fixture
+def valid_goood_mock_connection():
+    # sms = YesssSMS.YesssSMS("", "", provider="yesss")
+    with requests_mock.Mocker() as m:
+        m.register_uri(
+            "POST",
+            # pylint: disable=protected-access
+            "https://goood.kontomanager.at/index.php",
+            status_code=302,
+            # pylint: disable=protected-access
+            headers={"location": "https://goood.kontomanager.at/kundendaten.php"},
+        )
+        m.register_uri(
+            "GET",
+            # pylint: disable=protected-access
+            "https://goood.kontomanager.at/kundendaten.php",
+            status_code=200,
+            text="test..." + LOGIN + "</a>",
+        )
+        m.register_uri(
+            "POST",
+            # pylint: disable=protected-access
+            "https://goood.kontomanager.at/websms_send.php",
+            status_code=200,
+            text="<h1>Ihre SMS wurde erfolgreich " + "verschickt!</h1>",
+        )
+        m.register_uri(
+            "GET",
+            # pylint: disable=protected-access
+            "https://goood.kontomanager.at/index.php?dologout=2",
+            status_code=200,
+        )
+        yield
+
+
+@pytest.fixture
 def invalid_login(valid_connection):
     # sms = YesssSMS.YesssSMS("", "")
     with requests_mock.Mocker() as m:
@@ -99,11 +169,122 @@ def simulate_connection_error(valid_connection):
         yield
 
 
+@pytest.fixture
+def mocked_config_file_custom_provider():
+    data = """[YESSSSMS]
+LOGIN =  06501234567
+PASSWD = MySecre3tPassw0rd
+DEFAULT_TO = +43664123123123
+# MVNO = FANTASYMOBILE
+[YESSSSMS_PROVIDER_URLS]
+LOGIN_URL = mock://kontomanager.at/index.php
+LOGOUT_URL = mock://kontomanager.at/index.php?dologout=2
+KONTOMANAGER_URL = mock://kontomanager.at/kundendaten.php
+WEBSMS_URL = mock://kontomanager.at/websms_send.php
+"""
+    with mock.patch(
+        "configparser.open",
+        # "builtins.open",
+        mock.mock_open(read_data=data),
+    ):
+        yield
+
+
+@pytest.fixture
+def mocked_config_file():
+    data = """[YESSSSMS]
+LOGIN =  03211234567
+PASSWD = MySecr3t
+DEFAULT_TO = +43664123123123
+MVNO = GOOOD
+"""
+    with mock.patch(
+        "configparser.open",
+        # "builtins.open",
+        mock.mock_open(read_data=data),
+    ):
+        yield
+
+
+@mock.patch("YesssSMS.CLI.CONFIG_FILE_PATHS", ["testconfigfile.conf"])
+@pytest.fixture(name="config_file")
+def mocked_read_config():
+    # login, passwd, DEFAULT_RECIPIENT, PROVIDER, CUSTOM_PROVIDER_URLS
+    data = ("03141592653", "MySecr3t", None, "yesss", None)
+    with mock.patch("YesssSMS.CLI.CLI.read_config_files", return_value=data):
+        yield
+
+
+def test_cli_mocked_config_file(
+    valid_mock_connection, mocked_config_file_custom_provider
+):
+    """Test CLI config file."""
+
+    if int(sys.version[2]) < 7:  # don't run test on 3.5, 3.6
+        pytest.skip("issue with mock_open")
+
+    testargs = ["yessssms", "-m", "Bilde mir nicht ein was rechts zu wissen"]
+    with mock.patch.object(sys, "argv", testargs):
+        cli = CLI()
+        print(cli.config_files)
+        assert cli.yessssms._logindata["login_rufnummer"] == "06501234567"
+        assert cli.yessssms._logindata["login_passwort"] == "MySecre3tPassw0rd"
+        assert cli.yessssms._login_url == "mock://kontomanager.at/index.php"
+        assert cli.yessssms._logout_url == "mock://kontomanager.at/index.php?dologout=2"
+        assert cli.yessssms._kontomanager == "mock://kontomanager.at/kundendaten.php"
+        assert cli.yessssms._websms_url == "mock://kontomanager.at/websms_send.php"
+
+        assert cli.recipient == "+43664123123123"
+        assert cli.message == "Bilde mir nicht ein was rechts zu wissen"
+
+
+def test_goood_cli_mocked_config_file(valid_goood_mock_connection, mocked_config_file):
+    """Test CLI config file."""
+
+    if int(sys.version[2]) < 7:  # don't run test on 3.5, 3.6
+        pytest.skip("issue with mock_open")
+
+    testargs = ["yessssms", "-m", "Bilde mir nicht ein was rechts zu wissen"]
+    with mock.patch.object(sys, "argv", testargs):
+        cli = CLI()
+        print(cli.config_files)
+        assert cli.yessssms._logindata["login_rufnummer"] == "03211234567"
+        assert cli.yessssms._logindata["login_passwort"] == "MySecr3t"
+        assert cli.yessssms._provider == "goood"
+        assert cli.yessssms._login_url == "https://goood.kontomanager.at/index.php"
+        assert (
+            cli.yessssms._logout_url
+            == "https://goood.kontomanager.at/index.php?dologout=2"
+        )
+        assert (
+            cli.yessssms._kontomanager
+            == "https://goood.kontomanager.at/kundendaten.php"
+        )
+        assert (
+            cli.yessssms._websms_url == "https://goood.kontomanager.at/websms_send.php"
+        )
+
+        assert cli.recipient == "+43664123123123"
+        assert cli.message == "Bilde mir nicht ein was rechts zu wissen"
+
+
 def test_connection_error(connection_error):
     """Test connection error."""
     sms = YesssSMS.YesssSMS(LOGIN, YESSS_PASSWD)
     with pytest.raises(YesssSMS.YesssSMS.ConnectionError):
         sms.login_data_valid()
+
+
+def test_cli_config_file(valid_connection, config_file):
+    """Test CLI config file."""
+    testargs = ["yessssms", "-m", "Blablabla", "-t", "03141512345"]
+    with mock.patch.object(sys, "argv", testargs):
+        cli = CLI()
+        assert cli.message == "Blablabla"
+        assert cli.recipient == "03141512345"
+        assert cli.yessssms._logindata["login_rufnummer"] == "03141592653"
+        assert cli.yessssms._logindata["login_passwort"] == "MySecr3t"
+        assert cli.yessssms._provider == "yesss"
 
 
 def test_cli_connection_error(connection_error):
@@ -692,43 +873,15 @@ def test_cli_with_invalid_test_login_arg(capsys):
             assert "error: login data is NOT valid" in captured.out
 
 
-@mock.patch("YesssSMS.const.CONFIG_FILE_PATHS", [])
-def test_cli_with_no_login_or_password(capsys):
+@mock.patch("YesssSMS.CLI.CONFIG_FILE_PATHS", [])
+def test_cli_with_no_login_or_password(capsys, valid_connection):
     """Test empty login parameters"""
-    testargs = ["yessssms", "-m", "test"]
-    print("test:..." + str(YesssSMS.const.CONFIG_FILE_PATHS))
-    with mock.patch.object(sys, "argv", testargs):
-        with requests_mock.Mocker() as m:
-            m.register_uri(
-                "POST",
-                # pylint: disable=protected-access
-                _LOGIN_URL,
-                status_code=302,
-                # pylint: disable=protected-access
-                headers={"location": _KONTOMANAGER_URL},
-            )
-            m.register_uri(
-                "GET",
-                # pylint: disable=protected-access
-                _KONTOMANAGER_URL,
-                status_code=200,
-            )
-            m.register_uri(
-                "POST",
-                # pylint: disable=protected-access
-                _WEBSMS_URL,
-                status_code=200,
-                text="<h1>Ihre SMS wurde erfolgreich " + "verschickt!</h1>",
-            )
-            m.register_uri(
-                "GET",
-                # pylint: disable=protected-access
-                _LOGOUT_URL,
-                status_code=200,
-            )
-            CLI()
-            captured = capsys.readouterr()
-            assert "error: no username or password defined " in captured.out
+    testargs = ["yessssms", "-m", "test"]  # "-l", "\"\"", "-p", "\"\""]
+    # print("test:..." + str(YesssSMS.const.CONFIG_FILE_PATHS))
+    with (mock.patch.object(sys, "argv", testargs)):
+        CLI()
+        captured = capsys.readouterr()
+        assert "error: no username or password defined " in captured.out
 
 
 def test_cli_with_mvno_arg_error():
@@ -987,3 +1140,20 @@ def test_cli_with_mvno_div_arg():
 def test_default_config_file_paths():
     assert "~/.config/yessssms.conf" in CONFIG_FILE_PATHS
     assert "/etc/yessssms.conf" in CONFIG_FILE_PATHS
+
+
+def test_custom_provider_setting():
+    sms = YesssSMS.YesssSMS(
+        LOGIN,
+        YESSS_PASSWD,
+        custom_provider={
+            "LOGIN_URL": "https://example.com/login",
+            "LOGOUT_URL": "https://example.com/logout",
+            "KONTOMANAGER_URL": "https://example.com/kontomanager",
+            "WEBSMS_URL": "https://example.com/websms",
+        },
+    )
+    assert sms._login_url == "https://example.com/login"
+    assert sms._logout_url == "https://example.com/logout"
+    assert sms._kontomanager == "https://example.com/kontomanager"
+    assert sms._websms_url == "https://example.com/websms"
