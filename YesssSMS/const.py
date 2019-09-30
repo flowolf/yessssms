@@ -171,5 +171,5 @@ PASSWD = MySecre3tPassw0rd
 # KONTOMANAGER_URL = https://educom.kontomanager.at/kundendaten.php
 # WEBSMS_URL = https://educom.kontomanager.at/websms_send.php
 """
-CONFIG_FILE_PATHS = []
-# CONFIG_FILE_PATHS = ["/etc/yessssms.conf", "~/.config/yessssms.conf"]
+# CONFIG_FILE_PATHS = []
+CONFIG_FILE_PATHS = ["/etc/yessssms.conf", "~/.config/yessssms.conf"]

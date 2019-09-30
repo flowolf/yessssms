@@ -91,6 +91,21 @@ def invalid_login(valid_connection):
         yield
 
 
+@pytest.fixture(name="connection_error")
+def simulate_connection_error(valid_connection):
+    """Simulate a connection error with requests."""
+    path = "YesssSMS.YesssSMS._login"
+    with mock.patch(path, side_effect=requests.exceptions.ConnectionError()):
+        yield
+
+
+def test_connection_error(connection_error):
+    """Test connection error."""
+    sms = YesssSMS.YesssSMS(LOGIN, YESSS_PASSWD)
+    with pytest.raises(YesssSMS.YesssSMS.ConnectionError):
+        sms.login_data_valid()
+
+
 def test_login_url_getter():
     sms = YesssSMS.YesssSMS(LOGIN, YESSS_PASSWD)
 
@@ -950,3 +965,8 @@ def test_cli_with_mvno_div_arg():
                 assert _LOGOUT_URL == sms._logout_url
                 assert _KONTOMANAGER_URL == sms._kontomanager
                 assert _WEBSMS_URL == sms._websms_url
+
+
+def test_default_config_file_paths():
+    assert "~/.config/yessssms.conf" in CONFIG_FILE_PATHS
+    assert "/etc/yessssms.conf" in CONFIG_FILE_PATHS
