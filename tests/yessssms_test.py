@@ -330,8 +330,11 @@ def test_cli_mocked_config_file_error(
         "custom_settings.conf",
     ]
     with mock.patch.object(sys, "argv", testargs):
-        CLI()
-        assert "error: missing settings or invalid settings." in capsys.readouterr().out
+        with pytest.raises(SystemExit) as wrapped_e:
+            CLI()
+    assert "error: missing settings or invalid settings." in capsys.readouterr().out
+    assert wrapped_e.type == SystemExit
+    assert wrapped_e.value.code == 8
 
 
 def test_cli_suspended_error(
@@ -344,11 +347,14 @@ def test_cli_suspended_error(
 
     testargs = ["yessssms", "-m", "Bilde mir nicht ein was rechts zu wissen"]
     with mock.patch.object(sys, "argv", testargs):
-        CLI()
-        assert (
-            "error: your account was suspended because of 3 failed login attempts."
-            in capsys.readouterr().out
-        )
+        with pytest.raises(SystemExit) as wrapped_e:
+            CLI()
+    assert wrapped_e.type == SystemExit
+    assert wrapped_e.value.code == 4
+    assert (
+        "error: your account was suspended because of 3 failed login attempts."
+        in capsys.readouterr().out
+    )
 
 
 def test_cli_sending_error(
@@ -361,8 +367,11 @@ def test_cli_sending_error(
 
     testargs = ["yessssms", "-m", "Bilde mir nicht ein was rechts zu wissen"]
     with mock.patch.object(sys, "argv", testargs):
-        CLI()
-        assert "error: could not send SMS" in capsys.readouterr().out
+        with pytest.raises(SystemExit) as wrapped_e:
+            CLI()
+    assert wrapped_e.type == SystemExit
+    assert wrapped_e.value.code == 5
+    assert "error: could not send SMS" in capsys.readouterr().out
 
 
 def test_cli_unsupported_chars_error(
@@ -378,11 +387,11 @@ def test_cli_unsupported_chars_error(
 
     testargs = ["yessssms", "-m", "Bilde mir nicht ein was rechts zu wissen"]
     with mock.patch.object(sys, "argv", testargs):
-        CLI()
-        assert (
-            "error: message contains unsupported character(s)"
-            in capsys.readouterr().out
-        )
+        with pytest.raises(SystemExit) as wrapped_e:
+            CLI()
+    assert wrapped_e.type == SystemExit
+    assert wrapped_e.value.code == 6
+    assert "error: message contains unsupported character(s)" in capsys.readouterr().out
 
 
 def test_cli_empty_message_error(
@@ -398,8 +407,11 @@ def test_cli_empty_message_error(
 
     testargs = ["yessssms", "-m", "Bilde mir nicht ein was rechts zu wissen"]
     with mock.patch.object(sys, "argv", testargs):
-        CLI()
-        assert "error: cannot send empty message" in capsys.readouterr().out
+        with pytest.raises(SystemExit) as wrapped_e:
+            CLI()
+    assert wrapped_e.type == SystemExit
+    assert wrapped_e.value.code == 7
+    assert "error: cannot send empty message" in capsys.readouterr().out
 
 
 def test_connection_error(connection_error):
@@ -421,7 +433,7 @@ def test_cli_config_file(valid_connection, config_file):
         assert cli.yessssms._provider == "yesss"
 
 
-def test_cli_connection_error(connection_error):
+def test_cli_connection_error(connection_error, capsys):
     """Test connection error."""
     testargs = [
         "yessssms",
@@ -434,8 +446,11 @@ def test_cli_connection_error(connection_error):
         "+43676564736",
     ]
     with mock.patch.object(sys, "argv", testargs):
-        # with pytest.raises(YesssSMS.YesssSMS.ConnectionError):
-        assert 3 == CLI().cli()
+        with pytest.raises(SystemExit) as wrapped_e:
+            CLI()
+    assert wrapped_e.type == SystemExit
+    assert wrapped_e.value.code == 3
+    assert "error: could not connect to provider. " in capsys.readouterr().out
 
 
 def test_login_url_getter():
@@ -1013,9 +1028,12 @@ def test_cli_with_no_login_or_password(capsys, valid_connection):
     testargs = ["yessssms", "-m", "test"]  # "-l", "\"\"", "-p", "\"\""]
     # print("test:..." + str(YesssSMS.const.CONFIG_FILE_PATHS))
     with (mock.patch.object(sys, "argv", testargs)):
-        CLI()
-        captured = capsys.readouterr()
-        assert "error: no username or password defined " in captured.out
+        with pytest.raises(SystemExit) as wrapped_e:
+            CLI()
+    assert wrapped_e.type == SystemExit
+    assert wrapped_e.value.code == 2
+    captured = capsys.readouterr()
+    assert "error: no username or password defined " in captured.out
 
 
 def test_cli_with_mvno_arg_error():

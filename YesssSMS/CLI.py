@@ -25,31 +25,31 @@ def cli_errors_handled(func):
             return func(*args, **kwargs)
         except YesssSMS.MissingLoginCredentialsError:
             print("error: no username or password defined (use --help for help)")
-            return 2
+            sys.exit(2)
         except YesssSMS.ConnectionError:
             print(
                 "error: could not connect to provider. "
                 "check your Internet connection."
             )
-            return 3
+            sys.exit(3)
         except YesssSMS.AccountSuspendedError:
             print(
                 "error: your account was suspended because of 3 failed login attempts. "
                 "try again in one hour."
             )
-            return 4
+            sys.exit(4)
         except YesssSMS.SMSSendingError:
             print("error: could not send SMS")
-            return 5
+            sys.exit(5)
         except YesssSMS.UnsupportedCharsError:
             print("error: message contains unsupported character(s)")
-            return 6
+            sys.exit(6)
         except YesssSMS.EmptyMessageError:
             print("error: cannot send empty message.")
-            return 7
+            sys.exit(7)
         except CLI.MissingSettingsError:
             print("error: missing settings or invalid settings.")
-            return 8
+            sys.exit(8)
 
     return func_wrapper
 
