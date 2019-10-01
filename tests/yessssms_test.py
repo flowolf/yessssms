@@ -327,7 +327,7 @@ def test_cli_mocked_config_file_error(
         "-m",
         "Bilde mir nicht ein was rechts zu wissen",
         "-c",
-        "custom_settings.conf",
+        "/tmp/custom_settings.conf",
     ]
     with mock.patch.object(sys, "argv", testargs):
         with pytest.raises(SystemExit) as wrapped_e:
@@ -335,6 +335,7 @@ def test_cli_mocked_config_file_error(
     assert "error: missing settings or invalid settings." in capsys.readouterr().out
     assert wrapped_e.type == SystemExit
     assert wrapped_e.value.code == 8
+    assert "/tmp/custom_settings.conf" in CONFIG_FILE_PATHS
 
 
 def test_cli_suspended_error(
@@ -906,54 +907,6 @@ def test_cli_with_no_arg(capsys):
         CLI()
         captured = capsys.readouterr()
         assert "usage: yessssms " in captured.out
-
-
-def test_cli_with_configfile_arg():
-    """Test config-file argument"""
-    testargs = [
-        "yessssms",
-        "-c",
-        "/tmp/testconfig_1234.conf",
-        "-m",
-        "test",
-        "-l",
-        "06641234567",
-        "-p",
-        "passw0rd",
-        "-t",
-        "+43676564736",
-    ]
-    with mock.patch.object(sys, "argv", testargs):
-        with requests_mock.Mocker() as m:
-            m.register_uri(
-                "POST",
-                # pylint: disable=protected-access
-                _LOGIN_URL,
-                status_code=302,
-                # pylint: disable=protected-access
-                headers={"location": _KONTOMANAGER_URL},
-            )
-            m.register_uri(
-                "GET",
-                # pylint: disable=protected-access
-                _KONTOMANAGER_URL,
-                status_code=200,
-            )
-            m.register_uri(
-                "POST",
-                # pylint: disable=protected-access
-                _WEBSMS_URL,
-                status_code=200,
-                text="<h1>Ihre SMS wurde erfolgreich " + "verschickt!</h1>",
-            )
-            m.register_uri(
-                "GET",
-                # pylint: disable=protected-access
-                _LOGOUT_URL,
-                status_code=200,
-            )
-            CLI()
-            assert "/tmp/testconfig_1234.conf" in CONFIG_FILE_PATHS
 
 
 def test_cli_with_test_login_arg(capsys):
