@@ -18,6 +18,7 @@ MAX_MESSAGE_LENGTH_STDIN = 3 * 160
 def cli_errors_handled(func):
     """decorator to handle cli exceptions"""
 
+    # pylint: disable-msg=R0911
     @wraps(func)
     def func_wrapper(*args, **kwargs):
         try:
@@ -154,13 +155,11 @@ class CLI:
             configparser.NoSectionError,
             configparser.MissingSectionHeaderError,
         ) as ex:
+            # only interested in missing settings if custom file is defined
+            # else ignore it.
             if config_file:
                 print("error: settings not found: {}".format(ex))
                 raise self.MissingSettingsError()
-            else:
-                # only interested in missing settings if custom file is defined
-                # else ignore it.
-                pass
 
         return (login, passwd, DEFAULT_RECIPIENT, PROVIDER, CUSTOM_PROVIDER_URLS)
 
