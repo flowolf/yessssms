@@ -31,6 +31,24 @@ def cli_errors_handled(func):
                 "check your Internet connection."
             )
             return 3
+        except YesssSMS.AccountSuspendedError:
+            print(
+                "error: your account was suspended because of 3 failed login attempts. "
+                "try again in one hour."
+            )
+            return 4
+        except YesssSMS.SMSSendingError:
+            print("error: could not send SMS")
+            return 5
+        except YesssSMS.UnsupportedCharsError:
+            print("error: message contains unsupported character(s)")
+            return 6
+        except YesssSMS.EmptyMessageError:
+            print("error: cannot send empty message.")
+            return 7
+        except CLI.MissingSettingsError:
+            print("error: missing settings or invalid settings.")
+            return 8
 
     return func_wrapper
 
@@ -38,16 +56,15 @@ def cli_errors_handled(func):
 class CLI:
     """CLI class for YesssSMS"""
 
+    class MissingSettingsError(ValueError):
+        """missing settings."""
+
     def __init__(self):
         self.config_files = CONFIG_FILE_PATHS
         self.yessssms = None
         self.message = None
         self.recipient = None
         self.exit_status = self.cli()
-
-    # def __call__(self, test=False):
-    #     self.__init__(test=test)
-    #     # self.cli()
 
     @staticmethod
     def version_info():
@@ -132,24 +149,26 @@ class CLI:
                     ),
                     "WEBSMS_URL": config.get("YESSSSMS_PROVIDER_URLS", "WEBSMS_URL"),
                 }
-        except (KeyError, configparser.NoSectionError) as ex:
+        except (
+            KeyError,
+            configparser.NoSectionError,
+            configparser.MissingSectionHeaderError,
+        ) as ex:
             if config_file:
                 print("error: settings not found: {}".format(ex))
+                raise self.MissingSettingsError()
             else:
                 # only interested in missing settings if custom file is defined
                 # else ignore it.
                 pass
-        # print((login, passwd, DEFAULT_RECIPIENT, PROVIDER, CUSTOM_PROVIDER_URLS))
+
         return (login, passwd, DEFAULT_RECIPIENT, PROVIDER, CUSTOM_PROVIDER_URLS)
 
     # inconsistent return (testing), too many branches
     # pylint: disable-msg=R1710,R0912
     @cli_errors_handled
     def cli(self):
-        """Handle arguments for command line interface
-
-        If test is True return (sms, args, message)
-        """
+        """Handle arguments for command line interface"""
         args = self.parse_args(sys.argv[1:])
 
         if not args:

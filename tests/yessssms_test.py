@@ -169,6 +169,38 @@ def simulate_connection_error(valid_connection):
         yield
 
 
+@pytest.fixture(name="suspended_error")
+def simulate_suspended_error(valid_connection):
+    """Simulate a suspended error."""
+    path = "YesssSMS.YesssSMS._login"
+    with mock.patch(path, side_effect=YesssSMS.YesssSMS.AccountSuspendedError()):
+        yield
+
+
+@pytest.fixture(name="sending_error")
+def simulate_sending_error(valid_connection):
+    """Simulate a sending error."""
+    path = "YesssSMS.YesssSMS.send"
+    with mock.patch(path, side_effect=YesssSMS.YesssSMS.SMSSendingError()):
+        yield
+
+
+@pytest.fixture(name="unsupported_chars_error")
+def simulate_unsupported_chars_error(valid_connection):
+    """Simulate a sending error."""
+    path = "YesssSMS.YesssSMS.send"
+    with mock.patch(path, side_effect=YesssSMS.YesssSMS.UnsupportedCharsError()):
+        yield
+
+
+@pytest.fixture(name="empty_message_error")
+def simulate_empty_message_error(valid_connection):
+    """Simulate a empty_message error."""
+    path = "YesssSMS.YesssSMS.send"
+    with mock.patch(path, side_effect=YesssSMS.YesssSMS.EmptyMessageError):
+        yield
+
+
 @pytest.fixture
 def mocked_config_file_custom_provider():
     data = """[YESSSSMS]
@@ -181,6 +213,20 @@ LOGIN_URL = mock://kontomanager.at/index.php
 LOGOUT_URL = mock://kontomanager.at/index.php?dologout=2
 KONTOMANAGER_URL = mock://kontomanager.at/kundendaten.php
 WEBSMS_URL = mock://kontomanager.at/websms_send.php
+"""
+    with mock.patch(
+        "configparser.open",
+        # "builtins.open",
+        mock.mock_open(read_data=data),
+    ):
+        yield
+
+
+@pytest.fixture
+def mocked_config_file_error():
+    data = """
+LOGIN =  06501234567
+PASSWD = MySecre3tPassw0rd
 """
     with mock.patch(
         "configparser.open",
@@ -266,6 +312,94 @@ def test_goood_cli_mocked_config_file(valid_goood_mock_connection, mocked_config
 
         assert cli.recipient == "+43664123123123"
         assert cli.message == "Bilde mir nicht ein was rechts zu wissen"
+
+
+def test_cli_mocked_config_file_error(
+    valid_mock_connection, mocked_config_file_error, capsys
+):
+    """Test CLI config file error."""
+
+    if int(sys.version[2]) < 7:  # don't run test on 3.5, 3.6
+        pytest.skip("issue with mock_open")
+
+    testargs = [
+        "yessssms",
+        "-m",
+        "Bilde mir nicht ein was rechts zu wissen",
+        "-c",
+        "custom_settings.conf",
+    ]
+    with mock.patch.object(sys, "argv", testargs):
+        CLI()
+        assert "error: missing settings or invalid settings." in capsys.readouterr().out
+
+
+def test_cli_suspended_error(
+    valid_mock_connection, mocked_config_file_custom_provider, suspended_error, capsys
+):
+    """Test CLI suspended error."""
+
+    if int(sys.version[2]) < 7:  # don't run test on 3.5, 3.6
+        pytest.skip("issue with mock_open")
+
+    testargs = ["yessssms", "-m", "Bilde mir nicht ein was rechts zu wissen"]
+    with mock.patch.object(sys, "argv", testargs):
+        CLI()
+        assert (
+            "error: your account was suspended because of 3 failed login attempts."
+            in capsys.readouterr().out
+        )
+
+
+def test_cli_sending_error(
+    valid_mock_connection, mocked_config_file_custom_provider, sending_error, capsys
+):
+    """Test CLI SMS sending error."""
+
+    if int(sys.version[2]) < 7:  # don't run test on 3.5, 3.6
+        pytest.skip("issue with mock_open")
+
+    testargs = ["yessssms", "-m", "Bilde mir nicht ein was rechts zu wissen"]
+    with mock.patch.object(sys, "argv", testargs):
+        CLI()
+        assert "error: could not send SMS" in capsys.readouterr().out
+
+
+def test_cli_unsupported_chars_error(
+    valid_mock_connection,
+    mocked_config_file_custom_provider,
+    unsupported_chars_error,
+    capsys,
+):
+    """Test CLI unsupported chars error."""
+
+    if int(sys.version[2]) < 7:  # don't run test on 3.5, 3.6
+        pytest.skip("issue with mock_open")
+
+    testargs = ["yessssms", "-m", "Bilde mir nicht ein was rechts zu wissen"]
+    with mock.patch.object(sys, "argv", testargs):
+        CLI()
+        assert (
+            "error: message contains unsupported character(s)"
+            in capsys.readouterr().out
+        )
+
+
+def test_cli_empty_message_error(
+    valid_mock_connection,
+    mocked_config_file_custom_provider,
+    empty_message_error,
+    capsys,
+):
+    """Test CLI empty_message error."""
+
+    if int(sys.version[2]) < 7:  # don't run test on 3.5, 3.6
+        pytest.skip("issue with mock_open")
+
+    testargs = ["yessssms", "-m", "Bilde mir nicht ein was rechts zu wissen"]
+    with mock.patch.object(sys, "argv", testargs):
+        CLI()
+        assert "error: cannot send empty message" in capsys.readouterr().out
 
 
 def test_connection_error(connection_error):

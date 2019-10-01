@@ -50,12 +50,31 @@ def connection_error_handled(func):
 
 
 class YesssSMS:
-    """YesssSMS class for sending SMS via yesss.at website."""
+    """YesssSMS class for sending SMS via yesss.at website.
+
+    You can provide a different provider than YESSS.
+    available providers are:
+    * yesss
+    * billitel
+    * educom
+    * fenercell
+    * georg
+    * goood
+    * kronemobile
+    * kuriermobil
+    * simfonie
+    * teleplanet
+    * wowww
+    * yooopi
+
+    to set a custom provider, supporting the Kontomanager 'API' set `custom_provider`=
+    {`LOGIN_URL`: url, `LOGOUT_URL`: url, `KONTOMANAGER_URL`: url, `WEBSMS_URL`: url}.
+    """
 
     # pylint: disable=too-many-instance-attributes
 
     class NoRecipientError(ValueError):
-        """empty recipient."""
+        """missing recipient."""
 
     class EmptyMessageError(ValueError):
         """empty message."""
@@ -73,7 +92,7 @@ class YesssSMS:
         """error during sending."""
 
     class UnsupportedCharsError(ValueError):
-        """yesss.at refused characters in message."""
+        """provider refused characters in message."""
 
     class UnsupportedProviderError(ValueError):
         """the provider is not in the PROVIDER_URLS dict"""
@@ -81,22 +100,16 @@ class YesssSMS:
     class ConnectionError(requests.ConnectionError):
         """YesssSMS cannot connect to the provider"""
 
-    def __init__(self, login=LOGIN, passwd=PASSWD, provider=None, custom_provider=None):
-        """Initialize YesssSMS
-
-        You can provide a different provider than YESSS.
-        Available providers are listed in the help prompt.
-        """
+    def __init__(
+        self, login=LOGIN, passwd=PASSWD, provider="yesss", custom_provider=None
+    ):
+        """Initialize YesssSMS"""
 
         self._version = VERSION
+        self._provider = provider.lower()
 
         if login is None or passwd is None:
             raise self.MissingLoginCredentialsError()
-
-        if not provider:
-            self._provider = "yesss"
-        else:
-            self._provider = provider.lower()
 
         # set urls from provider
         if custom_provider:
@@ -120,7 +133,11 @@ class YesssSMS:
         self._logindata = {"login_rufnummer": login, "login_passwort": passwd}
 
     def _login(self, session, get_request=False):
-        """Return a session for yesss.at."""
+        """Return a session for provider.
+
+        return session
+        If get_request is True return (session, request)
+        """
         req = session.post(self._login_url, data=self._logindata)
         if (
             _LOGIN_ERROR_STRING in req.text
