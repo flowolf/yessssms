@@ -23,24 +23,6 @@ style:pylint:
   - pip3 install pylint tox
   - tox -e pylint
 
-test:3.5:
-  stage: test
-  image: python:3.5-alpine
-  script:
-  - apk add py3-pip python3-dev
-  - pip3 install -r requirements_test.txt
-  - pytest --version
-  - tox -e py35
-
-test:3.6:
-  stage: test
-  image: python:3.6-alpine
-  script:
-  - apk add py-pip python3-dev
-  - pip3 install -r requirements_test.txt
-  - pytest --version
-  - tox -e py36
-
 test:3.7:
   stage: test
   image: python:3.7-alpine
@@ -53,6 +35,24 @@ test:3.7:
     paths:
       - htmlcov
     expire_in: 2 weeks
+
+test:3.6:
+  stage: test
+  image: python:3.6-alpine
+  script:
+  - apk add py-pip python3-dev
+  - pip3 install -r requirements_test.txt
+  - pytest --version
+  - tox -e py36
+
+test:3.5:
+  stage: test
+  image: python:3.5-alpine
+  script:
+  - apk add py3-pip python3-dev
+  - pip3 install -r requirements_test.txt
+  - pytest --version
+  - tox -e py35
 
 test_release:
   stage: release
