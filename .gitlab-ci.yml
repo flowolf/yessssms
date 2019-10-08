@@ -2,6 +2,7 @@
 stages:
   - style
   - test
+  - docs
   - release
 
 before_script:
@@ -53,6 +54,19 @@ test:3.5:
   - pip3 install -r requirements_test.txt
   - pytest --version
   - tox -e py35
+
+docs:build_docs:
+  stage: docs
+  image: python:3.7
+  script:
+  - apt install make
+  - pip3 install sphinx
+  - cd docs
+  - make html
+  artifacts:
+    paths:
+      - docs/build/html
+    expire_in: 2 weeks
 
 test_release:
   stage: release
