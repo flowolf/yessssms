@@ -1,6 +1,6 @@
 # YesssSMS
 
-[![Python version](https://img.shields.io/pypi/pyversions/yessssms.svg)](https://gitlab.com/flowolf/yessssms) [![Gitlab CI Badge](https://gitlab.com/flowolf/yessssms/badges/master/pipeline.svg)](https://gitlab.com/flowolf/yessssms/pipelines) [![coverage report](https://gitlab.com/flowolf/yessssms/badges/master/coverage.svg)](https://gitlab.com/flowolf/yessssms/commits/master) [![pypi version](https://img.shields.io/pypi/v/yessssms.svg?color=blue)](https://pypi.org/project/yessssms) [![license](https://img.shields.io/pypi/l/yessssms.svg)](https://gitlab.com/flowolf/yessssms/blob/master/LICENSE.txt)
+[![Python version](https://img.shields.io/pypi/pyversions/yessssms.svg)](https://gitlab.com/flowolf/yessssms) [![Gitlab CI Badge](https://gitlab.com/flowolf/yessssms/badges/master/pipeline.svg)](https://gitlab.com/flowolf/yessssms/pipelines) [![coverage report](https://gitlab.com/flowolf/yessssms/badges/master/coverage.svg)](https://gitlab.com/flowolf/yessssms/commits/master) [![pypi version](https://img.shields.io/pypi/v/yessssms.svg?color=blue)](https://pypi.org/project/yessssms) [![license](https://img.shields.io/pypi/l/yessssms.svg)](https://gitlab.com/flowolf/yessssms/blob/master/LICENSE.txt) [![documentation](https://img.shields.io/badge/sphinx-docs-blue)](https://flowolf.gitlab.io/yessssms/)
 
 YesssSMS let's you send SMS via yesss.at's website. Regular rates apply and a
 contract or prepaid plan is needed.
