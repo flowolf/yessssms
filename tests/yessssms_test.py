@@ -18,7 +18,6 @@ from YesssSMS.CLI import run as cli_run
 from YesssSMS.const import PROVIDER_URLS
 
 
-# import YesssSMS.const
 from YesssSMS.const import (
     VERSION,
     _UNSUPPORTED_CHARS_STRING,

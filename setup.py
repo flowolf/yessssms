@@ -3,8 +3,6 @@ import json
 
 from setuptools import find_packages, setup
 
-# import os
-
 DESC = "YesssSMS let's you send SMS via yesss.at's website."
 
 VERSION = json.loads(open("YesssSMS/version.json").read())["version"]
