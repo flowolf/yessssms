@@ -36,6 +36,7 @@ Currently the library supports Python 3.5+, and is [tested against Python 3.5 to
 ```bash
 > pip3 install YesssSMS
 ```
+
 ### Usage
 ```python
 >>> from YesssSMS import YesssSMS
@@ -45,7 +46,8 @@ Currently the library supports Python 3.5+, and is [tested against Python 3.5 to
 >>> sms = YesssSMS(YOUR_LOGIN, YOUR_PASSWORD, provider="goood")
 >>> sms.send(TO_NUMBER, "Message")
 ```
-or for the command line:
+
+### Command Line Usage
 ```bash
 > yessssms --print-config-file > ~/.config/yessssms.conf
 # edit the config file, set a login, password, default recipient, and MVNO
@@ -58,5 +60,5 @@ or for the command line:
 > echo "important message!" | yessssms -m -
 
 > # MVNO
-> yessssms --t 06501234567 --mvno educom -m "sending SMS using a MVNO"
+> yessssms --to 06501234567 --mvno educom -m "sending SMS using a MVNO"
 ```
