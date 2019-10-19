@@ -69,7 +69,7 @@ pages:
       - public
     expire_in: 2 weeks
   only:
-    - master
+    - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant
 
 test_release:
   stage: release
@@ -98,6 +98,10 @@ test_release:
   - python3 setup.py check sdist bdist_wheel
   - ls -lha dist
   - twine upload  --verbose -r testpypi dist/*.tar.gz dist/*.whl
+  artifacts:
+    paths:
+      - dist
+    expire_in: 2 weeks
   only:
     - /^test_v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant
 
@@ -126,5 +130,9 @@ release:
   - python3 setup.py check sdist bdist_wheel
   - ls -lha dist
   - twine upload  --verbose -r pypi dist/*.tar.gz dist/*.whl
+  artifacts:
+    paths:
+      - dist
+    expire_in: 2 weeks
   only:
     - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant
