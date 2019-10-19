@@ -6,6 +6,11 @@
 Welcome to YesssSMS's documentation!
 ====================================
 
+YesssSMS is a Python3 library that lets you send SMS via yesss.at's web interface.
+
+As Yesss uses the Kontomanager.at interface from A1, some other MVNOs are also supported.
+
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:

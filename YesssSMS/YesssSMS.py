@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Send SMS via yesss.at web interface with your yesss login and password."""
+"""YesssSMS class to login and send SMS via yesss.at web interface."""
 #
 # @author: Florian Klien <flowolf@klienux.org>
 #

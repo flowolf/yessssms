@@ -63,10 +63,13 @@ docs:build_docs:
   - pip3 install sphinx
   - cd docs
   - make html
+  - mv build/html/ public/
   artifacts:
     paths:
-      - docs/build/html
+      - public
     expire_in: 2 weeks
+  only:
+    - master
 
 test_release:
   stage: release
