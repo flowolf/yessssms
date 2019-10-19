@@ -12,6 +12,7 @@
 #
 import os
 import sys
+import json
 
 sys.path.insert(0, os.path.abspath("../../"))
 
@@ -23,14 +24,9 @@ copyright = "2019, Florian Klien"
 author = "Florian Klien"
 
 # The full version, including alpha/beta/rc tags
-version_file = open("../../YesssSMS/const.py")
-VERSION = None
-for c in version_file.readlines():
-    c = c.strip()
-    if not c.startswith("VERSION"):
-        continue
-    key, val = c.split("=")
-    VERSION = val.strip().split('"')[1]
+version_file = open("../../YesssSMS/version.json")
+version_info = version_file.read()
+VERSION = json.loads(version_info)["version"]
 
 release = VERSION
 

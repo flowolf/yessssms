@@ -1,5 +1,10 @@
 """constants for YesssSMS."""
-VERSION = "0.4.2b1"
+import json
+import os
+
+VERSION = json.loads(
+    open(os.path.dirname(os.path.realpath(__file__)) + "/version.json").read()
+)["version"]
 _UNSUPPORTED_CHARS_STRING = "<strong>Achtung:</strong> Ihre SMS konnte nicht \
 versendet werden, da sie folgende ungültige Zeichen enthält:"
 _LOGIN_ERROR_STRING = "<strong>Login nicht erfolgreich"

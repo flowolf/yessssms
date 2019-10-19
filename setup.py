@@ -1,16 +1,13 @@
 """YesssSMS let's you send SMS via yesss.at's website."""
 from setuptools import find_packages, setup
+import json
+import os
 
 DESC = "YesssSMS let's you send SMS via yesss.at's website."
 
-version_file = open("YesssSMS/const.py")
-VERSION = None
-for c in version_file.readlines():
-    c = c.strip()
-    if not c.startswith("VERSION"):
-        continue
-    key, val = c.split("=")
-    VERSION = val.strip().split('"')[1]
+VERSION = json.loads(
+    open(os.path.dirname(os.path.realpath(__file__)) + "/YesssSMS/version.json").read()
+)["version"]
 
 with open("README.md", "r") as fh:
     LONG_DESC = fh.read()
