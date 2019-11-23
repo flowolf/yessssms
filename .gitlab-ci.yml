@@ -5,13 +5,9 @@ stages:
   - docs
   - release
 
-before_script:
-  - python --version
-  - pip --version
-
 style:flake8:
   stage: style
-  image: python:3.7-alpine
+  image: python:3.8-alpine
   script:
   - apk add py3-pip python3-dev
   - pip3 install flake8 tox
@@ -19,7 +15,7 @@ style:flake8:
 
 style:pylint:
   stage: style
-  image: python:3.7
+  image: python:3.8-slim-buster
   script:
   - pip3 install pylint tox
   - tox -e pylint
@@ -70,7 +66,7 @@ test:3.5:
 
 pages:
   stage: docs
-  image: python:3.7
+  image: python:3.8-slim-buster
   script:
   - apt install make
   - pip3 install sphinx m2r
@@ -86,7 +82,7 @@ pages:
 
 test_release:
   stage: release
-  image: python:3.7-alpine
+  image: python:3.8-alpine
   script:
   - pip install requests
   - pip install twine
@@ -120,7 +116,7 @@ test_release:
 
 release:
   stage: release
-  image: python:3.7-alpine
+  image: python:3.8-alpine
   script:
   - pip install requests
   - |2
