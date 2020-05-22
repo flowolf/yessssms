@@ -10,7 +10,7 @@ style:flake8:
   image: python:3.8-alpine
   script:
   - apk add py3-pip python3-dev
-  - pip3 install flake8 tox
+  - pip3 install flake8==3.7.9 tox
   - tox -e flake8
 
 style:pylint:
