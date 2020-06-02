@@ -10,17 +10,17 @@
 from contextlib import suppress
 from functools import wraps
 
-import requests
-
 from YesssSMS.const import (
+    PROVIDER_URLS,
     VERSION,
     _LOGIN_ERROR_STRING,
     _LOGIN_LOCKED_MESS,
     _LOGIN_LOCKED_MESS_ENG,
-    _UNSUPPORTED_CHARS_STRING,
     _SMS_SENDING_SUCCESSFUL_STRING,
-    PROVIDER_URLS,
+    _UNSUPPORTED_CHARS_STRING,
 )
+
+import requests
 
 MAX_MESSAGE_LENGTH_STDIN = 3 * 160
 
@@ -35,7 +35,7 @@ with suppress(ImportError):
 
 
 def connection_error_handled(func):
-    """decorator to handle network connection issues"""
+    """Decorate and handle network connection issues."""
 
     @wraps(func)
     def func_wrapper(self, *args, **kwargs):
@@ -95,16 +95,15 @@ class YesssSMS:
         """provider refused characters in message."""
 
     class UnsupportedProviderError(ValueError):
-        """the provider is not in the PROVIDER_URLS dict"""
+        """the provider is not in the PROVIDER_URLS dict."""
 
     class ConnectionError(requests.ConnectionError):
-        """YesssSMS cannot connect to the provider"""
+        """YesssSMS cannot connect to the provider."""
 
     def __init__(
         self, login=LOGIN, passwd=PASSWD, provider="yesss", custom_provider=None
     ):
-        """Initialize YesssSMS"""
-
+        """Initialize YesssSMS."""
         self._version = VERSION
         self._provider = provider.lower()
 
@@ -113,7 +112,7 @@ class YesssSMS:
 
         # set urls from provider
         if custom_provider:
-            URLS = custom_provider
+            urls = custom_provider
         else:
             if self._provider not in PROVIDER_URLS:
                 available_providers = list(PROVIDER_URLS.keys())
@@ -123,12 +122,12 @@ class YesssSMS:
                     ", ".join(available_providers)
                 )
                 raise self.UnsupportedProviderError(error_mess)
-            URLS = PROVIDER_URLS[self._provider]
+            urls = PROVIDER_URLS[self._provider]
 
-        self._login_url = URLS["LOGIN_URL"]
-        self._logout_url = URLS["LOGOUT_URL"]
-        self._kontomanager = URLS["KONTOMANAGER_URL"]
-        self._websms_url = URLS["WEBSMS_URL"]
+        self._login_url = urls["LOGIN_URL"]
+        self._logout_url = urls["LOGOUT_URL"]
+        self._kontomanager = urls["KONTOMANAGER_URL"]
+        self._websms_url = urls["WEBSMS_URL"]
         self._suspended = False
         self._logindata = {"login_rufnummer": login, "login_passwort": passwd}
 
