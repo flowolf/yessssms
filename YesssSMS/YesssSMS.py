@@ -10,6 +10,8 @@
 from contextlib import suppress
 from functools import wraps
 
+import requests
+
 from YesssSMS.const import (
     PROVIDER_URLS,
     VERSION,
@@ -20,7 +22,6 @@ from YesssSMS.const import (
     _UNSUPPORTED_CHARS_STRING,
 )
 
-import requests
 
 MAX_MESSAGE_LENGTH_STDIN = 3 * 160
 
