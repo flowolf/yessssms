@@ -1,8 +1,12 @@
 """Live Tests for YesssSMS module."""
 import time
-import pytest
-import requests
+
 import YesssSMS
+
+import pytest
+
+import requests
+
 
 try:
     from secrets import YESSS_LOGIN, YESSS_PASSWD, YESSS_TO
