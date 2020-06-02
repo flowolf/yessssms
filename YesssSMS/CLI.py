@@ -1,23 +1,21 @@
-"""Command line interface for YesssSMS"""
-import sys
+"""Command line interface for YesssSMS."""
 import argparse
-import logging
 import configparser
+import logging
+import sys
 from datetime import datetime
+from functools import wraps
 from os.path import abspath
 from os.path import expanduser
-from functools import wraps
 
 from YesssSMS import YesssSMS
-
-from YesssSMS.const import VERSION, HELP, CONFIG_FILE_CONTENT, CONFIG_FILE_PATHS
+from YesssSMS.const import CONFIG_FILE_CONTENT, CONFIG_FILE_PATHS, HELP, VERSION
 
 MAX_MESSAGE_LENGTH_STDIN = 3 * 160
 
 
 def cli_errors_handled(func):
-    """decorator to handle cli exceptions"""
-
+    """Decorate and handle cli exceptions."""
     # pylint: disable-msg=R0911
     @wraps(func)
     def func_wrapper(*args, **kwargs):
@@ -55,12 +53,13 @@ def cli_errors_handled(func):
 
 
 class CLI:
-    """CLI class for YesssSMS"""
+    """CLI class for YesssSMS."""
 
     class MissingSettingsError(ValueError):
         """missing settings."""
 
     def __init__(self):
+        """Init CLI."""
         self.config_files = CONFIG_FILE_PATHS
         self.yessssms = None
         self.message = None
@@ -69,17 +68,17 @@ class CLI:
 
     @staticmethod
     def version_info():
-        """Display version information"""
+        """Display version information."""
         print("yessssms {}".format(YesssSMS("", "").version()))
 
     @staticmethod
     def print_config_file():
-        """Print a sample config file, to pipe into a file"""
+        """Print a sample config file, to pipe into a file."""
         print(CONFIG_FILE_CONTENT, end="")
 
     @staticmethod
     def parse_args(args):
-        """Parse arguments and return namespace"""
+        """Parse arguments and return namespace."""
         parser = argparse.ArgumentParser(description=HELP["desc"])
         parser.add_argument("-t", "--to", dest="recipient", help=HELP["to_help"])
         parser.add_argument("-m", "--message", help=HELP["message"])
@@ -113,8 +112,7 @@ class CLI:
         return parser.parse_args(args)
 
     def read_config_files(self, config_file):
-        """Read config files for settings"""
-
+        """Read config files for settings."""
         if config_file:
             self.config_files.append(config_file)
 
@@ -126,9 +124,9 @@ class CLI:
 
         login = None
         passwd = None
-        DEFAULT_RECIPIENT = None
-        PROVIDER = None
-        CUSTOM_PROVIDER_URLS = None
+        default_recipient = None
+        provider = None
+        custom_provider_urls = None
 
         try:
             config = configparser.ConfigParser()
@@ -138,11 +136,11 @@ class CLI:
             passwd = str(config.get("YESSSSMS", "PASSWD"))
 
             if config.has_option("YESSSSMS", "DEFAULT_TO"):
-                DEFAULT_RECIPIENT = config.get("YESSSSMS", "DEFAULT_TO")
+                default_recipient = config.get("YESSSSMS", "DEFAULT_TO")
             if config.has_option("YESSSSMS", "MVNO"):
-                PROVIDER = config.get("YESSSSMS", "MVNO")
+                provider = config.get("YESSSSMS", "MVNO")
             if config.has_option("YESSSSMS_PROVIDER_URLS", "LOGIN_URL"):
-                CUSTOM_PROVIDER_URLS = {
+                custom_provider_urls = {
                     "LOGIN_URL": config.get("YESSSSMS_PROVIDER_URLS", "LOGIN_URL"),
                     "LOGOUT_URL": config.get("YESSSSMS_PROVIDER_URLS", "LOGOUT_URL"),
                     "KONTOMANAGER_URL": config.get(
@@ -161,13 +159,13 @@ class CLI:
                 print("error: settings not found: {}".format(ex))
                 raise self.MissingSettingsError()
 
-        return (login, passwd, DEFAULT_RECIPIENT, PROVIDER, CUSTOM_PROVIDER_URLS)
+        return (login, passwd, default_recipient, provider, custom_provider_urls)
 
     # inconsistent return (testing), too many branches
     # pylint: disable-msg=R1710,R0912
     @cli_errors_handled
     def cli(self):
-        """Handle arguments for command line interface"""
+        """Handle arguments for command line interface."""
         args = self.parse_args(sys.argv[1:])
 
         if not args:
@@ -183,24 +181,24 @@ class CLI:
         (
             login,
             passwd,
-            DEFAULT_RECIPIENT,
-            PROVIDER,
-            CUSTOM_PROVIDER_URLS,
+            default_recipient,
+            provider,
+            custom_provider_urls,
         ) = self.read_config_files(args.configfile or None)
 
         if args.provider:
-            PROVIDER = args.provider
+            provider = args.provider
 
         if args.login and args.password:
             login = args.login
             passwd = args.password
 
         logging.debug("login: %s", login)
-        if PROVIDER:
-            self.yessssms = YesssSMS(login, passwd, provider=PROVIDER)
+        if provider:
+            self.yessssms = YesssSMS(login, passwd, provider=provider)
         else:
             self.yessssms = YesssSMS(
-                login, passwd, custom_provider=CUSTOM_PROVIDER_URLS
+                login, passwd, custom_provider=custom_provider_urls
             )
 
         if args.check_login:
@@ -224,14 +222,14 @@ class CLI:
             message = message or "yessssms (" + VERSION + ") test message at {}".format(
                 datetime.now().isoformat()
             )
-        recipient = args.recipient or DEFAULT_RECIPIENT or login
+        recipient = args.recipient or default_recipient or login
 
         self.recipient = recipient
         self.message = message
-        self.yessssms.send(DEFAULT_RECIPIENT or recipient, self.message)
+        self.yessssms.send(default_recipient or recipient, self.message)
         return 0
 
 
 def run():
-    """Start and run the CLI"""
+    """Start and run the CLI."""
     CLI()
