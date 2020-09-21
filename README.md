@@ -30,7 +30,7 @@ use the `--mvno` flag to set your provider, or define it in the config file.
 This module is not suitable for batch SMS sending.
 Each send() call logs in and out of your provider's website.
 
-Currently the library supports Python 3.5+, and is [tested against Python 3.5 to 3.8](https://gitlab.com/flowolf/yessssms/-/jobs).
+Currently the library supports Python 3.5+, and is [tested against Python 3.5 to 3.9](https://gitlab.com/flowolf/yessssms/-/jobs).
 
 ### Install
 ```bash
