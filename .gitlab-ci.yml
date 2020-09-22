@@ -90,8 +90,6 @@ pages:
     paths:
       - public
     expire_in: 2 weeks
-  only:
-    - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant
 
 test_release:
   stage: release
