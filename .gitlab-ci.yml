@@ -81,7 +81,8 @@ pages:
   stage: docs
   image: python:3.8-slim-buster
   script:
-  - apt install make
+  - apt-get update
+  - apt-get install make
   - pip3 install sphinx m2r
   - cd docs
   - make html
