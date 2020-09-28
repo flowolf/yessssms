@@ -10,17 +10,19 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
+from datetime import datetime
+import json
 import os
 import sys
-import json
 
 sys.path.insert(0, os.path.abspath("../../"))
 
+year = datetime.now().strftime("%Y")
 
 # -- Project information -----------------------------------------------------
 
 project = "YesssSMS"
-copyright = "2019, Florian Klien"
+copyright = f"{year}, Florian Klien"
 author = "Florian Klien"
 
 # The full version, including alpha/beta/rc tags
