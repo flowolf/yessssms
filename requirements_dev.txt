@@ -2,7 +2,6 @@ pytest
 pytest-cov
 requests
 requests-mock
-yessssms
 tox
 black
 flake8
