@@ -19,7 +19,7 @@ jobs:
     - name: Lint with flake8
       run: |
         flake8 YesssSMS/ tests/ setup.py
-    - name: Lint with flake8
+    - name: Lint with pylint
       run: |
         pylint -d C0330,C0103 YesssSMS
 
