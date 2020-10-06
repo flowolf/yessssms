@@ -7,7 +7,7 @@ stages:
 
 style:flake8:
   stage: style
-  image: python:3.8-alpine
+  image: python:3.9-alpine
   script:
   - apk add py3-pip python3-dev
   - pip3 install tox
@@ -15,14 +15,14 @@ style:flake8:
 
 style:pylint:
   stage: style
-  image: python:3.8-slim-buster
+  image: python:3.9-slim-buster
   script:
   - pip3 install pylint tox
   - tox -e pylint
 
 test:3.9:
   stage: test
-  image: python:3.9-rc-alpine
+  image: python:3.9-alpine
   script:
   - apk add py-pip python3-dev
   - pip3 install -r requirements_test.txt
@@ -79,7 +79,7 @@ test:3.5:
 
 pages:
   stage: docs
-  image: python:3.8-slim-buster
+  image: python:3.9-slim-buster
   script:
   - apt-get update
   - apt-get install make
@@ -94,7 +94,7 @@ pages:
 
 test_release:
   stage: release
-  image: python:3.8-alpine
+  image: python:3.9-alpine
   script:
   - pip install requests
   - pip install twine
@@ -128,7 +128,7 @@ test_release:
 
 release:
   stage: release
-  image: python:3.8-alpine
+  image: python:3.9-alpine
   script:
   - pip install requests
   - |2
