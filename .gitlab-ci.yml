@@ -104,8 +104,8 @@ test_release:
     if g.status_code == 200:
       print("{} already released".format(v))
       s.exit(-1)' || exit 0
-  - pip install twine
   - apk add --no-cache --virtual .build-deps gcc musl-dev python3-dev
+  - pip install twine
   - rm -rf dist
   - echo "[distutils]" >> ~/.pypirc
   - echo "index-servers=" >> ~/.pypirc
