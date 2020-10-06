@@ -1,0 +1,12 @@
+name: test-yessssms
+on: [push, pull-request]
+jobs:
+  test-py38:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      - run: pip3 install -r requirements_dev.txt
+      - run: tox -e py38
