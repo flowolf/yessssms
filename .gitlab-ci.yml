@@ -97,6 +97,14 @@ test_release:
   image: python:3.8-alpine
   script:
   - pip install requests
+  - |2
+    python3 -c 'import sys as s; import requests as r; import YesssSMS;
+    v = YesssSMS.const.VERSION
+    g = r.get("https://test.pypi.org/project/YesssSMS/"+v+"/");
+    if g.status_code == 200:
+      print("{} already released".format(v))
+      s.exit(-1)' || exit 0
+  - apk add --no-cache --virtual .build-deps gcc musl-dev python3-dev libffi-dev openssl-dev
   - pip install twine
   - rm -rf dist
   - echo "[distutils]" >> ~/.pypirc
@@ -111,13 +119,6 @@ test_release:
     echo "password: ${PYPI_TEST_PASSWD}" >> ~/.pypirc
   - python3 setup.py check sdist bdist_wheel
   - ls -lha dist
-  - |2
-    python3 -c 'import sys as s; import requests as r; import YesssSMS;
-    v = YesssSMS.const.VERSION
-    g = r.get("https://test.pypi.org/project/YesssSMS/"+v+"/");
-    if g.status_code == 200:
-      print("{} already released".format(v))
-      s.exit(-1)' || exit 0
   - twine upload  --verbose -r testpypi dist/*.tar.gz dist/*.whl
   artifacts:
     paths:
@@ -138,6 +139,7 @@ release:
     if g.status_code == 200:
       print("{} already released".format(v))
       s.exit(-1)' || exit 0
+  - apk add --no-cache --virtual .build-deps gcc musl-dev python3-dev libffi-dev openssl-dev
   - pip install twine
   - rm -rf dist
   - echo "[distutils]" >> ~/.pypirc
@@ -154,6 +156,6 @@ release:
   artifacts:
     paths:
       - dist
-    expire_in: 2 weeks
+    expire_in: 6 months
   only:
     - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant
