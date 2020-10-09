@@ -9,6 +9,7 @@
 
 from contextlib import suppress
 from functools import wraps
+from os import getenv
 
 import requests
 
@@ -108,8 +109,17 @@ class YesssSMS:
         self._version = VERSION
         self._provider = provider.lower()
 
-        if login is None or passwd is None:
+        env_login = getenv("YESSSSMS_LOGIN", None)
+        env_passwd = getenv("YESSSSMS_PASSWD", None)
+
+        if (login is None or passwd is None) and (
+            env_login is None or env_passwd is None
+        ):
             raise self.MissingLoginCredentialsError()
+
+        if env_login is not None and env_passwd is not None:
+            login = env_login
+            passwd = env_passwd
 
         # set urls from provider
         if custom_provider:
