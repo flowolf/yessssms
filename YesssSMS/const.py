@@ -141,9 +141,11 @@ HELP = {
           '/etc/yessssms.conf' and '~/.config/yessssms.conf'. \
           An example file is yessssms_sample.conf.",
     "login": "Your phone number (eg. 06501234567), used to login at \
-          yesss.at",
+          yesss.at.\
+          Or use the environment variable 'YESSSSMS_LOGIN'.",
     "password": """Your password, it\'s not recommended to use this. \
-          Use a config-file instead (see: -c, --configfile).""",
+          Use a config-file instead (see: -c, --configfile).\
+          Or use the environment variable 'YESSSSMS_PASSWD'.""",
     "check_login": """validates your login data""",
     "provider": """set a MVNO (mobile virtual network operator) other \
           than Yesss.at (default)\
