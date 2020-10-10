@@ -96,6 +96,7 @@ test_release:
   stage: release
   image: python:3.8-alpine
   script:
+  - echo $CI_SERVER_HOST
   - pip install requests
   - |2
     python3 -c 'import sys as s; import requests as r; import YesssSMS;
@@ -125,7 +126,11 @@ test_release:
       - dist
     expire_in: 2 weeks
   only:
-    - /^test_v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant
+    refs:
+      - /^test_v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant
+    variables:
+      - $CI_SERVER_HOST == "git.flo.cx"
+
 
 release:
   stage: release
