@@ -263,7 +263,7 @@ MVNO = GOOOD
 
 @pytest.fixture
 def environment_vars_set():
-    """Mock env vars YESSSSMS_LOGIN and YESSSSMS_PASSWD"""
+    """Mock env vars YESSSSMS_LOGIN and YESSSSMS_PASSWD."""
     os.environ["YESSSSMS_LOGIN"] = "03211234567"
     os.environ["YESSSSMS_PASSWD"] = "MySecr3t"
 
@@ -1277,6 +1277,7 @@ def test_custom_provider_setting():
 
 
 def test_env_var_settings_set(environment_vars_set):
+    """Test setting or environment variables in YesssSMS class."""
     sms = YesssSMS.YesssSMS()
     assert sms._logindata["login_rufnummer"] == "03211234567"
     assert sms._logindata["login_passwort"] == "MySecr3t"
