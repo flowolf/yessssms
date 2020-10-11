@@ -47,6 +47,13 @@ Currently the library supports Python 3.5+, and is [tested against Python 3.5 to
 >>> sms.send(TO_NUMBER, "Message")
 ```
 
+```python
+# environment variables set
+>>> from YesssSMS import YesssSMS
+>>> sms = YesssSMS()
+>>> sms.send("hello future self, your pipeline failed :(")
+```
+
 ### Command Line Usage
 ```bash
 > yessssms --print-config-file > ~/.config/yessssms.conf
@@ -61,4 +68,15 @@ Currently the library supports Python 3.5+, and is [tested against Python 3.5 to
 
 > # MVNO
 > yessssms --to 06501234567 --mvno educom -m "sending SMS using a MVNO"
+```
+
+```bash
+# set environment variables to avoid parameters or config files;
+# great for pipelines
+> export YESSSSMS_LOGIN=06641234567
+> export YESSSSMS_PASSWD=myverysecretsecret
+# use in python script or in command line
+> yessssms -T
+ok: login data is valid.
+> yessssms -m "sending SMS from github and gitlab pipelines... so much cloud"
 ```

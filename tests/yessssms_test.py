@@ -3,6 +3,7 @@
 """Tests for YesssSMS Module."""
 #
 # pylint: disable-msg=C0103
+import os
 import sys
 from unittest import mock
 
@@ -32,6 +33,8 @@ _LOGOUT_URL = PROVIDER["LOGOUT_URL"]
 _KONTOMANAGER_URL = PROVIDER["KONTOMANAGER_URL"]
 _WEBSMS_URL = PROVIDER["WEBSMS_URL"]
 
+# make sure env is empty
+os.environ = {}
 
 try:
     from secrets import LOGIN, YESSS_PASSWD, YESSS_TO
@@ -256,6 +259,13 @@ MVNO = GOOOD
         mock.mock_open(read_data=data),
     ):
         yield
+
+
+@pytest.fixture
+def environment_vars_set():
+    """Mock env vars YESSSSMS_LOGIN and YESSSSMS_PASSWD"""
+    os.environ["YESSSSMS_LOGIN"] = "03211234567"
+    os.environ["YESSSSMS_PASSWD"] = "MySecr3t"
 
 
 @mock.patch("YesssSMS.CLI.CONFIG_FILE_PATHS", ["testconfigfile.conf"])
@@ -1264,3 +1274,19 @@ def test_custom_provider_setting():
     assert sms._logout_url == "https://example.com/logout"
     assert sms._kontomanager == "https://example.com/kontomanager"
     assert sms._websms_url == "https://example.com/websms"
+
+
+def test_env_var_settings_set(environment_vars_set):
+    sms = YesssSMS.YesssSMS()
+    assert sms._logindata["login_rufnummer"] == "03211234567"
+    assert sms._logindata["login_passwort"] == "MySecr3t"
+    sms = YesssSMS.YesssSMS("123456", "password")
+    assert sms._logindata["login_rufnummer"] == "03211234567"
+    assert sms._logindata["login_passwort"] == "MySecr3t"
+    sms = YesssSMS.YesssSMS("123456")
+    assert sms._logindata["login_rufnummer"] == "03211234567"
+    assert sms._logindata["login_passwort"] == "MySecr3t"
+    del os.environ["YESSSSMS_LOGIN"]
+    sms = YesssSMS.YesssSMS("123456", "password")
+    assert sms._logindata["login_rufnummer"] == "123456"
+    assert sms._logindata["login_passwort"] == "password"
