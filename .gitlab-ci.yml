@@ -9,25 +9,25 @@ style:flake8:
   stage: style
   image: python:3.8-alpine
   script:
-  - apk add py3-pip python3-dev
-  - pip3 install tox
-  - tox -e flake8
+    - apk add py3-pip python3-dev
+    - pip3 install tox
+    - tox -e flake8
 
 style:pylint:
   stage: style
   image: python:3.8-slim-buster
   script:
-  - pip3 install pylint tox
-  - tox -e pylint
+    - pip3 install pylint tox
+    - tox -e pylint
 
 test:3.9:
   stage: test
   image: python:3.9-alpine
   script:
-  - apk add py-pip python3-dev
-  - pip3 install -r requirements_test.txt
-  - pytest --version
-  - tox -e py39
+    - apk add py-pip python3-dev
+    - pip3 install -r requirements_test.txt
+    - pytest --version
+    - tox -e py39
   artifacts:
     paths:
       - htmlcov
@@ -37,10 +37,10 @@ test:3.8:
   stage: test
   image: python:3.8-alpine
   script:
-  - apk add py-pip python3-dev
-  - pip3 install -r requirements_test.txt
-  - pytest --version
-  - tox -e py38
+    - apk add py-pip python3-dev
+    - pip3 install -r requirements_test.txt
+    - pytest --version
+    - tox -e py38
   artifacts:
     paths:
       - htmlcov
@@ -50,10 +50,10 @@ test:3.7:
   stage: test
   image: python:3.7-alpine
   script:
-  - apk add py-pip python3-dev
-  - pip3 install -r requirements_test.txt
-  - pytest --version
-  - tox -e py37
+    - apk add py-pip python3-dev
+    - pip3 install -r requirements_test.txt
+    - pytest --version
+    - tox -e py37
   artifacts:
     paths:
       - htmlcov
@@ -63,30 +63,30 @@ test:3.6:
   stage: test
   image: python:3.6-alpine
   script:
-  - apk add py-pip python3-dev
-  - pip3 install -r requirements_test.txt
-  - pytest --version
-  - tox -e py36
+    - apk add py-pip python3-dev
+    - pip3 install -r requirements_test.txt
+    - pytest --version
+    - tox -e py36
 
 test:3.5:
   stage: test
   image: python:3.5-alpine
   script:
-  - apk add py3-pip python3-dev
-  - pip3 install -r requirements_test.txt
-  - pytest --version
-  - tox -e py35
+    - apk add py3-pip python3-dev
+    - pip3 install -r requirements_test.txt
+    - pytest --version
+    - tox -e py35
 
 pages:
   stage: docs
   image: python:3.8-slim-buster
   script:
-  - apt-get update
-  - apt-get install make
-  - pip3 install sphinx m2r2
-  - cd docs
-  - make html
-  - mv build/html ../public
+    - apt-get update
+    - apt-get install make
+    - pip3 install sphinx m2r2
+    - cd docs
+    - make html
+    - mv build/html ../public
   artifacts:
     paths:
       - public
@@ -96,66 +96,74 @@ test_release:
   stage: release
   image: python:3.8-alpine
   script:
-  - pip install requests
-  - |2
-    python3 -c 'import sys as s; import requests as r; import YesssSMS;
-    v = YesssSMS.const.VERSION
-    g = r.get("https://test.pypi.org/project/YesssSMS/"+v+"/");
-    if g.status_code == 200:
-      print("{} already released".format(v))
-      s.exit(-1)' || exit 0
-  - apk add --no-cache --virtual .build-deps gcc musl-dev python3-dev libffi-dev openssl-dev
-  - pip install twine
-  - rm -rf dist
-  - echo "[distutils]" >> ~/.pypirc
-  - echo "index-servers=" >> ~/.pypirc
-  - echo "    pypi" >> ~/.pypirc
-  - echo "    testpypi" >> ~/.pypirc
-  - echo "" >> ~/.pypirc
-  - echo "[testpypi]" >> ~/.pypirc
-  - |2
-    echo "repository: ${PYPI_TEST_REPO}" >> ~/.pypirc
-    echo "username: ${PYPI_TEST_USER}" >> ~/.pypirc
-    echo "password: ${PYPI_TEST_PASSWD}" >> ~/.pypirc
-  - python3 setup.py check sdist bdist_wheel
-  - ls -lha dist
-  - twine upload  --verbose -r testpypi dist/*.tar.gz dist/*.whl
+    - echo $CI_SERVER_HOST
+    - pip install requests
+    - |2
+      python3 -c 'import sys as s; import requests as r; import YesssSMS;
+      v = YesssSMS.const.VERSION
+      g = r.get("https://test.pypi.org/project/YesssSMS/"+v+"/");
+      if g.status_code == 200:
+        print("{} already released".format(v))
+        s.exit(-1)' || exit 0
+    - apk add --no-cache --virtual .build-deps gcc musl-dev python3-dev libffi-dev openssl-dev
+    - pip install twine
+    - rm -rf dist
+    - echo "[distutils]" >> ~/.pypirc
+    - echo "index-servers=" >> ~/.pypirc
+    - echo "    pypi" >> ~/.pypirc
+    - echo "    testpypi" >> ~/.pypirc
+    - echo "" >> ~/.pypirc
+    - echo "[testpypi]" >> ~/.pypirc
+    - |2
+      echo "repository: ${PYPI_TEST_REPO}" >> ~/.pypirc
+      echo "username: ${PYPI_TEST_USER}" >> ~/.pypirc
+      echo "password: ${PYPI_TEST_PASSWD}" >> ~/.pypirc
+    - python3 setup.py check sdist bdist_wheel
+    - ls -lha dist
+    - twine upload  --verbose -r testpypi dist/*.tar.gz dist/*.whl
   artifacts:
     paths:
       - dist
     expire_in: 2 weeks
   only:
-    - /^test_v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant
+    refs:
+      - /^test_v\d+\.\d+\.\d+([abc]\d*)?$/ # PEP-440 compliant
+    variables:
+      - $CI_SERVER_HOST == "git.flo.cx"
 
 release:
   stage: release
   image: python:3.8-alpine
   script:
-  - pip install requests
-  - |2
-    python3 -c 'import sys as s; import requests as r; import YesssSMS;
-    v = YesssSMS.const.VERSION
-    g = r.get("https://pypi.org/project/YesssSMS/"+v+"/");
-    if g.status_code == 200:
-      print("{} already released".format(v))
-      s.exit(-1)' || exit 0
-  - apk add --no-cache --virtual .build-deps gcc musl-dev python3-dev libffi-dev openssl-dev
-  - pip install twine
-  - rm -rf dist
-  - echo "[distutils]" >> ~/.pypirc
-  - echo "index-servers=" >> ~/.pypirc
-  - echo "    pypi" >> ~/.pypirc
-  - echo "" >> ~/.pypirc
-  - echo "[pypi]" >> ~/.pypirc
-  - |2
-    echo "username: ${PYPI_USER}" >> ~/.pypirc
-    echo "password: ${PYPI_PASSWD}" >> ~/.pypirc
-  - python3 setup.py check sdist bdist_wheel
-  - ls -lha dist
-  - twine upload  --verbose -r pypi dist/*.tar.gz dist/*.whl
+    - echo $CI_SERVER_HOST
+    - pip install requests
+    - |2
+      python3 -c 'import sys as s; import requests as r; import YesssSMS;
+      v = YesssSMS.const.VERSION
+      g = r.get("https://pypi.org/project/YesssSMS/"+v+"/");
+      if g.status_code == 200:
+        print("{} already released".format(v))
+        s.exit(-1)' || exit 0
+    - apk add --no-cache --virtual .build-deps gcc musl-dev python3-dev libffi-dev openssl-dev
+    - pip install twine
+    - rm -rf dist
+    - echo "[distutils]" >> ~/.pypirc
+    - echo "index-servers=" >> ~/.pypirc
+    - echo "    pypi" >> ~/.pypirc
+    - echo "" >> ~/.pypirc
+    - echo "[pypi]" >> ~/.pypirc
+    - |2
+      echo "username: ${PYPI_USER}" >> ~/.pypirc
+      echo "password: ${PYPI_PASSWD}" >> ~/.pypirc
+    - python3 setup.py check sdist bdist_wheel
+    - ls -lha dist
+    - twine upload  --verbose -r pypi dist/*.tar.gz dist/*.whl
   artifacts:
     paths:
       - dist
-    expire_in: 6 months
+    expire_in: 12 months
   only:
-    - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant
+    refs:
+      - /^v\d+\.\d+\.\d+([abc]\d*)?$/ # PEP-440 compliant
+    variables:
+      - $CI_SERVER_HOST == "git.flo.cx"
