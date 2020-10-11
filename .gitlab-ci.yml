@@ -161,7 +161,7 @@ release:
   artifacts:
     paths:
       - dist
-    expire_in: 6 months
+    expire_in: 12 months
   only:
     refs:
       - /^v\d+\.\d+\.\d+([abc]\d*)?$/ # PEP-440 compliant
