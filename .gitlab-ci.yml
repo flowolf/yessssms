@@ -103,8 +103,8 @@ test_release:
       v = YesssSMS.const.VERSION
       g = r.get("https://test.pypi.org/project/YesssSMS/"+v+"/");
       if g.status_code == 200:
-      print("{} already released".format(v))
-      s.exit(-1)' || exit 0
+        print("{} already released".format(v))
+        s.exit(-1)' || exit 0
     - apk add --no-cache --virtual .build-deps gcc musl-dev python3-dev libffi-dev openssl-dev
     - pip install twine
     - rm -rf dist
@@ -142,8 +142,8 @@ release:
       v = YesssSMS.const.VERSION
       g = r.get("https://pypi.org/project/YesssSMS/"+v+"/");
       if g.status_code == 200:
-      print("{} already released".format(v))
-      s.exit(-1)' || exit 0
+        print("{} already released".format(v))
+        s.exit(-1)' || exit 0
     - apk add --no-cache --virtual .build-deps gcc musl-dev python3-dev libffi-dev openssl-dev
     - pip install twine
     - rm -rf dist
