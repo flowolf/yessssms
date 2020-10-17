@@ -51,7 +51,7 @@ Currently the library supports Python 3.5+, and is [tested against Python 3.5 to
 # environment variables set
 >>> from YesssSMS import YesssSMS
 >>> sms = YesssSMS()
->>> sms.send("hello future self, your pipeline failed :(")
+>>> sms.send("06641234567", "hello future self, your pipeline failed :(")
 ```
 
 ### Command Line Usage
@@ -78,5 +78,5 @@ Currently the library supports Python 3.5+, and is [tested against Python 3.5 to
 # use in python script or in command line
 > yessssms -T
 ok: login data is valid.
-> yessssms -m "sending SMS from github and gitlab pipelines... so much cloud"
+> yessssms -t YESSSSMS_LOGIN -m "sending SMS from github and gitlab pipelines... so much cloud"
 ```
