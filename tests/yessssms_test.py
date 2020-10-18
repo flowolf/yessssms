@@ -266,6 +266,8 @@ def environment_vars_set():
     """Mock env vars YESSSSMS_LOGIN and YESSSSMS_PASSWD."""
     os.environ["YESSSSMS_LOGIN"] = "03211234567"
     os.environ["YESSSSMS_PASSWD"] = "MySecr3t"
+    os.environ["YESSSSMS_PROVIDER"] = "wowww"
+    os.environ["YESSSSMS_RECIPIENT"] = "066356789789"
 
 
 @mock.patch("YesssSMS.CLI.CONFIG_FILE_PATHS", ["testconfigfile.conf"])
@@ -1281,13 +1283,54 @@ def test_env_var_settings_set(environment_vars_set):
     sms = YesssSMS.YesssSMS()
     assert sms._logindata["login_rufnummer"] == "03211234567"
     assert sms._logindata["login_passwort"] == "MySecr3t"
+    assert sms._provider == "wowww"
+
+    os.environ["YESSSSMS_PROVIDER"] = "goood"
     sms = YesssSMS.YesssSMS("123456", "password")
     assert sms._logindata["login_rufnummer"] == "03211234567"
     assert sms._logindata["login_passwort"] == "MySecr3t"
+    assert sms._provider == "goood"
+
+    del os.environ["YESSSSMS_PROVIDER"]
     sms = YesssSMS.YesssSMS("123456")
     assert sms._logindata["login_rufnummer"] == "03211234567"
     assert sms._logindata["login_passwort"] == "MySecr3t"
+    assert sms._provider == "yesss"
+
     del os.environ["YESSSSMS_LOGIN"]
     sms = YesssSMS.YesssSMS("123456", "password")
     assert sms._logindata["login_rufnummer"] == "123456"
     assert sms._logindata["login_passwort"] == "password"
+    assert sms._provider == "yesss"
+
+
+def test_read_no_env_config():
+    cli = CLI()
+    assert cli.read_env_config() is None
+
+
+def test_read_env_config1(environment_vars_set):
+    cli = CLI()
+    (login, passwd, rec, prov, custom_urls) = cli.read_env_config()
+    assert login == "03211234567"
+    assert passwd == "MySecr3t"
+    assert rec == "066356789789"
+    assert prov == "wowww"
+    assert custom_urls is None
+
+
+def test_read_env_config2(environment_vars_set):
+    sms = YesssSMS.YesssSMS()
+    assert sms._provider == "wowww"
+
+
+def test_read_env_config3(environment_vars_set):
+    os.environ["YESSSSMS_PROVIDER"] = "goood"
+    sms = YesssSMS.YesssSMS()
+    assert sms._provider == "goood"
+
+
+def test_read_env_config4(environment_vars_set):
+    del os.environ["YESSSSMS_PROVIDER"]
+    sms = YesssSMS.YesssSMS()
+    assert sms._provider == "yesss"
