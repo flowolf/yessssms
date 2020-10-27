@@ -5,6 +5,7 @@ import logging
 import sys
 from datetime import datetime
 from functools import wraps
+from os import getenv
 from os.path import abspath
 from os.path import expanduser
 
@@ -111,6 +112,26 @@ class CLI:
 
         return parser.parse_args(args)
 
+    @staticmethod
+    def read_env_config():
+        """Read YESSSSMS environment variables.
+
+        Returns None if password and login are not set.
+        """
+        # use environment settings if they exist
+        env_login = getenv("YESSSSMS_LOGIN", None)
+        env_passwd = getenv("YESSSSMS_PASSWD", None)
+        conf = None
+        if env_login is not None and env_passwd is not None:
+            conf = (
+                env_login,
+                env_passwd,
+                getenv("YESSSSMS_RECIPIENT", None),
+                getenv("YESSSSMS_PROVIDER", None),
+                None,  # custom_provider_urls not supported in env variables yet
+            )
+        return conf
+
     def read_config_files(self, config_file):
         """Read config files for settings."""
         if config_file:
@@ -166,6 +187,8 @@ class CLI:
     @cli_errors_handled
     def cli(self):
         """Handle arguments for command line interface."""
+        # config file settings are overridden by env, which are overridden by
+        # command line args
         args = self.parse_args(sys.argv[1:])
 
         if not args:
@@ -185,6 +208,18 @@ class CLI:
             provider,
             custom_provider_urls,
         ) = self.read_config_files(args.configfile or None)
+
+        # use environment settings if they exist
+        env_settings = self.read_env_config()
+        if env_settings:
+            logging.debug("using environment variables")
+            (
+                login,
+                passwd,
+                default_recipient,
+                provider,
+                custom_provider_urls,
+            ) = env_settings
 
         if args.provider:
             provider = args.provider

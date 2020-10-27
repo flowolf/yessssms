@@ -111,6 +111,7 @@ class YesssSMS:
 
         env_login = getenv("YESSSSMS_LOGIN", None)
         env_passwd = getenv("YESSSSMS_PASSWD", None)
+        env_provider = getenv("YESSSSMS_PROVIDER", None)
 
         if (login is None or passwd is None) and (
             env_login is None or env_passwd is None
@@ -120,6 +121,7 @@ class YesssSMS:
         if env_login is not None and env_passwd is not None:
             login = env_login
             passwd = env_passwd
+            self._provider = env_provider.lower() if env_provider else "yesss"
 
         # set urls from provider
         if custom_provider:

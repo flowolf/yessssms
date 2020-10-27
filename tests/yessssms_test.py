@@ -36,12 +36,9 @@ _WEBSMS_URL = PROVIDER["WEBSMS_URL"]
 # make sure env is empty
 os.environ = {}
 
-try:
-    from secrets import LOGIN, YESSS_PASSWD, YESSS_TO
-except ImportError:
-    LOGIN = "06641234567"
-    YESSS_PASSWD = "testpasswd"
-    YESSS_TO = "06501234567"
+LOGIN = "06641234567"
+YESSS_PASSWD = "testpasswd"
+YESSS_TO = "06501234567"
 
 
 @pytest.fixture
@@ -147,6 +144,42 @@ def valid_goood_mock_connection():
             "GET",
             # pylint: disable=protected-access
             "https://goood.kontomanager.at/index.php?dologout=2",
+            status_code=200,
+        )
+        yield
+
+
+@pytest.fixture
+def valid_wowww_mock_connection():
+    """Decorate connection to be mocked and working."""
+    # sms = YesssSMS.YesssSMS("", "", provider="yesss")
+    with requests_mock.Mocker() as m:
+        m.register_uri(
+            "POST",
+            # pylint: disable=protected-access
+            "https://wowww.kontomanager.at/index.php",
+            status_code=302,
+            # pylint: disable=protected-access
+            headers={"location": "https://wowww.kontomanager.at/kundendaten.php"},
+        )
+        m.register_uri(
+            "GET",
+            # pylint: disable=protected-access
+            "https://wowww.kontomanager.at/kundendaten.php",
+            status_code=200,
+            text="test..." + LOGIN + "</a>",
+        )
+        m.register_uri(
+            "POST",
+            # pylint: disable=protected-access
+            "https://wowww.kontomanager.at/websms_send.php",
+            status_code=200,
+            text="<h1>Ihre SMS wurde erfolgreich " + "verschickt!</h1>",
+        )
+        m.register_uri(
+            "GET",
+            # pylint: disable=protected-access
+            "https://wowww.kontomanager.at/index.php?dologout=2",
             status_code=200,
         )
         yield
@@ -262,10 +295,38 @@ MVNO = GOOOD
 
 
 @pytest.fixture
+def config():
+    """Mock config file with data."""
+    data = """[YESSSSMS]
+LOGIN =  03211234567
+PASSWD = MySecr3t
+DEFAULT_TO = +43664123123123
+MVNO = YESSS
+"""
+    with mock.patch(
+        "configparser.open",
+        # "builtins.open",
+        mock.mock_open(read_data=data),
+    ):
+        yield
+
+
+@pytest.fixture
 def environment_vars_set():
     """Mock env vars YESSSSMS_LOGIN and YESSSSMS_PASSWD."""
     os.environ["YESSSSMS_LOGIN"] = "03211234567"
     os.environ["YESSSSMS_PASSWD"] = "MySecr3t"
+    os.environ["YESSSSMS_PROVIDER"] = "goood"
+    os.environ["YESSSSMS_RECIPIENT"] = "066356789789"
+
+
+@pytest.fixture
+def environment_vars_set_wowww():
+    """Mock env vars YESSSSMS_LOGIN and YESSSSMS_PASSWD."""
+    os.environ["YESSSSMS_LOGIN"] = "03211234567"
+    os.environ["YESSSSMS_PASSWD"] = "MySecr3t"
+    os.environ["YESSSSMS_PROVIDER"] = "wowww"
+    os.environ["YESSSSMS_RECIPIENT"] = "066356789789"
 
 
 @mock.patch("YesssSMS.CLI.CONFIG_FILE_PATHS", ["testconfigfile.conf"])
@@ -425,7 +486,7 @@ def test_cli_empty_message_error(
     assert "error: cannot send empty message" in capsys.readouterr().out
 
 
-def test_connection_error(connection_error):
+def test_connection_error(config, connection_error):
     """Test connection error."""
     sms = YesssSMS.YesssSMS(LOGIN, YESSS_PASSWD)
     with pytest.raises(YesssSMS.YesssSMS.ConnectionError):
@@ -444,7 +505,7 @@ def test_cli_config_file(valid_connection, config_file):
         assert cli.yessssms._provider == "yesss"
 
 
-def test_cli_connection_error(connection_error, capsys):
+def test_cli_connection_error(config, connection_error, capsys):
     """Test connection error."""
     testargs = [
         "yessssms",
@@ -464,7 +525,7 @@ def test_cli_connection_error(connection_error, capsys):
     assert "error: could not connect to provider. " in capsys.readouterr().out
 
 
-def test_login_url_getter():
+def test_login_url_getter(config,):
     """Test login url getter."""
     sms = YesssSMS.YesssSMS(LOGIN, YESSS_PASSWD)
 
@@ -472,7 +533,7 @@ def test_login_url_getter():
     assert login_url == YesssSMS.const.PROVIDER_URLS["yesss"]["LOGIN_URL"]
 
 
-def test_provider_getter():
+def test_provider_getter(config,):
     """Test provider getter."""
     sms = YesssSMS.YesssSMS(LOGIN, YESSS_PASSWD, provider="goood")
     provider = sms.get_provider()
@@ -481,7 +542,7 @@ def test_provider_getter():
     assert provider == sms._provider
 
 
-def test_credentials_work():
+def test_credentials_work(config,):
     """Test for working credentials."""
     with requests_mock.Mocker() as m:
         sms = YesssSMS.YesssSMS(LOGIN, YESSS_PASSWD)
@@ -522,7 +583,7 @@ def test_credentials_work():
         assert sms._logindata["login_passwort"]
 
 
-def test_login():
+def test_login(config,):
     """Test if login works."""
     with requests_mock.Mocker() as m:
         sms = YesssSMS.YesssSMS(LOGIN, YESSS_PASSWD)
@@ -557,7 +618,7 @@ def test_login():
         assert request.url == sms._kontomanager
 
 
-def test_empty_message(valid_connection):
+def test_empty_message(config, valid_connection):
     """Test error handling for empty message."""
     sms = YesssSMS.YesssSMS(LOGIN, YESSS_PASSWD)
     with pytest.raises(ValueError):
@@ -566,7 +627,7 @@ def test_empty_message(valid_connection):
         sms.send(YESSS_TO, "")
 
 
-def test_login_error():
+def test_login_error(config,):
     """Test error handling of faulty login."""
     with requests_mock.Mocker() as m:
         sms = YesssSMS.YesssSMS("0000000000", "2d4faa0ea6f55813")
@@ -587,34 +648,34 @@ def test_login_error():
             sms.send(YESSS_TO, "test")
 
 
-def test_login_empty_password_error():
+def test_login_empty_password_error(config,):
     """Test error handling of empty password."""
     with pytest.raises(YesssSMS.YesssSMS.MissingLoginCredentialsError):
         _ = YesssSMS.YesssSMS("0000000000", None)
 
 
-def test_login_empty_login_error(invalid_login):
+def test_login_empty_login_error(invalid_login):  # xxxxxx
     """Test error handling of empty login."""
     sms = YesssSMS.YesssSMS("", "2d4faa0ea6f55813")
     with pytest.raises(sms.LoginError):
         sms.send(YESSS_TO, "test")
 
 
-def test_no_recipient_error():
+def test_no_recipient_error(config,):
     """Test error handling of no recipient."""
     sms = YesssSMS.YesssSMS("0000000000", "2d4faa0ea6f55813")
     with pytest.raises(sms.NoRecipientError):
         sms.send("", "test")
 
 
-def test_recipient_not_str_error():
+def test_recipient_not_str_error(config,):
     """Test error handling of wrong recipient data type."""
     sms = YesssSMS.YesssSMS("0000000000", "2d4faa0ea6f55813")
     with pytest.raises(ValueError):
         sms.send(176264916361239, "test")
 
 
-def test_message_sending_error():
+def test_message_sending_error(config,):
     """Test handling of status codes other than 200 and 302."""
     with requests_mock.Mocker() as m:
         sms = YesssSMS.YesssSMS("0000000000", "2d4faa0ea6f55813")
@@ -649,7 +710,7 @@ def test_message_sending_error():
             sms.send(YESSS_TO, "test")
 
 
-def test_unsupported_chars_error():
+def test_unsupported_chars_error(config,):
     """Test error handling for unsupported chars."""
     with requests_mock.Mocker() as m:
         sms = YesssSMS.YesssSMS("0000000000", "2d4faa0ea6f55813")
@@ -684,7 +745,7 @@ def test_unsupported_chars_error():
             sms.send(YESSS_TO, "test")
 
 
-def test_sms_sending_error():
+def test_sms_sending_error(config,):
     """Test error handling for missing success string."""
     with requests_mock.Mocker() as m:
         sms = YesssSMS.YesssSMS("0000000000", "2d4faa0ea6f55813")
@@ -719,7 +780,7 @@ def test_sms_sending_error():
             sms.send(YESSS_TO, "test")
 
 
-def test_login_suspended_error():
+def test_login_suspended_error(config,):
     """Test error handling for suspended account."""
     with requests_mock.Mocker() as m:
         # non existing user and password
@@ -747,7 +808,7 @@ def test_login_suspended_error():
         assert sms.account_is_suspended() is True
 
 
-def test_send_sms():
+def test_send_sms(config,):
     """Test SMS sending."""
     with requests_mock.Mocker() as m:
         sms = YesssSMS.YesssSMS(LOGIN, YESSS_PASSWD)
@@ -787,21 +848,21 @@ def test_send_sms():
             pytest.fail("Exception raised while sending SMS")
 
 
-def test_cli_print_config_file(capsys):
+def test_cli_print_config_file(config, capsys):
     """Test for correct config file output."""
     CLI.print_config_file()
     captured = capsys.readouterr()
     assert captured.out == CONFIG_FILE_CONTENT
 
 
-def test_cli_version_info(capsys):
+def test_cli_version_info(config, capsys):
     """Test for correct version info print."""
     CLI.version_info()
     captured = capsys.readouterr()
     assert captured.out == "yessssms " + VERSION + "\n"
 
 
-def test_cli_boolean_args():
+def test_cli_boolean_args(config,):
     """Test parser for boolean arguments."""
     args = CLI.parse_args(["--version"])
     assert args.version is True
@@ -816,7 +877,7 @@ def test_cli_boolean_args():
     assert args.check_login is True
 
 
-def test_cli_argparse():
+def test_cli_argparse(config,):
     """Test parser for different arguments."""
     args = CLI.parse_args(["-t", "0664123456"])
     assert args.recipient == "0664123456"
@@ -861,7 +922,7 @@ def test_cli_argparse():
     assert args.provider == "BLABLABLA"
 
 
-def test_cli_with_test_args():
+def test_cli_with_test_args(config,):
     """Test command line arguments with --test."""
     testargs = [
         "yessssms",
@@ -894,7 +955,7 @@ def test_cli_with_test_args():
             assert val == 0
 
 
-def test_cli_with_printconfigfile_arg(capsys):
+def test_cli_with_printconfigfile_arg(config, capsys):
     """Test print-config-file parameter."""
     testargs = ["yessssms", "--print-config-file"]
     with mock.patch.object(sys, "argv", testargs):
@@ -903,7 +964,7 @@ def test_cli_with_printconfigfile_arg(capsys):
         assert captured.out == CONFIG_FILE_CONTENT
 
 
-def test_cli_with_version_arg(capsys):
+def test_cli_with_version_arg(config, capsys):
     """Test version cli argument."""
     testargs = ["yessssms", "--version"]
     with mock.patch.object(sys, "argv", testargs):
@@ -912,7 +973,7 @@ def test_cli_with_version_arg(capsys):
         assert captured.out == "yessssms " + VERSION + "\n"
 
 
-def test_cli_with_no_arg(capsys):
+def test_cli_with_no_arg(config, capsys):
     """Test handling of no arguments."""
     testargs = ["yessssms"]
     with mock.patch.object(sys, "argv", testargs):
@@ -921,7 +982,7 @@ def test_cli_with_no_arg(capsys):
         assert "usage: yessssms " in captured.out
 
 
-def test_cli_with_test_login_arg(capsys):
+def test_cli_with_test_login_arg(config, capsys):
     """Test check-login argument."""
     testargs = ["yessssms", "-m", "test", "-l", "06641234567", "-p", "passw0rd", "-T"]
     with mock.patch.object(sys, "argv", testargs):
@@ -961,7 +1022,7 @@ def test_cli_with_test_login_arg(capsys):
             assert captured.out == "ok: login data is valid.\n"
 
 
-def test_cli_with_invalid_test_login_arg(capsys):
+def test_cli_with_invalid_test_login_arg(config, capsys):
     """Test check-login argument."""
     testargs = ["yessssms", "-m", "test", "-l", "06641234567", "-p", "passw0rd", "-T"]
     with mock.patch.object(sys, "argv", testargs):
@@ -988,7 +1049,7 @@ def test_cli_with_invalid_test_login_arg(capsys):
 
 
 @mock.patch("YesssSMS.CLI.CONFIG_FILE_PATHS", [])
-def test_cli_with_no_login_or_password(capsys, valid_connection):
+def test_cli_with_no_login_or_password(config, capsys, valid_connection):
     """Test empty login parameters."""
     testargs = ["yessssms", "-m", "test"]  # "-l", "\"\"", "-p", "\"\""]
     # print("test:..." + str(YesssSMS.const.CONFIG_FILE_PATHS))
@@ -1001,7 +1062,7 @@ def test_cli_with_no_login_or_password(capsys, valid_connection):
     assert "error: no username or password defined " in captured.out
 
 
-def test_cli_with_mvno_arg_error():
+def test_cli_with_mvno_arg_error(config,):
     """Test command line arguments with wrong --mvno."""
     from YesssSMS.YesssSMS import YesssSMS
 
@@ -1023,7 +1084,7 @@ def test_cli_with_mvno_arg_error():
             cli_run()
 
 
-def test_cli_stdin():
+def test_cli_stdin(config,):
     """Test command line with stdin."""
     from YesssSMS.YesssSMS import MAX_MESSAGE_LENGTH_STDIN
 
@@ -1093,7 +1154,7 @@ Und bin so klug als wie zuvor;"""
     assert message == in_message[:MAX_MESSAGE_LENGTH_STDIN]
 
 
-def test_cli_with_mvno_educom_arg():
+def test_cli_with_mvno_educom_arg(config,):
     """Test command line arguments with --mvno."""
     from YesssSMS.const import PROVIDER_URLS
 
@@ -1145,7 +1206,7 @@ def test_cli_with_mvno_educom_arg():
             assert websms_url == "https://educom.kontomanager.at/websms_send.php"
 
 
-def test_cli_with_mvno_simfonie_arg():
+def test_cli_with_mvno_simfonie_arg(config,):
     """Test command line arguments with --mvno."""
     from YesssSMS.const import PROVIDER_URLS
 
@@ -1199,7 +1260,7 @@ def test_cli_with_mvno_simfonie_arg():
             assert websms_url == "https://simfonie.kontomanager.at/websms_send.php"
 
 
-def test_cli_with_mvno_div_arg():
+def test_cli_with_mvno_div_arg(config,):
     """Test command line arguments with --mvno."""
     from YesssSMS.const import PROVIDER_URLS
 
@@ -1252,13 +1313,13 @@ def test_cli_with_mvno_div_arg():
                 assert websms_url == sms._websms_url
 
 
-def test_default_config_file_paths():
+def test_default_config_file_paths(config,):
     """Test default config file paths."""
     assert "~/.config/yessssms.conf" in CONFIG_FILE_PATHS
     assert "/etc/yessssms.conf" in CONFIG_FILE_PATHS
 
 
-def test_custom_provider_setting():
+def test_custom_provider_setting(config,):
     """Test custom provider setting."""
     sms = YesssSMS.YesssSMS(
         LOGIN,
@@ -1276,18 +1337,78 @@ def test_custom_provider_setting():
     assert sms._websms_url == "https://example.com/websms"
 
 
-def test_env_var_settings_set(environment_vars_set):
-    """Test setting or environment variables in YesssSMS class."""
+def test_env_var_settings_set(config, environment_vars_set_wowww):
+    """Test setting of environment variables in YesssSMS class."""
     sms = YesssSMS.YesssSMS()
     assert sms._logindata["login_rufnummer"] == "03211234567"
     assert sms._logindata["login_passwort"] == "MySecr3t"
+    assert sms._provider == "wowww"
+
+    os.environ["YESSSSMS_PROVIDER"] = "goood"
     sms = YesssSMS.YesssSMS("123456", "password")
     assert sms._logindata["login_rufnummer"] == "03211234567"
     assert sms._logindata["login_passwort"] == "MySecr3t"
+    assert sms._provider == "goood"
+
+    del os.environ["YESSSSMS_PROVIDER"]
     sms = YesssSMS.YesssSMS("123456")
     assert sms._logindata["login_rufnummer"] == "03211234567"
     assert sms._logindata["login_passwort"] == "MySecr3t"
+    assert sms._provider == "yesss"
+
     del os.environ["YESSSSMS_LOGIN"]
     sms = YesssSMS.YesssSMS("123456", "password")
     assert sms._logindata["login_rufnummer"] == "123456"
     assert sms._logindata["login_passwort"] == "password"
+    assert sms._provider == "yesss"
+
+
+def test_read_no_env_config():
+    """Test setting of environment variables in CLI."""
+    data = ""
+    with mock.patch(
+        "configparser.open",
+        # "builtins.open",
+        mock.mock_open(read_data=data),
+    ):
+        testargs = ["yessssms", "-m", "Bilde mir nicht ein was rechts zu wissen"]
+        with (mock.patch.object(sys, "argv", testargs)):
+            with pytest.raises(SystemExit) as wrapped_e:
+                cli = CLI()
+                assert cli.read_env_config() is None
+        assert wrapped_e.type == SystemExit
+        assert wrapped_e.value.code == 2
+
+
+def test_read_env_config1(valid_wowww_mock_connection, environment_vars_set_wowww):
+    """Test setting of environment variables in CLI."""
+    testargs = ["yessssms", "-m", "Bilde mir nicht ein was rechts zu wissen"]
+
+    with (mock.patch.object(sys, "argv", testargs)):
+        cli = CLI()
+        (login, passwd, rec, prov, custom_urls) = cli.read_env_config()
+        assert login == "03211234567"
+        assert passwd == "MySecr3t"
+        assert rec == "066356789789"
+        assert prov == "wowww"
+        assert custom_urls is None
+
+
+def test_read_env_config2(config, environment_vars_set_wowww):
+    """Test setting of environment variables in CLI."""
+    sms = YesssSMS.YesssSMS()
+    assert sms._provider == "wowww"
+
+
+def test_read_env_config3(config, environment_vars_set):
+    """Test setting of environment variables in CLI."""
+    os.environ["YESSSSMS_PROVIDER"] = "goood"
+    sms = YesssSMS.YesssSMS()
+    assert sms._provider == "goood"
+
+
+def test_read_env_config4(config, environment_vars_set):
+    """Test setting of environment variables in CLI."""
+    del os.environ["YESSSSMS_PROVIDER"]
+    sms = YesssSMS.YesssSMS()
+    assert sms._provider == "yesss"
