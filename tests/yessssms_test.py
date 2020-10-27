@@ -326,7 +326,7 @@ def environment_vars_set_wowww():
     os.environ["YESSSSMS_LOGIN"] = "03211234567"
     os.environ["YESSSSMS_PASSWD"] = "MySecr3t"
     os.environ["YESSSSMS_PROVIDER"] = "wowww"
-    os.environ["YESSSSMS_RECIPIENT"] = "066356789789"
+    os.environ["YESSSSMS_RECIPIENT"] = "066356789780"
 
 
 @mock.patch("YesssSMS.CLI.CONFIG_FILE_PATHS", ["testconfigfile.conf"])
@@ -1389,7 +1389,7 @@ def test_read_env_config1(valid_wowww_mock_connection, environment_vars_set_woww
         (login, passwd, rec, prov, custom_urls) = cli.read_env_config()
         assert login == "03211234567"
         assert passwd == "MySecr3t"
-        assert rec == "066356789789"
+        assert rec == "066356789780"
         assert prov == "wowww"
         assert custom_urls is None
 
