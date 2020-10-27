@@ -112,22 +112,25 @@ class CLI:
 
         return parser.parse_args(args)
 
-    def read_env_config(self):
+    @staticmethod
+    def read_env_config():
         """Read YESSSSMS environment variables.
-        Returns None if password and login are not set."""
+
+        Returns None if password and login are not set.
+        """
         # use environment settings if they exist
         env_login = getenv("YESSSSMS_LOGIN", None)
         env_passwd = getenv("YESSSSMS_PASSWD", None)
+        conf = None
         if env_login is not None and env_passwd is not None:
-            return (
+            conf = (
                 env_login,
                 env_passwd,
                 getenv("YESSSSMS_RECIPIENT", None),
                 getenv("YESSSSMS_PROVIDER", None),
                 None,  # custom_provider_urls not supported in env variables yet
             )
-        else:
-            return None
+        return conf
 
     def read_config_files(self, config_file):
         """Read config files for settings."""
