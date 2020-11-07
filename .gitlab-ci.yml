@@ -84,7 +84,7 @@ pages:
   script:
     - apt-get update
     - apt-get install make
-    - pip3 install sphinx m2r2
+    - pip3 install 'sphinx==3.2.1' m2r2
     - cd docs
     - make html
     - mv build/html ../public
