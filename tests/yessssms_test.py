@@ -14,6 +14,7 @@ from YesssSMS.const import (
     CONFIG_FILE_CONTENT,
     CONFIG_FILE_PATHS,
     PROVIDER_URLS,
+    TEST_FORM_TOKEN_SAMPLE,
     VERSION,
     _UNSUPPORTED_CHARS_STRING,
 )
@@ -31,7 +32,8 @@ PROVIDER = PROVIDER_URLS["yesss"]
 _LOGIN_URL = PROVIDER["LOGIN_URL"]
 _LOGOUT_URL = PROVIDER["LOGOUT_URL"]
 _KONTOMANAGER_URL = PROVIDER["KONTOMANAGER_URL"]
-_WEBSMS_URL = PROVIDER["WEBSMS_URL"]
+_SMS_FORM_URL = PROVIDER["WEBSMS_FORM_URL"]
+_SEND_SMS_URL = PROVIDER["SEND_SMS_URL"]
 
 # make sure env is empty
 os.environ = {}
@@ -60,6 +62,13 @@ def valid_connection():
             sms._kontomanager,
             status_code=200,
             text="test..." + LOGIN + "</a>",
+        )
+        m.register_uri(
+            "GET",
+            # pylint: disable=protected-access
+            sms._sms_form_url,
+            status_code=200,
+            text=TEST_FORM_TOKEN_SAMPLE,
         )
         m.register_uri(
             "POST",
@@ -98,6 +107,13 @@ def valid_mock_connection():
             text="test..." + LOGIN + "</a>",
         )
         m.register_uri(
+            "GET",
+            # pylint: disable=protected-access
+            "mock://kontomanager.at/websms.php",
+            status_code=200,
+            text=TEST_FORM_TOKEN_SAMPLE,
+        )
+        m.register_uri(
             "POST",
             # pylint: disable=protected-access
             "mock://kontomanager.at/websms_send.php",
@@ -134,6 +150,13 @@ def valid_goood_mock_connection():
             text="test..." + LOGIN + "</a>",
         )
         m.register_uri(
+            "GET",
+            # pylint: disable=protected-access
+            "https://goood.kontomanager.at/websms.php",
+            status_code=200,
+            text=TEST_FORM_TOKEN_SAMPLE,
+        )
+        m.register_uri(
             "POST",
             # pylint: disable=protected-access
             "https://goood.kontomanager.at/websms_send.php",
@@ -168,6 +191,13 @@ def valid_wowww_mock_connection():
             "https://wowww.kontomanager.at/kundendaten.php",
             status_code=200,
             text="test..." + LOGIN + "</a>",
+        )
+        m.register_uri(
+            "GET",
+            # pylint: disable=protected-access
+            "https://wowww.kontomanager.at/websms.php",
+            status_code=200,
+            text=TEST_FORM_TOKEN_SAMPLE,
         )
         m.register_uri(
             "POST",
@@ -252,7 +282,8 @@ DEFAULT_TO = +43664123123123
 LOGIN_URL = mock://kontomanager.at/index.php
 LOGOUT_URL = mock://kontomanager.at/index.php?dologout=2
 KONTOMANAGER_URL = mock://kontomanager.at/kundendaten.php
-WEBSMS_URL = mock://kontomanager.at/websms_send.php
+WEBSMS_FORM_URL = mock://kontomanager.at/websms.php
+SEND_SMS_URL = mock://kontomanager.at/websms_send.php
 """
     with mock.patch(
         "configparser.open",
@@ -355,6 +386,7 @@ def test_cli_mocked_config_file(
         assert cli.yessssms._login_url == "mock://kontomanager.at/index.php"
         assert cli.yessssms._logout_url == "mock://kontomanager.at/index.php?dologout=2"
         assert cli.yessssms._kontomanager == "mock://kontomanager.at/kundendaten.php"
+        assert cli.yessssms._sms_form_url == "mock://kontomanager.at/websms.php"
         assert cli.yessssms._send_sms_url == "mock://kontomanager.at/websms_send.php"
 
         assert cli.recipient == "+43664123123123"
@@ -382,6 +414,7 @@ def test_goood_cli_mocked_config_file(valid_goood_mock_connection, mocked_config
             cli.yessssms._kontomanager
             == "https://goood.kontomanager.at/kundendaten.php"
         )
+        assert cli.yessssms._sms_form_url == "https://goood.kontomanager.at/websms.php"
         assert (
             cli.yessssms._send_sms_url
             == "https://goood.kontomanager.at/websms_send.php"
@@ -695,6 +728,13 @@ def test_message_sending_error(config,):
             status_code=200,
         )
         m.register_uri(
+            "GET",
+            # pylint: disable=protected-access
+            sms._sms_form_url,
+            status_code=200,
+            text=TEST_FORM_TOKEN_SAMPLE,
+        )
+        m.register_uri(
             "POST",
             # pylint: disable=protected-access
             sms._send_sms_url,
@@ -730,6 +770,13 @@ def test_unsupported_chars_error(config,):
             status_code=200,
         )
         m.register_uri(
+            "GET",
+            # pylint: disable=protected-access
+            sms._sms_form_url,
+            status_code=200,
+            text=TEST_FORM_TOKEN_SAMPLE,
+        )
+        m.register_uri(
             "POST",
             # pylint: disable=protected-access
             sms._send_sms_url,
@@ -763,6 +810,13 @@ def test_sms_sending_error(config,):
             # pylint: disable=protected-access
             sms._kontomanager,
             status_code=200,
+        )
+        m.register_uri(
+            "GET",
+            # pylint: disable=protected-access
+            sms._sms_form_url,
+            status_code=200,
+            text=TEST_FORM_TOKEN_SAMPLE,
         )
         m.register_uri(
             "POST",
@@ -826,6 +880,13 @@ def test_send_sms(config,):
             # pylint: disable=protected-access
             sms._kontomanager,
             status_code=200,
+        )
+        m.register_uri(
+            "GET",
+            # pylint: disable=protected-access
+            sms._sms_form_url,
+            status_code=200,
+            text=TEST_FORM_TOKEN_SAMPLE,
         )
         m.register_uri(
             "POST",
@@ -946,8 +1007,15 @@ def test_cli_with_test_args(config,):
             )
             m.register_uri("GET", _KONTOMANAGER_URL, status_code=200)
             m.register_uri(
+                "GET",
+                # pylint: disable=protected-access
+                _SMS_FORM_URL,
+                status_code=200,
+                text=TEST_FORM_TOKEN_SAMPLE,
+            )
+            m.register_uri(
                 "POST",
-                _WEBSMS_URL,
+                _SEND_SMS_URL,
                 status_code=200,
                 text="<h1>Ihre SMS wurde erfolgreich " + "verschickt!</h1>",
             )
@@ -1004,9 +1072,16 @@ def test_cli_with_test_login_arg(config, capsys):
                 status_code=200,
             )
             m.register_uri(
+                "GET",
+                # pylint: disable=protected-access
+                _SMS_FORM_URL,
+                status_code=200,
+                text=TEST_FORM_TOKEN_SAMPLE,
+            )
+            m.register_uri(
                 "POST",
                 # pylint: disable=protected-access
-                _WEBSMS_URL,
+                _SEND_SMS_URL,
                 status_code=200,
                 text="<h1>Ihre SMS wurde erfolgreich " + "verschickt!</h1>",
             )
@@ -1133,9 +1208,16 @@ Zu sagen brauche, was ich nicht weiß;"""
                     status_code=200,
                 )
                 m.register_uri(
+                    "GET",
+                    # pylint: disable=protected-access
+                    _SMS_FORM_URL,
+                    status_code=200,
+                    text=TEST_FORM_TOKEN_SAMPLE,
+                )
+                m.register_uri(
                     "POST",
                     # pylint: disable=protected-access
-                    _WEBSMS_URL,
+                    _SEND_SMS_URL,
                     status_code=200,
                     text="<h1>Ihre SMS wurde erfolgreich " + "verschickt!</h1>",
                 )
@@ -1164,7 +1246,8 @@ def test_cli_with_mvno_educom_arg(config,):
     login_url = provider["LOGIN_URL"]
     logout_url = provider["LOGOUT_URL"]
     kontomanager_url = provider["KONTOMANAGER_URL"]
-    websms_url = provider["WEBSMS_URL"]
+    sms_form_url = provider["WEBSMS_FORM_URL"]
+    send_sms_url = provider["SEND_SMS_URL"]
 
     testargs = [
         "yessssms",
@@ -1181,6 +1264,13 @@ def test_cli_with_mvno_educom_arg(config,):
     with mock.patch.object(sys, "argv", testargs):
         with requests_mock.Mocker() as m:
             m.register_uri(
+                "GET",
+                # pylint: disable=protected-access
+                sms_form_url,
+                status_code=200,
+                text=TEST_FORM_TOKEN_SAMPLE,
+            )
+            m.register_uri(
                 "POST",
                 login_url,
                 status_code=302,
@@ -1190,7 +1280,7 @@ def test_cli_with_mvno_educom_arg(config,):
             m.register_uri("GET", kontomanager_url, status_code=200)
             m.register_uri(
                 "POST",
-                websms_url,
+                send_sms_url,
                 status_code=200,
                 text="<h1>Ihre SMS wurde erfolgreich " + "verschickt!</h1>",
             )
@@ -1200,11 +1290,13 @@ def test_cli_with_mvno_educom_arg(config,):
             assert login_url == sms._login_url
             assert logout_url == sms._logout_url
             assert kontomanager_url == sms._kontomanager
-            assert websms_url == sms._send_sms_url
+            assert send_sms_url == sms._send_sms_url
+            assert sms_form_url == sms._sms_form_url
             assert login_url == "https://educom.kontomanager.at/index.php"
             assert logout_url == "https://educom.kontomanager.at/index.php?dologout=2"
             assert kontomanager_url == "https://educom.kontomanager.at/kundendaten.php"
-            assert websms_url == "https://educom.kontomanager.at/websms_send.php"
+            assert send_sms_url == "https://educom.kontomanager.at/websms_send.php"
+            assert sms_form_url == "https://educom.kontomanager.at/websms.php"
 
 
 def test_cli_with_mvno_simfonie_arg(config,):
@@ -1216,7 +1308,8 @@ def test_cli_with_mvno_simfonie_arg(config,):
     login_url = provider["LOGIN_URL"]
     logout_url = provider["LOGOUT_URL"]
     kontomanager_url = provider["KONTOMANAGER_URL"]
-    websms_url = provider["WEBSMS_URL"]
+    sms_form_url = provider["WEBSMS_FORM_URL"]
+    send_sms_url = provider["SEND_SMS_URL"]
 
     testargs = [
         "yessssms",
@@ -1233,6 +1326,13 @@ def test_cli_with_mvno_simfonie_arg(config,):
     with mock.patch.object(sys, "argv", testargs):
         with requests_mock.Mocker() as m:
             m.register_uri(
+                "GET",
+                # pylint: disable=protected-access
+                sms_form_url,
+                status_code=200,
+                text=TEST_FORM_TOKEN_SAMPLE,
+            )
+            m.register_uri(
                 "POST",
                 login_url,
                 status_code=302,
@@ -1242,7 +1342,7 @@ def test_cli_with_mvno_simfonie_arg(config,):
             m.register_uri("GET", kontomanager_url, status_code=200)
             m.register_uri(
                 "POST",
-                websms_url,
+                send_sms_url,
                 status_code=200,
                 text="<h1>Ihre SMS wurde erfolgreich " + "verschickt!</h1>",
             )
@@ -1252,13 +1352,15 @@ def test_cli_with_mvno_simfonie_arg(config,):
             assert login_url == sms._login_url
             assert logout_url == sms._logout_url
             assert kontomanager_url == sms._kontomanager
-            assert websms_url == sms._send_sms_url
+            assert send_sms_url == sms._send_sms_url
+            assert sms_form_url == sms._sms_form_url
             assert login_url == "https://simfonie.kontomanager.at/index.php"
             assert logout_url == "https://simfonie.kontomanager.at/index.php?dologout=2"
             assert (
                 kontomanager_url == "https://simfonie.kontomanager.at/kundendaten.php"
             )
-            assert websms_url == "https://simfonie.kontomanager.at/websms_send.php"
+            assert sms_form_url == "https://simfonie.kontomanager.at/websms.php"
+            assert send_sms_url == "https://simfonie.kontomanager.at/websms_send.php"
 
 
 def test_cli_with_mvno_div_arg(config,):
@@ -1274,7 +1376,8 @@ def test_cli_with_mvno_div_arg(config,):
         login_url = current_provider["LOGIN_URL"]
         logout_url = current_provider["LOGOUT_URL"]
         kontomanager_url = current_provider["KONTOMANAGER_URL"]
-        websms_url = current_provider["WEBSMS_URL"]
+        sms_form_url = current_provider["WEBSMS_FORM_URL"]
+        send_sms_url = current_provider["SEND_SMS_URL"]
 
         testargs = [
             "yessssms",
@@ -1291,6 +1394,13 @@ def test_cli_with_mvno_div_arg(config,):
         with mock.patch.object(sys, "argv", testargs):
             with requests_mock.Mocker() as m:
                 m.register_uri(
+                    "GET",
+                    # pylint: disable=protected-access
+                    sms_form_url,
+                    status_code=200,
+                    text=TEST_FORM_TOKEN_SAMPLE,
+                )
+                m.register_uri(
                     "POST",
                     login_url,
                     status_code=302,
@@ -1300,7 +1410,7 @@ def test_cli_with_mvno_div_arg(config,):
                 m.register_uri("GET", kontomanager_url, status_code=200)
                 m.register_uri(
                     "POST",
-                    websms_url,
+                    send_sms_url,
                     status_code=200,
                     text="<h1>Ihre SMS wurde erfolgreich " + "verschickt!</h1>",
                 )
@@ -1311,7 +1421,8 @@ def test_cli_with_mvno_div_arg(config,):
                 assert login_url == sms._login_url
                 assert logout_url == sms._logout_url
                 assert kontomanager_url == sms._kontomanager
-                assert websms_url == sms._send_sms_url
+                assert send_sms_url == sms._send_sms_url
+                assert sms_form_url == sms._sms_form_url
 
 
 def test_default_config_file_paths(config,):
@@ -1329,12 +1440,14 @@ def test_custom_provider_setting(config,):
             "LOGIN_URL": "https://example.com/login",
             "LOGOUT_URL": "https://example.com/logout",
             "KONTOMANAGER_URL": "https://example.com/kontomanager",
-            "WEBSMS_URL": "https://example.com/websms",
+            "WEBSMS_FORM_URL": "https://example.com/send_websms",
+            "SEND_SMS_URL": "https://example.com/websms",
         },
     )
     assert sms._login_url == "https://example.com/login"
     assert sms._logout_url == "https://example.com/logout"
     assert sms._kontomanager == "https://example.com/kontomanager"
+    assert sms._sms_form_url == "https://example.com/send_websms"
     assert sms._send_sms_url == "https://example.com/websms"
 
 

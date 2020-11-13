@@ -167,7 +167,12 @@ class CLI:
                     "KONTOMANAGER_URL": config.get(
                         "YESSSSMS_PROVIDER_URLS", "KONTOMANAGER_URL"
                     ),
-                    "WEBSMS_URL": config.get("YESSSSMS_PROVIDER_URLS", "WEBSMS_URL"),
+                    "SEND_SMS_URL": config.get(
+                        "YESSSSMS_PROVIDER_URLS", "SEND_SMS_URL"
+                    ),
+                    "WEBSMS_FORM_URL": config.get(
+                        "YESSSSMS_PROVIDER_URLS", "WEBSMS_FORM_URL"
+                    ),
                 }
         except (
             KeyError,
