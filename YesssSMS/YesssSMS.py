@@ -12,6 +12,7 @@ from functools import wraps
 from os import getenv
 
 import requests
+from bs4 import BeautifulSoup
 
 from YesssSMS.const import (
     PROVIDER_URLS,
@@ -21,6 +22,8 @@ from YesssSMS.const import (
     _LOGIN_LOCKED_MESS_ENG,
     _SMS_SENDING_SUCCESSFUL_STRING,
     _UNSUPPORTED_CHARS_STRING,
+    _SMS_FORM_ID,
+    _SMS_FORM_ID_VALUE,
 )
 
 
@@ -140,7 +143,8 @@ class YesssSMS:
         self._login_url = urls["LOGIN_URL"]
         self._logout_url = urls["LOGOUT_URL"]
         self._kontomanager = urls["KONTOMANAGER_URL"]
-        self._websms_url = urls["WEBSMS_URL"]
+        self._sms_form_url = urls["WEBSMS_FORM_URL"]
+        self._send_sms_url = urls["SEND_SMS_URL"]
         self._suspended = False
         self._logindata = {"login_rufnummer": login, "login_passwort": passwd}
 
@@ -167,6 +171,23 @@ class YesssSMS:
         self._suspended = False  # login worked
 
         return (session, req) if get_request else session
+
+    def _get_csrf_token(self, sess):
+        """Return the CSRF token for the SMS form."""
+        token = ""
+        resp = sess.get(self._sms_form_url)
+        if resp.status_code != 200:
+            raise self.SMSSendingError("YesssSMS: could not get token (1)")
+        try:
+            soup = BeautifulSoup(resp.text, "html.parser")
+            token = soup.find(id=_SMS_FORM_ID).input[_SMS_FORM_ID_VALUE]
+        except (KeyError, AttributeError) as err:
+            raise self.SMSSendingError(
+                "YesssSMS: could not get token (2): {}".format(err)
+            )
+        if token == "":
+            raise self.SMSSendingError("YesssSMS: could not get token (3)")
+        return token
 
     def account_is_suspended(self):
         """Return if account is suspended."""
@@ -196,12 +217,17 @@ class YesssSMS:
             raise self.EmptyMessageError("YesssSMS: message is empty")
 
         with self._login(requests.Session()) as sess:
+            csrf_token = self._get_csrf_token(sess)
 
-            sms_data = {"to_nummer": recipient, "nachricht": message}
-            req = sess.post(self._websms_url, data=sms_data)
+            sms_data = {
+                "to_nummer": recipient,
+                "nachricht": message,
+                "token": csrf_token,
+            }
+            req = sess.post(self._send_sms_url, data=sms_data)
 
             if not (req.status_code == 200 or req.status_code == 302):
-                raise self.SMSSendingError("YesssSMS: error sending SMS")
+                raise self.SMSSendingError("YesssSMS: error sending SMS (1)")
 
             if _UNSUPPORTED_CHARS_STRING in req.text:
                 raise self.UnsupportedCharsError(
@@ -209,7 +235,7 @@ class YesssSMS:
                 )
 
             if _SMS_SENDING_SUCCESSFUL_STRING not in req.text:
-                raise self.SMSSendingError("YesssSMS: error sending SMS")
+                raise self.SMSSendingError("YesssSMS: error sending SMS (2)")
 
             sess.get(self._logout_url)
 
