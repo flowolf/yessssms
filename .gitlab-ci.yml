@@ -178,7 +178,7 @@ sms-on-failure:
   when: on_failure
   image: python:3.8-alpine
   script:
-    - pip install yessssms
+    - pip install -e .
     - yessssms -m "yessssms release failed! gitlab on ${CI_SERVER_HOST},
       ${CI_PROJECT_NAME}, commit ${CI_COMMIT_SHORT_SHA}"
   only:
@@ -193,7 +193,7 @@ sms-on-success:
   allow_failure: true
   image: python:3.8-alpine
   script:
-    - pip install yessssms
+    - pip install -e .
     - yessssms -m "yessssms ${CI_COMMIT_TAG} release succeeded! gitlab on ${CI_SERVER_HOST},
       ${CI_PROJECT_NAME}, commit ${CI_COMMIT_SHORT_SHA}"
   only:
