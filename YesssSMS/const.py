@@ -203,8 +203,10 @@ PASSWD = MySecre3tPassw0rd
 # CONFIG_FILE_PATHS = []
 CONFIG_FILE_PATHS = ["/etc/yessssms.conf", "~/.config/yessssms.conf"]
 
-TEST_FORM_TOKEN_SAMPLE = """<form action='websms_send.php' name='sms' id='smsform' method='post' onSubmit="return validate()">
-<input type="hidden" name="token" value="f2ca1bb6c7e907d06dafe4687e579fce76b37e4e93b7605022da52e6ccc26fd2">
-<div class='form-group'>
-    <div class='input-row'>"
-    """
+TEST_FORM_TOKEN_SAMPLE = (
+    "<form action='websms_send.php' name='sms' id='smsform'"
+    " method='post' onSubmit=\"return validate()\">"
+    '<input type="hidden" name="token" value="f2ca1bb6c7e907d06dafe4687e579fc'
+    "e76b37e4e93b7605022da52e6ccc26fd2\"><div class='form-group'>"
+    "    <div class='input-row'>"
+)
