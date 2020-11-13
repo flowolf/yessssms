@@ -98,14 +98,16 @@ test_release:
   image: python:3.8-alpine
   script:
     - echo $CI_SERVER_HOST
-    - pip install requests
+    - pip install -r requirements.txt
     - |2
       python3 -c 'import sys as s; import requests as r; import YesssSMS;
       v = YesssSMS.const.VERSION
-      g = r.get("https://test.pypi.org/project/YesssSMS/"+v+"/");
-      if g.status_code == 200:
+      g = r.get("https://pypi.org/project/YesssSMS/"+v+"/");
+      if g.status_code != 200:
+        print("version not existing, continuing...")
+      else:
         print("{} already released".format(v))
-        s.exit(-1)' || exit 0
+        s.exit(-1)'
     - apk add --no-cache --virtual .build-deps gcc musl-dev python3-dev libffi-dev openssl-dev
     - pip install twine
     - rm -rf dist
@@ -137,14 +139,16 @@ release:
   image: python:3.8-alpine
   script:
     - echo $CI_SERVER_HOST
-    - pip install requests
+    - pip install -r requirements.txt
     - |2
       python3 -c 'import sys as s; import requests as r; import YesssSMS;
       v = YesssSMS.const.VERSION
       g = r.get("https://pypi.org/project/YesssSMS/"+v+"/");
-      if g.status_code == 200:
+      if g.status_code != 200:
+        print("version not existing, continuing...")
+      else:
         print("{} already released".format(v))
-        s.exit(-1)' || exit 0
+        s.exit(-1)'
     - apk add --no-cache --virtual .build-deps gcc musl-dev python3-dev libffi-dev openssl-dev
     - pip install twine
     - rm -rf dist

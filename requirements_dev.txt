@@ -1,6 +1,7 @@
 pytest
 pytest-cov
 requests
+beautifulsoup4
 requests-mock
 tox
 black
