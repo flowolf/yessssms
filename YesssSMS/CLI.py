@@ -266,7 +266,7 @@ class CLI:
 
         self.recipient = recipient
         self.message = message
-        self.yessssms.send(default_recipient or recipient, self.message)
+        self.yessssms.send(recipient, self.message)
         return 0
 
 
