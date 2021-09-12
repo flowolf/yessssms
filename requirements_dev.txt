@@ -12,3 +12,4 @@ flake8-import-order>=0.9
 flake8-typing-imports>=1.1
 pep8-naming
 pylint
+pre-commit
