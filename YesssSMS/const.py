@@ -2,8 +2,10 @@
 import json
 import os
 
-VERSION = ''
-with open(os.path.dirname(os.path.realpath(__file__)) + "/version.json") as f:
+VERSION = ""
+with open(
+    os.path.dirname(os.path.realpath(__file__)) + "/version.json", encoding="utf-8"
+) as f:
     VERSION = json.loads(f.read())["version"]
 _UNSUPPORTED_CHARS_STRING = "<strong>Achtung:</strong> Ihre SMS konnte nicht \
 versendet werden, da sie folgende ungültige Zeichen enthält:"
