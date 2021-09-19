@@ -133,10 +133,9 @@ class YesssSMS:
         else:
             if self._provider not in PROVIDER_URLS:
                 available_providers = list(PROVIDER_URLS.keys())
-                error_mess = "provider ({}) is not known to YesssSMS, ".format(
-                    self._provider
-                ) + "try one of the following: {}".format(
-                    ", ".join(available_providers)
+                error_mess = (
+                    f"provider ({self._provider}) is not known to YesssSMS, "
+                    + f"try one of the following: {', '.join(available_providers)}"
                 )
                 raise self.UnsupportedProviderError(error_mess)
             urls = PROVIDER_URLS[self._provider]
@@ -183,9 +182,7 @@ class YesssSMS:
             soup = BeautifulSoup(resp.text, "html.parser")
             token = soup.find(id=_SMS_FORM_ID).input[_SMS_FORM_ID_VALUE]
         except (KeyError, AttributeError) as err:
-            raise self.SMSSendingError(
-                "YesssSMS: could not get token (2): {}".format(err)
-            )
+            raise self.SMSSendingError(f"YesssSMS: could not get token (2): {err}")
         if token == "":
             raise self.SMSSendingError("YesssSMS: could not get token (3)")
         return token

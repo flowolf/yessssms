@@ -70,7 +70,7 @@ class CLI:
     @staticmethod
     def version_info():
         """Display version information."""
-        print("yessssms {}".format(YesssSMS("", "").version()))
+        print(f"yessssms {YesssSMS('', '').version()}")
 
     @staticmethod
     def print_config_file():
@@ -178,11 +178,11 @@ class CLI:
             KeyError,
             configparser.NoSectionError,
             configparser.MissingSectionHeaderError,
-        ) as ex:
+        ) as err:
             # only interested in missing settings if custom file is defined
             # else ignore it.
             if config_file:
-                print("error: settings not found: {}".format(ex))
+                print(f"error: settings not found: {err}")
                 raise self.MissingSettingsError()
 
         return (login, passwd, default_recipient, provider, custom_provider_urls)
@@ -244,7 +244,7 @@ class CLI:
         if args.check_login:
             valid = self.yessssms.login_data_valid()
             text = ("ok", "") if valid else ("error", "NOT ")
-            print("{}: login data is {}valid.".format(text[0], text[1]))
+            print(f"{text[0]}: login data is {text[1]}valid.")
             return 0 if valid else 1
 
         if args.message == "-":
@@ -259,8 +259,9 @@ class CLI:
             message = args.message
 
         if args.test:
-            message = message or "yessssms (" + VERSION + ") test message at {}".format(
-                datetime.now().isoformat()
+            message = (
+                message
+                or f"yessssms ({VERSION}) test message at {datetime.now().isoformat()}"
             )
         recipient = args.recipient or default_recipient or login
 
