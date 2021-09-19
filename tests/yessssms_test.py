@@ -559,7 +559,9 @@ def test_cli_connection_error(config, connection_error, capsys):
     assert "error: could not connect to provider. " in capsys.readouterr().out
 
 
-def test_login_url_getter(config,):
+def test_login_url_getter(
+    config,
+):
     """Test login url getter."""
     sms = YesssSMS.YesssSMS(LOGIN, YESSS_PASSWD)
 
@@ -567,7 +569,9 @@ def test_login_url_getter(config,):
     assert login_url == YesssSMS.const.PROVIDER_URLS["yesss"]["LOGIN_URL"]
 
 
-def test_provider_getter(config,):
+def test_provider_getter(
+    config,
+):
     """Test provider getter."""
     sms = YesssSMS.YesssSMS(LOGIN, YESSS_PASSWD, provider="goood")
     provider = sms.get_provider()
@@ -576,7 +580,9 @@ def test_provider_getter(config,):
     assert provider == sms._provider
 
 
-def test_credentials_work(config,):
+def test_credentials_work(
+    config,
+):
     """Test for working credentials."""
     with requests_mock.Mocker() as m:
         sms = YesssSMS.YesssSMS(LOGIN, YESSS_PASSWD)
@@ -617,7 +623,9 @@ def test_credentials_work(config,):
         assert sms._logindata["login_passwort"]
 
 
-def test_login(config,):
+def test_login(
+    config,
+):
     """Test if login works."""
     with requests_mock.Mocker() as m:
         sms = YesssSMS.YesssSMS(LOGIN, YESSS_PASSWD)
@@ -661,7 +669,9 @@ def test_empty_message(config, valid_connection):
         sms.send(YESSS_TO, "")
 
 
-def test_login_error(config,):
+def test_login_error(
+    config,
+):
     """Test error handling of faulty login."""
     with requests_mock.Mocker() as m:
         sms = YesssSMS.YesssSMS("0000000000", "2d4faa0ea6f55813")
@@ -682,7 +692,9 @@ def test_login_error(config,):
             sms.send(YESSS_TO, "test")
 
 
-def test_login_empty_password_error(config,):
+def test_login_empty_password_error(
+    config,
+):
     """Test error handling of empty password."""
     with pytest.raises(YesssSMS.YesssSMS.MissingLoginCredentialsError):
         _ = YesssSMS.YesssSMS("0000000000", None)
@@ -695,21 +707,27 @@ def test_login_empty_login_error(invalid_login):  # xxxxxx
         sms.send(YESSS_TO, "test")
 
 
-def test_no_recipient_error(config,):
+def test_no_recipient_error(
+    config,
+):
     """Test error handling of no recipient."""
     sms = YesssSMS.YesssSMS("0000000000", "2d4faa0ea6f55813")
     with pytest.raises(sms.NoRecipientError):
         sms.send("", "test")
 
 
-def test_recipient_not_str_error(config,):
+def test_recipient_not_str_error(
+    config,
+):
     """Test error handling of wrong recipient data type."""
     sms = YesssSMS.YesssSMS("0000000000", "2d4faa0ea6f55813")
     with pytest.raises(ValueError):
         sms.send(176264916361239, "test")
 
 
-def test_message_sending_error(config,):
+def test_message_sending_error(
+    config,
+):
     """Test handling of status codes other than 200 and 302."""
     with requests_mock.Mocker() as m:
         sms = YesssSMS.YesssSMS("0000000000", "2d4faa0ea6f55813")
@@ -751,7 +769,9 @@ def test_message_sending_error(config,):
             sms.send(YESSS_TO, "test")
 
 
-def test_unsupported_chars_error(config,):
+def test_unsupported_chars_error(
+    config,
+):
     """Test error handling for unsupported chars."""
     with requests_mock.Mocker() as m:
         sms = YesssSMS.YesssSMS("0000000000", "2d4faa0ea6f55813")
@@ -793,7 +813,9 @@ def test_unsupported_chars_error(config,):
             sms.send(YESSS_TO, "test")
 
 
-def test_sms_sending_error(config,):
+def test_sms_sending_error(
+    config,
+):
     """Test error handling for missing success string."""
     with requests_mock.Mocker() as m:
         sms = YesssSMS.YesssSMS("0000000000", "2d4faa0ea6f55813")
@@ -835,7 +857,9 @@ def test_sms_sending_error(config,):
             sms.send(YESSS_TO, "test")
 
 
-def test_login_suspended_error(config,):
+def test_login_suspended_error(
+    config,
+):
     """Test error handling for suspended account."""
     with requests_mock.Mocker() as m:
         # non existing user and password
@@ -863,7 +887,9 @@ def test_login_suspended_error(config,):
         assert sms.account_is_suspended() is True
 
 
-def test_send_sms(config,):
+def test_send_sms(
+    config,
+):
     """Test SMS sending."""
     with requests_mock.Mocker() as m:
         sms = YesssSMS.YesssSMS(LOGIN, YESSS_PASSWD)
@@ -924,7 +950,9 @@ def test_cli_version_info(config, capsys):
     assert captured.out == "yessssms " + VERSION + "\n"
 
 
-def test_cli_boolean_args(config,):
+def test_cli_boolean_args(
+    config,
+):
     """Test parser for boolean arguments."""
     args = CLI.parse_args(["--version"])
     assert args.version is True
@@ -939,7 +967,9 @@ def test_cli_boolean_args(config,):
     assert args.check_login is True
 
 
-def test_cli_argparse(config,):
+def test_cli_argparse(
+    config,
+):
     """Test parser for different arguments."""
     args = CLI.parse_args(["-t", "0664123456"])
     assert args.recipient == "0664123456"
@@ -984,7 +1014,9 @@ def test_cli_argparse(config,):
     assert args.provider == "BLABLABLA"
 
 
-def test_cli_with_test_args(config,):
+def test_cli_with_test_args(
+    config,
+):
     """Test command line arguments with --test."""
     testargs = [
         "yessssms",
@@ -1138,7 +1170,9 @@ def test_cli_with_no_login_or_password(config, capsys, valid_connection):
     assert "error: no username or password defined " in captured.out
 
 
-def test_cli_with_mvno_arg_error(config,):
+def test_cli_with_mvno_arg_error(
+    config,
+):
     """Test command line arguments with wrong --mvno."""
     from YesssSMS.YesssSMS import YesssSMS
 
@@ -1160,7 +1194,9 @@ def test_cli_with_mvno_arg_error(config,):
             cli_run()
 
 
-def test_cli_stdin(config,):
+def test_cli_stdin(
+    config,
+):
     """Test command line with stdin."""
     from YesssSMS.YesssSMS import MAX_MESSAGE_LENGTH_STDIN
 
@@ -1237,7 +1273,9 @@ Und bin so klug als wie zuvor;"""
     assert message == in_message[:MAX_MESSAGE_LENGTH_STDIN]
 
 
-def test_cli_with_mvno_educom_arg(config,):
+def test_cli_with_mvno_educom_arg(
+    config,
+):
     """Test command line arguments with --mvno."""
     from YesssSMS.const import PROVIDER_URLS
 
@@ -1299,7 +1337,9 @@ def test_cli_with_mvno_educom_arg(config,):
             assert sms_form_url == "https://educom.kontomanager.at/websms.php"
 
 
-def test_cli_with_mvno_simfonie_arg(config,):
+def test_cli_with_mvno_simfonie_arg(
+    config,
+):
     """Test command line arguments with --mvno."""
     from YesssSMS.const import PROVIDER_URLS
 
@@ -1363,7 +1403,9 @@ def test_cli_with_mvno_simfonie_arg(config,):
             assert send_sms_url == "https://simfonie.kontomanager.at/websms_send.php"
 
 
-def test_cli_with_mvno_div_arg(config,):
+def test_cli_with_mvno_div_arg(
+    config,
+):
     """Test command line arguments with --mvno."""
     from YesssSMS.const import PROVIDER_URLS
 
@@ -1425,13 +1467,17 @@ def test_cli_with_mvno_div_arg(config,):
                 assert sms_form_url == sms._sms_form_url
 
 
-def test_default_config_file_paths(config,):
+def test_default_config_file_paths(
+    config,
+):
     """Test default config file paths."""
     assert "~/.config/yessssms.conf" in CONFIG_FILE_PATHS
     assert "/etc/yessssms.conf" in CONFIG_FILE_PATHS
 
 
-def test_custom_provider_setting(config,):
+def test_custom_provider_setting(
+    config,
+):
     """Test custom provider setting."""
     sms = YesssSMS.YesssSMS(
         LOGIN,
