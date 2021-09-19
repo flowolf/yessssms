@@ -227,7 +227,7 @@ class YesssSMS:
             }
             req = sess.post(self._send_sms_url, data=sms_data)
 
-            if not req.status_code in (200, 302):
+            if req.status_code not in (200, 302):
                 raise self.SMSSendingError("YesssSMS: error sending SMS (1)")
 
             if _UNSUPPORTED_CHARS_STRING in req.text:
