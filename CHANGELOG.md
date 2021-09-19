@@ -1,5 +1,9 @@
 # YesssSMS Changelog
 
+## 0.6.0
+
+- drop python 3.5 support
+
 ## 0.5.0
 
 - fix breaking change by kontomanager.at

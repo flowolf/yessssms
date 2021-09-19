@@ -5,21 +5,21 @@
 YesssSMS let's you send SMS via yesss.at's website. Regular rates apply and a
 contract or prepaid plan is needed.
 
-
 Alternatively you can use MVNOs (Mobile Virtual Network Operators) that use the kontomanager.at web interface.
 These include:
-* YESSS
-* billitel
-* EDUCOM
-* fenercell
-* georg
-* goood
-* kronemobile
-* kuriermobil
-* SIMfonie
-* teleplanet
-* WOWWW
-* yooopi
+
+- YESSS
+- billitel
+- EDUCOM
+- fenercell
+- georg
+- goood
+- kronemobile
+- kuriermobil
+- SIMfonie
+- teleplanet
+- WOWWW
+- yooopi
 
 ![all provider logos](https://gitlab.com/flowolf/yessssms/raw/master/logo/all.png "supported providers")
 
@@ -30,14 +30,16 @@ use the `--mvno` flag to set your provider, or define it in the config file.
 This module is not suitable for batch SMS sending.
 Each send() call logs in and out of your provider's website.
 
-Currently the library supports Python 3.5+, and is [tested against Python 3.5 to 3.9](https://gitlab.com/flowolf/yessssms/-/jobs).
+Currently the library supports Python 3.6+, and is [tested against Python 3.6 to 3.9](https://gitlab.com/flowolf/yessssms/-/jobs).
 
 ### Install
+
 ```bash
 > pip3 install YesssSMS
 ```
 
 ### Usage
+
 ```python
 >>> from YesssSMS import YesssSMS
 >>> sms = YesssSMS(YOUR_LOGIN, YOUR_PASSWORD)
@@ -55,6 +57,7 @@ Currently the library supports Python 3.5+, and is [tested against Python 3.5 to
 ```
 
 ### Command Line Usage
+
 ```bash
 > yessssms --print-config-file > ~/.config/yessssms.conf
 # edit the config file, set a login, password, default recipient, and MVNO

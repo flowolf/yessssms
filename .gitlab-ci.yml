@@ -69,15 +69,6 @@ test:3.6:
     - pytest --version
     - tox -e py36
 
-test:3.5:
-  stage: test
-  image: python:3.5-alpine
-  script:
-    - apk add py3-pip python3-dev
-    - pip3 install -r requirements_test.txt
-    - pytest --version
-    - tox -e py35
-
 pages:
   stage: docs
   image: python:3.8-slim-buster

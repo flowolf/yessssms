@@ -374,7 +374,7 @@ def test_cli_mocked_config_file(
     valid_mock_connection, mocked_config_file_custom_provider
 ):
     """Test CLI config file."""
-    if int(sys.version[2]) < 7:  # don't run test on 3.5, 3.6
+    if int(sys.version[2]) < 7:  # don't run test on 3.6
         pytest.skip("issue with mock_open")
 
     testargs = ["yessssms", "-m", "Bilde mir nicht ein was rechts zu wissen"]
