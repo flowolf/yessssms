@@ -374,7 +374,7 @@ def test_cli_mocked_config_file(
     valid_mock_connection, mocked_config_file_custom_provider
 ):
     """Test CLI config file."""
-    if int(sys.version[2]) < 7:  # don't run test on 3.6
+    if int(sys.version.split(".")[1]) < 7:  # don't run test on 3.6
         pytest.skip("issue with mock_open")
 
     testargs = ["yessssms", "-m", "Bilde mir nicht ein was rechts zu wissen"]
@@ -395,7 +395,7 @@ def test_cli_mocked_config_file(
 
 def test_goood_cli_mocked_config_file(valid_goood_mock_connection, mocked_config_file):
     """Test CLI config file."""
-    if int(sys.version[2]) < 7:  # don't run test on 3.5, 3.6
+    if int(sys.version.split(".")[1]) < 7:  # don't run test on 3.6
         pytest.skip("issue with mock_open")
 
     testargs = ["yessssms", "-m", "Bilde mir nicht ein was rechts zu wissen"]
@@ -428,7 +428,7 @@ def test_cli_mocked_config_file_error(
     valid_mock_connection, mocked_config_file_error, capsys
 ):
     """Test CLI config file error."""
-    if int(sys.version[2]) < 7:  # don't run test on 3.5, 3.6
+    if int(sys.version.split(".")[1]) < 7:  # don't run test on 3.6
         pytest.skip("issue with mock_open")
 
     testargs = [
@@ -451,7 +451,7 @@ def test_cli_suspended_error(
     valid_mock_connection, mocked_config_file_custom_provider, suspended_error, capsys
 ):
     """Test CLI suspended error."""
-    if int(sys.version[2]) < 7:  # don't run test on 3.5, 3.6
+    if int(sys.version.split(".")[1]) < 7:  # don't run test on 3.6
         pytest.skip("issue with mock_open")
 
     testargs = ["yessssms", "-m", "Bilde mir nicht ein was rechts zu wissen"]
@@ -470,7 +470,7 @@ def test_cli_sending_error(
     valid_mock_connection, mocked_config_file_custom_provider, sending_error, capsys
 ):
     """Test CLI SMS sending error."""
-    if int(sys.version[2]) < 7:  # don't run test on 3.5, 3.6
+    if int(sys.version.split(".")[1]) < 7:  # don't run test on 3.6
         pytest.skip("issue with mock_open")
 
     testargs = ["yessssms", "-m", "Bilde mir nicht ein was rechts zu wissen"]
@@ -489,7 +489,7 @@ def test_cli_unsupported_chars_error(
     capsys,
 ):
     """Test CLI unsupported chars error."""
-    if int(sys.version[2]) < 7:  # don't run test on 3.5, 3.6
+    if int(sys.version.split(".")[1]) < 7:  # don't run test on 3.6
         pytest.skip("issue with mock_open")
 
     testargs = ["yessssms", "-m", "Bilde mir nicht ein was rechts zu wissen"]
@@ -508,7 +508,7 @@ def test_cli_empty_message_error(
     capsys,
 ):
     """Test CLI empty_message error."""
-    if int(sys.version[2]) < 7:  # don't run test on 3.5, 3.6
+    if int(sys.version.split(".")[1]) < 7:  # don't run test on 3.6
         pytest.skip("issue with mock_open")
 
     testargs = ["yessssms", "-m", "Bilde mir nicht ein was rechts zu wissen"]
