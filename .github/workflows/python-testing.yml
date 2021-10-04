@@ -6,42 +6,42 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.9
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install flake8 pytest pylint
-        if [ -f requirements_test.txt ]; then pip install -r requirements_test.txt; fi
-    - name: Lint with flake8
-      run: |
-        flake8 YesssSMS/ tests/ setup.py
-    - name: Lint with pylint
-      run: |
-        pylint -d C0330,C0103 YesssSMS
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 pytest pylint
+          if [ -f requirements_test.txt ]; then pip install -r requirements_test.txt; fi
+      - name: Lint with flake8
+        run: |
+          flake8 YesssSMS/ tests/ setup.py
+      - name: Lint with pylint
+        run: |
+          pylint -d C0330,C0103 YesssSMS
 
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9]
+        python-version: [3.6, 3.7, 3.8, 3.9, "3.10.0-alpha.2"]
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install flake8 pytest
-        if [ -f requirements_test.txt ]; then pip install -r requirements_test.txt; fi
-    - name: Test with pytest
-      run: |
-        pytest
-        pytest -v --cov=YesssSMS tests
-        pytest --cov=YesssSMS --cov-report=html tests
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 pytest
+          if [ -f requirements_test.txt ]; then pip install -r requirements_test.txt; fi
+      - name: Test with pytest
+        run: |
+          pytest
+          pytest -v --cov=YesssSMS tests
+          pytest --cov=YesssSMS --cov-report=html tests

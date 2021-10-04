@@ -1,5 +1,9 @@
 # YesssSMS Changelog
 
+## 0.6.1
+
+- add tests for python 3.10
+
 ## 0.6.0
 
 - drop python 3.5 support
