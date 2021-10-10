@@ -23,7 +23,7 @@ style:pylint:
 
 test:3.10:
   stage: test
-  image: python:3.10.0rc2-alpine
+  image: python:3.10-alpine
   script:
     - apk add py-pip python3-dev
     - pip3 install -r requirements_test.txt
