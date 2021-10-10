@@ -1589,9 +1589,7 @@ def test_csrf_token_error_1(
         provider = PROVIDER_URLS[sms.get_provider().lower()]
 
         login_url = provider["LOGIN_URL"]
-        logout_url = provider["LOGOUT_URL"]
         kontomanager_url = provider["KONTOMANAGER_URL"]
-        sms_form_url = provider["WEBSMS_FORM_URL"]
         send_sms_url = provider["SEND_SMS_URL"]
 
         m.register_uri(
@@ -1605,7 +1603,8 @@ def test_csrf_token_error_1(
         csrf_text = (
             "<form action='websms_send.php' name='sms' id='smsform_not_found'"
             " method='post' onSubmit=\"return validate()\">"
-            '<input type="hidden" name="token_not_found" value="f2ca1bb6c7e907d06dafe4687e579fc'
+            '<input type="hidden" name="token_not_found" value="'
+            "f2ca1bb6c7e907d06dafe4687e579fc"
             "e76b37e4e93b7605022da52e6ccc26fd2\"><div class='form-group'>"
             "    <div class='input-row'>"
         )
@@ -1630,9 +1629,9 @@ def test_csrf_token_error_1(
         )
         with pytest.raises(sms.SMSSendingError) as ex:
             sms.send(YESSS_TO, "test")
-        assert (
-            str(ex)
-            == "<ExceptionInfo SMSSendingError('YesssSMS: could not get token (1)') tblen=4>"
+        assert str(ex) == (
+            "<ExceptionInfo SMSSendingError('YesssSMS: could not get token (1)"
+            "') tblen=4>"
         )
 
 
@@ -1651,9 +1650,7 @@ def test_csrf_token_error_2(
         provider = PROVIDER_URLS[sms.get_provider().lower()]
 
         login_url = provider["LOGIN_URL"]
-        logout_url = provider["LOGOUT_URL"]
         kontomanager_url = provider["KONTOMANAGER_URL"]
-        sms_form_url = provider["WEBSMS_FORM_URL"]
         send_sms_url = provider["SEND_SMS_URL"]
 
         m.register_uri(
@@ -1667,7 +1664,8 @@ def test_csrf_token_error_2(
         csrf_text = (
             "<form action='websms_send.php' name='sms' id='smsform_not_found'"
             " method='post' onSubmit=\"return validate()\">"
-            '<input type="hidden" name="token_not_found" value="f2ca1bb6c7e907d06dafe4687e579fc'
+            '<input type="hidden" name="token_not_found" value="'
+            "f2ca1bb6c7e907d06dafe4687e579fc"
             "e76b37e4e93b7605022da52e6ccc26fd2\"><div class='form-group'>"
             "    <div class='input-row'>"
         )
@@ -1713,9 +1711,7 @@ def test_csrf_token_error_3(
         provider = PROVIDER_URLS[sms.get_provider().lower()]
 
         login_url = provider["LOGIN_URL"]
-        logout_url = provider["LOGOUT_URL"]
         kontomanager_url = provider["KONTOMANAGER_URL"]
-        sms_form_url = provider["WEBSMS_FORM_URL"]
         send_sms_url = provider["SEND_SMS_URL"]
 
         m.register_uri(
@@ -1754,7 +1750,6 @@ def test_csrf_token_error_3(
         )
         with pytest.raises(sms.SMSSendingError) as ex:
             sms.send(YESSS_TO, "test")
-        assert (
-            str(ex)
-            == "<ExceptionInfo SMSSendingError('YesssSMS: could not get token (3)') tblen=4>"
+        assert str(ex).startswith(
+            "<ExceptionInfo SMSSendingError('YesssSMS: could not get token (3)'"
         )
