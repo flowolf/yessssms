@@ -1572,3 +1572,189 @@ def test_read_env_config4(config, environment_vars_set):
     del os.environ["YESSSSMS_PROVIDER"]
     sms = YesssSMS.YesssSMS()
     assert sms._provider == "yesss"
+
+
+def test_csrf_token_error_1(
+    config,
+    valid_connection,
+):
+    """Test error from csrf token handling."""
+    with requests_mock.Mocker() as m:
+        sms = YesssSMS.YesssSMS(
+            "0000000000",
+            "2d4faa0ea6f55813",
+        )
+        from YesssSMS.const import PROVIDER_URLS
+
+        provider = PROVIDER_URLS[sms.get_provider().lower()]
+
+        login_url = provider["LOGIN_URL"]
+        logout_url = provider["LOGOUT_URL"]
+        kontomanager_url = provider["KONTOMANAGER_URL"]
+        sms_form_url = provider["WEBSMS_FORM_URL"]
+        send_sms_url = provider["SEND_SMS_URL"]
+
+        m.register_uri(
+            "POST",
+            login_url,
+            status_code=302,
+            # pylint: disable=protected-access
+            headers={"location": kontomanager_url},
+        )
+        m.register_uri("GET", kontomanager_url, status_code=200)
+        csrf_text = (
+            "<form action='websms_send.php' name='sms' id='smsform_not_found'"
+            " method='post' onSubmit=\"return validate()\">"
+            '<input type="hidden" name="token_not_found" value="f2ca1bb6c7e907d06dafe4687e579fc'
+            "e76b37e4e93b7605022da52e6ccc26fd2\"><div class='form-group'>"
+            "    <div class='input-row'>"
+        )
+        m.register_uri(
+            "GET",
+            # pylint: disable=protected-access
+            sms._sms_form_url,
+            status_code=500,
+            text=csrf_text,
+        )
+        m.register_uri(
+            "POST",
+            send_sms_url,
+            status_code=200,
+            text="<h1>Ihre SMS wurde erfolgreich " + "verschickt!</h1>",
+        )
+        m.register_uri(
+            "GET",
+            # pylint: disable=protected-access
+            sms._logout_url,
+            status_code=200,
+        )
+        with pytest.raises(sms.SMSSendingError) as ex:
+            sms.send(YESSS_TO, "test")
+        assert (
+            str(ex)
+            == "<ExceptionInfo SMSSendingError('YesssSMS: could not get token (1)') tblen=4>"
+        )
+
+
+def test_csrf_token_error_2(
+    config,
+    valid_connection,
+):
+    """Test error from csrf token handling."""
+    with requests_mock.Mocker() as m:
+        sms = YesssSMS.YesssSMS(
+            "0000000000",
+            "2d4faa0ea6f55813",
+        )
+        from YesssSMS.const import PROVIDER_URLS
+
+        provider = PROVIDER_URLS[sms.get_provider().lower()]
+
+        login_url = provider["LOGIN_URL"]
+        logout_url = provider["LOGOUT_URL"]
+        kontomanager_url = provider["KONTOMANAGER_URL"]
+        sms_form_url = provider["WEBSMS_FORM_URL"]
+        send_sms_url = provider["SEND_SMS_URL"]
+
+        m.register_uri(
+            "POST",
+            login_url,
+            status_code=302,
+            # pylint: disable=protected-access
+            headers={"location": kontomanager_url},
+        )
+        m.register_uri("GET", kontomanager_url, status_code=200)
+        csrf_text = (
+            "<form action='websms_send.php' name='sms' id='smsform_not_found'"
+            " method='post' onSubmit=\"return validate()\">"
+            '<input type="hidden" name="token_not_found" value="f2ca1bb6c7e907d06dafe4687e579fc'
+            "e76b37e4e93b7605022da52e6ccc26fd2\"><div class='form-group'>"
+            "    <div class='input-row'>"
+        )
+        m.register_uri(
+            "GET",
+            # pylint: disable=protected-access
+            sms._sms_form_url,
+            status_code=200,
+            text=csrf_text,
+        )
+        m.register_uri(
+            "POST",
+            send_sms_url,
+            status_code=200,
+            text="<h1>Ihre SMS wurde erfolgreich " + "verschickt!</h1>",
+        )
+        m.register_uri(
+            "GET",
+            # pylint: disable=protected-access
+            sms._logout_url,
+            status_code=200,
+        )
+        with pytest.raises(sms.SMSSendingError) as ex:
+            sms.send(YESSS_TO, "test")
+        assert str(ex).startswith(
+            '<ExceptionInfo SMSSendingError("YesssSMS: could not get token (2):'
+        )
+        # assert str(ex).startswith("YesssSMS: could not get token (2)")
+
+
+def test_csrf_token_error_3(
+    config,
+    valid_connection,
+):
+    """Test error from csrf token handling."""
+    with requests_mock.Mocker() as m:
+        sms = YesssSMS.YesssSMS(
+            "0000000000",
+            "2d4faa0ea6f55813",
+        )
+        from YesssSMS.const import PROVIDER_URLS
+
+        provider = PROVIDER_URLS[sms.get_provider().lower()]
+
+        login_url = provider["LOGIN_URL"]
+        logout_url = provider["LOGOUT_URL"]
+        kontomanager_url = provider["KONTOMANAGER_URL"]
+        sms_form_url = provider["WEBSMS_FORM_URL"]
+        send_sms_url = provider["SEND_SMS_URL"]
+
+        m.register_uri(
+            "POST",
+            login_url,
+            status_code=302,
+            # pylint: disable=protected-access
+            headers={"location": kontomanager_url},
+        )
+        m.register_uri("GET", kontomanager_url, status_code=200)
+        csrf_text = (
+            "<form action='websms_send.php' name='sms' id='smsform'"
+            " method='post' onSubmit=\"return validate()\">"
+            '<input type="hidden" name="token" value="'
+            "\"><div class='form-group'>"
+            "    <div class='input-row'>"
+        )
+        m.register_uri(
+            "GET",
+            # pylint: disable=protected-access
+            sms._sms_form_url,
+            status_code=200,
+            text=csrf_text,
+        )
+        m.register_uri(
+            "POST",
+            send_sms_url,
+            status_code=200,
+            text="<h1>Ihre SMS wurde erfolgreich " + "verschickt!</h1>",
+        )
+        m.register_uri(
+            "GET",
+            # pylint: disable=protected-access
+            sms._logout_url,
+            status_code=200,
+        )
+        with pytest.raises(sms.SMSSendingError) as ex:
+            sms.send(YESSS_TO, "test")
+        assert (
+            str(ex)
+            == "<ExceptionInfo SMSSendingError('YesssSMS: could not get token (3)') tblen=4>"
+        )
