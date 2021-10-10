@@ -1629,9 +1629,8 @@ def test_csrf_token_error_1(
         )
         with pytest.raises(sms.SMSSendingError) as ex:
             sms.send(YESSS_TO, "test")
-        assert str(ex) == (
+        assert str(ex).startswith(
             "<ExceptionInfo SMSSendingError('YesssSMS: could not get token (1)"
-            "') tblen=4>"
         )
 
 
