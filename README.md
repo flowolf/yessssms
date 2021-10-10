@@ -8,6 +8,8 @@ contract or prepaid plan is needed.
 Alternatively you can use MVNOs (Mobile Virtual Network Operators) that use the kontomanager.at web interface.
 These include:
 
+<img align="right" src="https://gitlab.com/flowolf/yessssms/raw/master/logo/all.png" style="float:right;" />
+
 - YESSS
 - billitel
 - EDUCOM
@@ -20,8 +22,6 @@ These include:
 - teleplanet
 - WOWWW
 - yooopi
-
-![all provider logos](https://gitlab.com/flowolf/yessssms/raw/master/logo/all.png "supported providers")
 
 Use your website login and password.
 
