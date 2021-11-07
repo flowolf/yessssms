@@ -16,7 +16,7 @@ style:flake8:
 
 style:pylint:
   stage: style
-  image: python:3.8-slim-buster
+  image: python:3.8-slim-bullseye
   script:
     - pip3 install pylint tox
     - tox -e pylint
@@ -84,7 +84,7 @@ test:3.6:
 
 pages:
   stage: docs
-  image: python:3.8-slim-buster
+  image: python:3.8-slim-bullseye
   script:
     - apt-get update
     - apt-get install make
