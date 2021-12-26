@@ -1,12 +1,16 @@
 # YesssSMS Changelog
 
+## 0.7.0
+
+- dropping Python 3.6
+
 ## 0.6.1
 
-- add tests for python 3.10
+- add tests for Python 3.10
 
 ## 0.6.0
 
-- drop python 3.5 support
+- drop Python 3.5 support
 
 ## 0.5.0
 
@@ -26,7 +30,7 @@
 
 ## 0.4.3
 
-- added tests for python3.9
+- added tests for Python 3.9
 
 ## 0.4.2
 
@@ -55,6 +59,6 @@
 ## 0.3.0
 
 - added command line interface (CLI)
-- dropped python3.4 support
+- dropped Python 3.4 support
 - better error handling
 - switched official yessssms repo to gitlab
