@@ -1,5 +1,9 @@
 # YesssSMS Changelog
 
+## 0.7.1
+
+- readme update
+
 ## 0.7.0
 
 - dropping Python 3.6
