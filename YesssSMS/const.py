@@ -145,7 +145,8 @@ HELP = {
     "print-config-file": "prints a sample config file, that can be piped \
           into eg. ~/.config/yessssms.conf.",
 }
-CONFIG_FILE_CONTENT = """# place this file, with correct credentials, at /etc/yessssms.conf
+CONFIG_FILE_CONTENT = """\
+# place this file, with correct credentials, at /etc/yessssms.conf
 # or ~/.config/yessssms.conf
 [YESSSSMS]
 LOGIN =  06501234567
