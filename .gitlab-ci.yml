@@ -21,6 +21,19 @@ style:pylint:
     - pip3 install pylint tox
     - tox -e pylint
 
+test:3.11:
+  stage: test
+  image: python:3.11-alpine
+  script:
+    - apk add py-pip python3-dev
+    - pip3 install -r requirements_test.txt
+    - pytest --version
+    - tox -e py311
+  artifacts:
+    paths:
+      - htmlcov
+    expire_in: 2 weeks
+
 test:3.10:
   stage: test
   image: python:3.10-alpine
