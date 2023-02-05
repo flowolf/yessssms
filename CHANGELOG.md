@@ -1,5 +1,9 @@
 # YesssSMS Changelog
 
+## 0.7.2
+
+- support for Python 3.11, fixed tests, changed naming of YesssSMS/YesssSMS.py to YesssSMS/api.py.
+
 ## 0.7.1
 
 - readme update
