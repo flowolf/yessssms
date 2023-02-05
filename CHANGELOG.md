@@ -1,5 +1,9 @@
 # YesssSMS Changelog
 
+## 0.8.0
+
+- dropped Python 3.7 support
+
 ## 0.7.2
 
 - support for Python 3.11, fixed tests, changed naming of YesssSMS/YesssSMS.py to YesssSMS/api.py.
@@ -10,7 +14,7 @@
 
 ## 0.7.0
 
-- dropping Python 3.6
+- dropped Python 3.6 support
 
 ## 0.6.1
 
@@ -18,7 +22,7 @@
 
 ## 0.6.0
 
-- drop Python 3.5 support
+- dropped Python 3.5 support
 
 ## 0.5.0
 

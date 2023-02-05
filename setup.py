@@ -35,7 +35,7 @@ setup(
     packages=find_packages(exclude=["contrib", "docs", "tests", "logo"]),
     # List run-time dependencies here.  These will be installed by pip
     install_requires=["requests", "beautifulsoup4"],
-    python_requires=">=3.7",
+    python_requires=">=3.8",
     # To provide executable scripts, use entry points in preference to the
     # "scripts" keyword. Entry points provide cross-platform support and allow
     # pip to create the appropriate form of executable for the target platform.

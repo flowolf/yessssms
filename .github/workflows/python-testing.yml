@@ -21,13 +21,13 @@ jobs:
           flake8 YesssSMS/ tests/ setup.py
       - name: Lint with pylint
         run: |
-          pylint -d C0330,C0103 YesssSMS
+          pylint -d C0103 YesssSMS
 
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.7, 3.8, 3.9, "3.10", "3.11"]
+        python-version: [3.8, 3.9, "3.10", "3.11"]
 
     steps:
       - uses: actions/checkout@v2

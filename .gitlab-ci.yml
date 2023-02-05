@@ -8,7 +8,7 @@ stages:
 
 style:flake8:
   stage: style
-  image: python:3.8-alpine
+  image: python:3.10-alpine
   script:
     - apk add py3-pip python3-dev
     - pip3 install tox
@@ -16,7 +16,7 @@ style:flake8:
 
 style:pylint:
   stage: style
-  image: python:3.8-slim-bullseye
+  image: python:3.10-slim-bullseye
   script:
     - pip3 install pylint tox
     - tox -e pylint
@@ -73,22 +73,9 @@ test:3.8:
       - htmlcov
     expire_in: 2 weeks
 
-test:3.7:
-  stage: test
-  image: python:3.7-alpine
-  script:
-    - apk add py-pip python3-dev
-    - pip3 install -r requirements_test.txt
-    - pytest --version
-    - tox -e py37
-  artifacts:
-    paths:
-      - htmlcov
-    expire_in: 2 weeks
-
 pages:
   stage: docs
-  image: python:3.8-slim-bullseye
+  image: python:3.10-slim-bullseye
   script:
     - apt-get update
     - apt-get install make
@@ -106,7 +93,7 @@ pages:
 
 test_release:
   stage: release
-  image: python:3.8-alpine
+  image: python:3.10-alpine
   script:
     - echo $CI_SERVER_HOST
     - pip install -r requirements.txt
@@ -147,7 +134,7 @@ test_release:
 
 release:
   stage: release
-  image: python:3.8-alpine
+  image: python:3.10-alpine
   script:
     - echo $CI_SERVER_HOST
     - pip install -r requirements.txt
@@ -187,7 +174,7 @@ release:
 sms-on-failure:
   stage: sms
   when: on_failure
-  image: python:3.8-alpine
+  image: python:3.10-alpine
   script:
     - pip install -e .
     - yessssms -m "yessssms release failed! gitlab on ${CI_SERVER_HOST},
@@ -202,7 +189,7 @@ sms-on-success:
   stage: sms
   when: on_success
   allow_failure: true
-  image: python:3.8-alpine
+  image: python:3.10-alpine
   script:
     - pip install -e .
     - yessssms -m "yessssms ${CI_COMMIT_TAG} release succeeded! gitlab on ${CI_SERVER_HOST},
