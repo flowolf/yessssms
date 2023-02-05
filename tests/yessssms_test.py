@@ -233,7 +233,7 @@ def invalid_login(valid_connection):
 @pytest.fixture(name="connection_error")
 def simulate_connection_error(valid_connection):
     """Simulate a connection error with requests."""
-    path = "YesssSMS.YesssSMS._login"
+    path = "YesssSMS.api.YesssSMS._login"
     with mock.patch(path, side_effect=requests.exceptions.ConnectionError()):
         yield
 
@@ -241,7 +241,7 @@ def simulate_connection_error(valid_connection):
 @pytest.fixture(name="suspended_error")
 def simulate_suspended_error(valid_connection):
     """Simulate a suspended error."""
-    path = "YesssSMS.YesssSMS._login"
+    path = "YesssSMS.api.YesssSMS._login"
     with mock.patch(path, side_effect=YesssSMS.YesssSMS.AccountSuspendedError()):
         yield
 
@@ -249,7 +249,7 @@ def simulate_suspended_error(valid_connection):
 @pytest.fixture(name="sending_error")
 def simulate_sending_error(valid_connection):
     """Simulate a sending error."""
-    path = "YesssSMS.YesssSMS.send"
+    path = "YesssSMS.api.YesssSMS.send"
     with mock.patch(path, side_effect=YesssSMS.YesssSMS.SMSSendingError()):
         yield
 
@@ -257,7 +257,7 @@ def simulate_sending_error(valid_connection):
 @pytest.fixture(name="unsupported_chars_error")
 def simulate_unsupported_chars_error(valid_connection):
     """Simulate a sending error."""
-    path = "YesssSMS.YesssSMS.send"
+    path = "YesssSMS.api.YesssSMS.send"
     with mock.patch(path, side_effect=YesssSMS.YesssSMS.UnsupportedCharsError()):
         yield
 
@@ -265,7 +265,7 @@ def simulate_unsupported_chars_error(valid_connection):
 @pytest.fixture(name="empty_message_error")
 def simulate_empty_message_error(valid_connection):
     """Simulate a empty_message error."""
-    path = "YesssSMS.YesssSMS.send"
+    path = "YesssSMS.api.YesssSMS.send"
     with mock.patch(path, side_effect=YesssSMS.YesssSMS.EmptyMessageError):
         yield
 
@@ -1174,7 +1174,7 @@ def test_cli_with_mvno_arg_error(
     config,
 ):
     """Test command line arguments with wrong --mvno."""
-    from YesssSMS.YesssSMS import YesssSMS
+    from YesssSMS.api import YesssSMS
 
     testargs = [
         "yessssms",
@@ -1198,7 +1198,7 @@ def test_cli_stdin(
     config,
 ):
     """Test command line with stdin."""
-    from YesssSMS.YesssSMS import MAX_MESSAGE_LENGTH_STDIN
+    from YesssSMS.api import MAX_MESSAGE_LENGTH_STDIN
 
     testargs = ["yessssms", "--test", "-l", "06641234567", "-p", "passw0rd", "-m", "-"]
 
