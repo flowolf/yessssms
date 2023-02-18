@@ -56,6 +56,18 @@ Currently the library supports Python 3.8+, and is [tested against Python 3.8 to
 >>> sms.send("06641234567", "hello future self, your pipeline failed :(")
 ```
 
+```python
+# sending multiple SMS
+from YesssSMS import YesssSMS
+import requests
+sms = YesssSMS()
+with sms._login(requests.Session()) as sess:
+    sms._send(session=sess, recipient="06641234567", message="hi! I have a new number +43650-555-1234")
+    sms._send(session=sess, recipient="06509876543", message="Meine neue Handynummer: +43650-555-1234")
+    sms._send(session=sess, recipient="06760001256", message="I changed my number to +43650-555-1234")
+    sms._logout()
+```
+
 ### Command Line Usage
 
 ```bash
