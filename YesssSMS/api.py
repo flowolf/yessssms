@@ -148,6 +148,7 @@ class YesssSMS:
         self._suspended = False
         self._logindata = {"login_rufnummer": login, "login_passwort": passwd}
 
+    @connection_error_handled
     def _login(self, session, get_request=False):
         """Return a session for provider.
 
@@ -171,6 +172,46 @@ class YesssSMS:
         self._suspended = False  # login worked
 
         return (session, req) if get_request else session
+
+    @connection_error_handled
+    def _logout(self, session):
+        """Logout of a session."""
+        session.get(self._logout_url)
+
+    @connection_error_handled
+    def _send(self, recipient, message, session):
+        """Send an SMS.
+
+        Needs a session, optained by _login().
+        You can use this function to send multiple SMS with an open session.
+        Close this session with _logout().
+        """
+        if not recipient:
+            raise self.NoRecipientError("YesssSMS: recipient number missing")
+        if not isinstance(recipient, str):
+            raise ValueError("YesssSMS: str expected as recipient number")
+        if not message:
+            raise self.EmptyMessageError("YesssSMS: message is empty")
+
+        csrf_token = self._get_csrf_token(session)
+
+        sms_data = {
+            "to_nummer": recipient,
+            "nachricht": message,
+            "token": csrf_token,
+        }
+        req = session.post(self._send_sms_url, data=sms_data)
+
+        if req.status_code not in (200, 302):
+            raise self.SMSSendingError("YesssSMS: error sending SMS (1)")
+
+        if _UNSUPPORTED_CHARS_STRING in req.text:
+            raise self.UnsupportedCharsError(
+                "YesssSMS: message contains unsupported character(s)"
+            )
+
+        if _SMS_SENDING_SUCCESSFUL_STRING not in req.text:
+            raise self.SMSSendingError("YesssSMS: error sending SMS (2)")
 
     def _get_csrf_token(self, sess):
         """Return the CSRF token for the SMS form."""
@@ -206,36 +247,13 @@ class YesssSMS:
 
     @connection_error_handled
     def send(self, recipient, message):
-        """Send an SMS."""
-        if not recipient:
-            raise self.NoRecipientError("YesssSMS: recipient number missing")
-        if not isinstance(recipient, str):
-            raise ValueError("YesssSMS: str expected as recipient number")
-        if not message:
-            raise self.EmptyMessageError("YesssSMS: message is empty")
+        """Send an SMS.
 
+        This logs in to the provider website, sends the SMS and logs out.
+        """
         with self._login(requests.Session()) as sess:
-            csrf_token = self._get_csrf_token(sess)
-
-            sms_data = {
-                "to_nummer": recipient,
-                "nachricht": message,
-                "token": csrf_token,
-            }
-            req = sess.post(self._send_sms_url, data=sms_data)
-
-            if req.status_code not in (200, 302):
-                raise self.SMSSendingError("YesssSMS: error sending SMS (1)")
-
-            if _UNSUPPORTED_CHARS_STRING in req.text:
-                raise self.UnsupportedCharsError(
-                    "YesssSMS: message contains unsupported character(s)"
-                )
-
-            if _SMS_SENDING_SUCCESSFUL_STRING not in req.text:
-                raise self.SMSSendingError("YesssSMS: error sending SMS (2)")
-
-            sess.get(self._logout_url)
+            self._send(recipient=recipient, message=message, session=sess)
+            self._logout(session=sess)
 
     def get_login_url(self):
         """Get provider's login URL."""
