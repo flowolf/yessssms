@@ -1,5 +1,10 @@
 # YesssSMS Changelog
 
+## 0.8.1
+
+- BREAKAGE WARNING: yesss.at might have permanently removed the web SMS feature on the customer page - this breaks YesssSMS
+- separate send from login and logout in YesssSMS class
+
 ## 0.8.0
 
 - dropped Python 3.7 support
