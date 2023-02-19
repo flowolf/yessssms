@@ -5,6 +5,8 @@
 YesssSMS let's you send SMS via yesss.at's website. Regular rates apply and a
 contract or prepaid plan is needed.
 
+:warning: It appears that Yesss has pulled the web SMS feature from their customer page in February 2023. This unfortunately breaks YesssSMS. Other MVNOs are probably also broken. :warning:
+
 Alternatively you can use MVNOs (Mobile Virtual Network Operators) that use the kontomanager.at web interface.
 These include:
 
