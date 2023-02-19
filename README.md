@@ -1,11 +1,15 @@
 # YesssSMS
 
-[![Python version](https://img.shields.io/pypi/pyversions/yessssms.svg)](https://gitlab.com/flowolf/yessssms) [![Gitlab CI Badge](https://gitlab.com/flowolf/yessssms/badges/master/pipeline.svg)](https://gitlab.com/flowolf/yessssms/pipelines) [![coverage report](https://gitlab.com/flowolf/yessssms/badges/master/coverage.svg)](https://gitlab.com/flowolf/yessssms/commits/master) [![pypi version](https://img.shields.io/pypi/v/yessssms.svg?color=blue)](https://pypi.org/project/yessssms) [![dev version](https://img.shields.io/badge/dynamic/json?color=yellow&label=dev&query=version&url=https%3A%2F%2Fgitlab.com%2Fflowolf%2Fyessssms%2Fraw%2Fmaster%2FYesssSMS%2Fversion.json&prefix=v)](https://gitlab.com/flowolf/yessssms) [![license](https://img.shields.io/pypi/l/yessssms.svg)](https://gitlab.com/flowolf/yessssms/blob/master/LICENSE.txt) [![documentation](https://img.shields.io/badge/sphinx-docs-blue)](https://flowolf.gitlab.io/yessssms/) [![downloads](https://img.shields.io/pypi/dm/yessssms)](https://pypi.org/project/yessssms)
+[![Package status](https://img.shields.io/badge/status-broken-red)](https://gitlab.com/flowolf/yessssms/#status) [![Python version](https://img.shields.io/pypi/pyversions/yessssms.svg)](https://gitlab.com/flowolf/yessssms) [![Gitlab CI Badge](https://gitlab.com/flowolf/yessssms/badges/master/pipeline.svg)](https://gitlab.com/flowolf/yessssms/pipelines) [![coverage report](https://gitlab.com/flowolf/yessssms/badges/master/coverage.svg)](https://gitlab.com/flowolf/yessssms/commits/master) [![pypi version](https://img.shields.io/pypi/v/yessssms.svg?color=blue)](https://pypi.org/project/yessssms) [![dev version](https://img.shields.io/badge/dynamic/json?color=yellow&label=dev&query=version&url=https%3A%2F%2Fgitlab.com%2Fflowolf%2Fyessssms%2Fraw%2Fmaster%2FYesssSMS%2Fversion.json&prefix=v)](https://gitlab.com/flowolf/yessssms) [![license](https://img.shields.io/pypi/l/yessssms.svg)](https://gitlab.com/flowolf/yessssms/blob/master/LICENSE.txt) [![documentation](https://img.shields.io/badge/sphinx-docs-blue)](https://flowolf.gitlab.io/yessssms/) [![downloads](https://img.shields.io/pypi/dm/yessssms)](https://pypi.org/project/yessssms)
+
+## Status
+
+It appears that Yesss has pulled the web SMS feature from their customer page in February 2023. This unfortunately breaks YesssSMS. Other MVNOs are probably also broken.
+
+## YesssSMS
 
 YesssSMS let's you send SMS via yesss.at's website. Regular rates apply and a
 contract or prepaid plan is needed.
-
-:warning: It appears that Yesss has pulled the web SMS feature from their customer page in February 2023. This unfortunately breaks YesssSMS. Other MVNOs are probably also broken. :warning:
 
 Alternatively you can use MVNOs (Mobile Virtual Network Operators) that use the kontomanager.at web interface.
 These include:
